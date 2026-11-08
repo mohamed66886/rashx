@@ -1,0 +1,19 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="figmaGrabShadow" x="-2" y="-2" width="28" height="28" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0.5" dy="1.5" stdDeviation="1" flood-color="#000000" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <g filter="url(#figmaGrabShadow)">
+    <!-- Figma Pan / Hand Tool -->
+    <path 
+      d="M17 8.5C17 7.7 16.3 7 15.5 7C14.7 7 14 7.7 14 8.5V10C14 9.2 13.3 8.5 12.5 8.5C11.7 8.5 11 9.2 11 10V8C11 7.2 10.3 6.5 9.5 6.5C8.7 6.5 8 7.2 8 8V11.5C8 11.1 7.7 10.8 7.3 10.8C6.5 10.8 5.8 11.5 5.8 12.3V14C5.8 17.5 8.5 20.5 12 20.5H13C16.5 20.5 19.5 17.5 19.5 14V11C19.5 10.2 18.8 9.5 18 9.5C17.5 9.5 17.2 9.8 17 10V8.5Z" 
+      fill="#000000" 
+      stroke="#FFFFFF" 
+      stroke-width="1.25" 
+      stroke-linecap="round" 
+      stroke-linejoin="round"
+    />
+  </g>
+</svg>
+

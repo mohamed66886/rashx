@@ -1,0 +1,137 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+/* RASHX Brand Font: Ping AR + LT */
+@font-face {
+  font-family: "Ping AR + LT";
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: local("Ping AR + LT"),
+       local("PingAR+LT"),
+       local("PingAR+LT-Regular"),
+       url("/fonts/PingAR+LT-Regular.woff2") format("woff2"),
+       url("/fonts/PingAR+LT-Regular.otf") format("opentype"),
+       url("/fonts/PingAR+LT-Regular.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Ping AR + LT";
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+  src: local("Ping AR + LT Medium"),
+       local("PingAR+LT-Medium"),
+       url("/fonts/PingAR+LT-Medium.woff2") format("woff2"),
+       url("/fonts/PingAR+LT-Medium.otf") format("opentype"),
+       url("/fonts/PingAR+LT-Medium.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Ping AR + LT";
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  src: local("Ping AR + LT Bold"),
+       local("PingAR+LT-Bold"),
+       url("/fonts/PingAR+LT-Bold.woff2") format("woff2"),
+       url("/fonts/PingAR+LT-Bold.otf") format("opentype"),
+       url("/fonts/PingAR+LT-Bold.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Ping AR + LT";
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+  src: local("Ping AR + LT ExtraBold"),
+       local("PingAR+LT-ExtraBold"),
+       url("/fonts/PingAR+LT-ExtraBold.woff2") format("woff2"),
+       url("/fonts/PingAR+LT-ExtraBold.otf") format("opentype"),
+       url("/fonts/PingAR+LT-ExtraBold.ttf") format("truetype");
+}
+
+:root {
+  --background: #FFFFFF;
+  --foreground: #000000;
+  --primary: #91B8C0;
+  --secondary: #F0C5AE;
+  --base: #FFFFFF;
+  --neutral: #E5E9E8;
+  --ink: #000000;
+  --ink-muted: #5E6665;
+  --dusty-blue: #91B8C0;
+  --warm-peach: #F0C5AE;
+  --mist-gray: #E5E9E8;
+  --font-brand: 'Ping AR + LT', 'PingAR+LT', 'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans Arabic', Tahoma, sans-serif;
+}
+
+@theme {
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-base: var(--base);
+  --color-neutral: var(--neutral);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-dusty-blue: var(--dusty-blue);
+  --color-warm-peach: var(--warm-peach);
+  --color-mist-gray: var(--mist-gray);
+  --font-brand: var(--font-brand);
+  --font-sans: var(--font-brand);
+}
+
+/* ==========================================================================
+   RASHX Custom Brand Cursors (Global)
+   ========================================================================== */
+:root {
+  --cursor-default: url('/cursors/default.svg') 2 2, auto;
+  --cursor-pointer: url('/cursors/pointer.svg') 8 2, pointer;
+  --cursor-text: url('/cursors/text.svg') 11 11, text;
+  --cursor-grab: url('/cursors/grab.svg') 11 11, grab;
+}
+
+html,
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-brand);
+  -webkit-font-smoothing: antialiased;
+  cursor: var(--cursor-default);
+}
+
+/* Interactive elements: buttons, links, controls */
+a,
+button,
+[role="button"],
+input[type="submit"],
+input[type="button"],
+input[type="reset"],
+input[type="checkbox"],
+input[type="radio"],
+select,
+.cursor-pointer,
+[tabindex]:not([tabindex="-1"]) {
+  cursor: var(--cursor-pointer) !important;
+}
+
+/* Text editing elements */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+input[type="tel"],
+input[type="url"],
+input[type="number"],
+textarea {
+  cursor: var(--cursor-text) !important;
+}
+
+/* Disabled elements */
+button:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled,
+[aria-disabled="true"],
+.cursor-not-allowed {
+  cursor: not-allowed !important;
+}
