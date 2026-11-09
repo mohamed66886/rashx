@@ -5,10 +5,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, X, Bell, ArrowUpRight } from 'lucide-react';
-import { Button } from './Button';
-import { Avatar, AvatarStatus } from './Avatar';
-import { DropdownButton, DropdownButtonItem } from './DropdownButton';
-import { LanguageToggle } from './LanguageToggle';
+import { Button } from '../Button';
+import { Avatar, AvatarStatus } from '../Avatar';
+import { DropdownButton, DropdownButtonItem } from '../DropdownButton';
+import { LanguageToggle } from '../LanguageToggle';
 
 /* =========================================================================
    TYPES & INTERFACES (أنواع البيانات والواجهات البرمجية)
@@ -88,6 +88,7 @@ const DEFAULT_MARKETING_LINKS: HeaderNavLink[] = [
   { label: 'الرئيسية', href: '/' },
   { label: 'الحلول والخدمات', href: '#features' },
   { label: 'الفوترة الإلكترونية', href: '#e-invoicing', badge: 'ZATCA 2' },
+  { label: 'الهوية والعلامة', href: '/brand', badge: 'Brand' },
   { label: 'الأسعار والباقات', href: '#pricing' },
   { label: 'تواصل معنا', href: '#contact' },
 ];
@@ -154,9 +155,9 @@ export const Header: React.FC<HeaderProps> = ({
       label: 'تخصيص الأفاتار (3D Animoji)',
       onClick: () => onAvatarClick?.(),
     },
-    { label: 'الملف الشخصي', onClick: () => {} },
-    { label: 'إعدادات المنظومة', onClick: () => {} },
-    { label: 'تسجيل الخروج', danger: true, onClick: () => {} },
+    { label: 'الملف الشخصي', onClick: () => { } },
+    { label: 'إعدادات المنظومة', onClick: () => { } },
+    { label: 'تسجيل الخروج', danger: true, onClick: () => { } },
   ];
 
   const resolvedUserMenuItems = userMenuItems || defaultUserMenuItems;
@@ -215,11 +216,10 @@ export const Header: React.FC<HeaderProps> = ({
                       href={link.href}
                       target={link.isExternal ? '_blank' : undefined}
                       rel={link.isExternal ? 'noopener noreferrer' : undefined}
-                      className={`relative flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-colors duration-150 ${
-                        isActive
+                      className={`relative flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-colors duration-150 ${isActive
                           ? 'bg-[#E5E9E8]/70 text-black font-bold'
                           : 'text-[#5E6665] hover:text-black hover:bg-[#E5E9E8]/40'
-                      }`}
+                        }`}
                     >
                       <span>{link.label}</span>
                       {link.badge && (
@@ -359,11 +359,10 @@ export const Header: React.FC<HeaderProps> = ({
                     key={idx}
                     href={link.href}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className={`flex items-center justify-between p-3 rounded-xl text-sm font-semibold transition-colors ${
-                      isActive
+                    className={`flex items-center justify-between p-3 rounded-xl text-sm font-semibold transition-colors ${isActive
                         ? 'bg-[#E5E9E8]/80 text-black font-bold'
                         : 'text-[#5E6665] hover:text-black hover:bg-[#E5E9E8]/40'
-                    }`}
+                      }`}
                   >
                     <span>{link.label}</span>
                     {link.badge && (

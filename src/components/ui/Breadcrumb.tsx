@@ -326,13 +326,19 @@ export const Breadcrumb = React.forwardRef<HTMLDivElement, BreadcrumbProps>(
     return (
       <div
         ref={ref}
-        className={cn(
-          'bg-white dark:bg-zinc-900 w-full border-none shadow-none ring-0 outline-none mb-4 rounded-lg select-none',
-          className
-        )}
-        style={{ border: 'none', boxShadow: 'none', outline: 'none' }}
         dir={isAr ? 'rtl' : 'ltr'}
         {...props}
+        className={cn(
+          'bg-white dark:bg-white w-full border-none shadow-none ring-0 outline-none mb-4 rounded-lg select-none',
+          className
+        )}
+        style={{
+          border: 'none',
+          boxShadow: 'none',
+          outline: 'none',
+          ...props.style,
+          backgroundColor: '#ffffff',
+        }}
       >
         <div className="flex overflow-x-auto hl-scroll items-center py-0.5 scrollbar-none">
           {allItems.map((item, index) => {

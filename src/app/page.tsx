@@ -28,6 +28,8 @@ import {
   Switch,
   Checkbox,
   Modal,
+  Chat,
+  FloatingChatWidget,
   Card,
   CardHeader,
   CardTitle,
@@ -64,7 +66,26 @@ import {
   CheckCircle2,
   RotateCcw,
   Sparkles,
+  UserPlus,
+  PackagePlus,
+  Scissors,
+  Receipt,
+  UserPlus2,
+  LogIn,
+  Calendar,
+  Building2,
 } from 'lucide-react';
+import {
+  FormCard,
+  AddCustomerCard,
+  AddProductCard,
+  AddStaffCard,
+  AddInvoiceCard,
+  RegisterAccountCard,
+  LoginCard,
+  AppointmentBookingCard,
+  SettingsFormCard,
+} from '@/components/form-cards';
 
 interface TransactionItem {
   id: string;
@@ -154,6 +175,8 @@ export default function Home() {
   // Navigation / Filter Tab
   type TabKey =
     | 'forms'
+    | 'form-cards'
+    | 'chat'
     | 'buttons'
     | 'tables'
     | 'popups'
@@ -162,6 +185,17 @@ export default function Home() {
     | 'upload'
     | 'cookies';
   const [activeTab, setActiveTab] = useState<TabKey>('forms');
+  const [showFloatingChat, setShowFloatingChat] = useState(true);
+  const [activeCardDemo, setActiveCardDemo] = useState<
+    | 'customer'
+    | 'product'
+    | 'staff'
+    | 'invoice'
+    | 'register'
+    | 'login'
+    | 'booking'
+    | 'settings'
+  >('customer');
   const [selectedTrxIds, setSelectedTrxIds] = useState<(string | number)[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
@@ -332,6 +366,8 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-[#E5E9E8] pb-6">
             <TabsList>
               <TabsTrigger value="forms">النماذج والحقول (Forms & Inputs)</TabsTrigger>
+              <TabsTrigger value="form-cards">كروت النماذج والتسجيل (Form Cards)</TabsTrigger>
+              <TabsTrigger value="chat">المحادثة والشات (Chat & Assistant)</TabsTrigger>
               <TabsTrigger value="avatars">اختيار الأفاتار (3D Animoji)</TabsTrigger>
               <TabsTrigger value="upload">رفع الملفات (File Upload)</TabsTrigger>
               <TabsTrigger value="buttons">الأزرار والقوائم (Buttons & Dropdowns)</TabsTrigger>
@@ -593,6 +629,237 @@ export default function Home() {
                 <span className="px-2.5 py-1 rounded-md text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                   متوافق
                 </span>
+              </div>
+            </div>
+          </div>
+        </TabsContent>
+
+        {/* SECTION: FORM, ADDITION & REGISTRATION CARDS */}
+        <TabsContent value="form-cards">
+          <div className="space-y-8">
+            {/* Header & Card Selector Pills */}
+            <div className="rounded-xl border border-[#E5E9E8]/70 bg-white p-6 sm:p-8 shadow-none space-y-6">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#E5E9E8] pb-5">
+                <div>
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <h2 className="text-2xl font-bold text-black tracking-tight">
+                      منظومة كروت النماذج والإضافة والتسجيل (Form Cards Suite)
+                    </h2>
+                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#91B8C0]/25 text-black border border-[#91B8C0]/40">
+                      مبنية 100% بمكونات UI
+                    </span>
+                  </div>
+                  <p className="text-sm text-[#5E6665] mt-2">
+                    كروت متكاملة وجاهزة للتشغيل (إضافة عميل، إضافة خدمة أو منتج، إضافة موظف، إصدار فاتورة، تسجيل حساب منشأة، تسجيل الدخول، حجز موعد، وإعدادات المنشأة) تدعم التفاعل وحالات التحميل.
+                  </p>
+                </div>
+              </div>
+
+              {/* Selector Pills */}
+              <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none flex-wrap">
+                {[
+                  { id: 'customer', label: 'إضافة عميل (Customer)', icon: UserPlus },
+                  { id: 'product', label: 'إضافة خدمة أو منتج (Service/Product)', icon: PackagePlus },
+                  { id: 'staff', label: 'إضافة موظف / حلاق (Staff)', icon: Scissors },
+                  { id: 'invoice', label: 'إنشاء فاتورة ضريبية (Invoice)', icon: Receipt },
+                  { id: 'register', label: 'تسجيل حساب صالون (Register)', icon: UserPlus2 },
+                  { id: 'login', label: 'تسجيل الدخول (Login)', icon: LogIn },
+                  { id: 'booking', label: 'حجز موعد صالون (Booking)', icon: Calendar },
+                  { id: 'settings', label: 'إعدادات المنشأة والضريبة (Settings)', icon: Building2 },
+                ].map((tab) => {
+                  const Icon = tab.icon;
+                  const isActive = activeCardDemo === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => setActiveCardDemo(tab.id as any)}
+                      className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+                        isActive
+                          ? 'bg-[#91B8C0] text-black shadow-xs ring-2 ring-[#91B8C0]/30'
+                          : 'bg-[#FAFBFB] text-[#5E6665] hover:text-black hover:bg-[#E5E9E8]/60 border border-[#E5E9E8]'
+                      }`}
+                    >
+                      <Icon className="w-3.5 h-3.5" />
+                      <span>{tab.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Active Card Container */}
+            <div className="max-w-4xl mx-auto">
+              {activeCardDemo === 'customer' && (
+                <AddCustomerCard
+                  onSave={async (data) => {
+                    await new Promise((r) => setTimeout(r, 800));
+                    setToastMessage(`تمت إضافة العميل «${data.fullName}» بنجاح!`);
+                  }}
+                  onCancel={() => setActiveTab('forms')}
+                />
+              )}
+
+              {activeCardDemo === 'product' && (
+                <AddProductCard
+                  onSave={async (data) => {
+                    await new Promise((r) => setTimeout(r, 800));
+                    setToastMessage(`تمت إضافة الصنف «${data.name}» بقيمة ${data.price} ر.س بنجاح!`);
+                  }}
+                  onCancel={() => setActiveTab('forms')}
+                />
+              )}
+
+              {activeCardDemo === 'staff' && (
+                <AddStaffCard
+                  onSave={async (data) => {
+                    await new Promise((r) => setTimeout(r, 800));
+                    setToastMessage(`تم تسجيل الحلاق «${data.fullName}» واعتماد نسبته بنجاح!`);
+                  }}
+                  onCancel={() => setActiveTab('forms')}
+                />
+              )}
+
+              {activeCardDemo === 'invoice' && (
+                <AddInvoiceCard
+                  onSave={async (data) => {
+                    await new Promise((r) => setTimeout(r, 800));
+                    setToastMessage('تم إصدار الفاتورة الضريبية وتوليد كود الـ QR بنجاح!');
+                  }}
+                  onCancel={() => setActiveTab('forms')}
+                />
+              )}
+
+              {activeCardDemo === 'register' && (
+                <RegisterAccountCard
+                  onRegister={async (data) => {
+                    await new Promise((r) => setTimeout(r, 900));
+                    setToastMessage(`تم إنشاء حساب «${data.businessName}» وتفعيل التجربة المجانية!`);
+                  }}
+                  onLoginClick={() => setActiveCardDemo('login')}
+                />
+              )}
+
+              {activeCardDemo === 'login' && (
+                <LoginCard
+                  onLogin={async (data) => {
+                    await new Promise((r) => setTimeout(r, 800));
+                    setToastMessage(`مرحباً بك مجدداً! تم تسجيل الدخول بنجاح`);
+                  }}
+                  onRegisterClick={() => setActiveCardDemo('register')}
+                  onForgotPasswordClick={() => alert('تم إرسال رابط استعادة كلمة المرور إلى بريدك')}
+                />
+              )}
+
+              {activeCardDemo === 'booking' && (
+                <AppointmentBookingCard
+                  onBook={async (data) => {
+                    await new Promise((r) => setTimeout(r, 800));
+                    setToastMessage(`تم تأكيد حجز الموعد باسم «${data.customerName}» في تمام الساعة ${data.time}!`);
+                  }}
+                  onCancel={() => setActiveTab('forms')}
+                />
+              )}
+
+              {activeCardDemo === 'settings' && (
+                <SettingsFormCard
+                  onSave={async (data) => {
+                    await new Promise((r) => setTimeout(r, 800));
+                    setToastMessage('تم حفظ الإعدادات الرسمية والامتثال الضريبي بنجاح!');
+                  }}
+                  onCancel={() => setActiveTab('forms')}
+                />
+              )}
+            </div>
+          </div>
+        </TabsContent>
+
+        {/* SECTION: CHAT & CONVERSATION SUITE */}
+        <TabsContent value="chat">
+          <div className="space-y-8">
+            <div className="rounded-xl border border-[#E5E9E8]/70 bg-white p-6 sm:p-8 shadow-none">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#E5E9E8] pb-5 mb-6">
+                <div>
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <h2 className="text-2xl font-bold text-black tracking-tight">
+                      مكون المحادثة والشات المباشر (RASHX Chat Component)
+                    </h2>
+                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#91B8C0]/25 text-black border border-[#91B8C0]/40">
+                      رد ذكي + تسجيل صوتي
+                    </span>
+                  </div>
+                  <p className="text-sm text-[#5E6665] mt-2">
+                    مكون محادثة متكامل يمكن تضمينه في أي صفحة أو كارت، أو استخدامه كـ Widget عائم في زاوية الشاشة. يدعم إرسال الرسائل، التسجيلات الصوتية، إرفاق الملفات والصور، واقتراحات الأسئلة السريعة.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant={showFloatingChat ? 'primary' : 'outline'}
+                    size="sm"
+                    onClick={() => setShowFloatingChat(!showFloatingChat)}
+                  >
+                    {showFloatingChat ? 'إخفاء الزر العائم' : 'إظهار الزر العائم (Widget)'}
+                  </Button>
+                </div>
+              </div>
+
+              {/* Chat Showcase Grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                {/* 1. Live Chat Component (Interactive) */}
+                <div className="lg:col-span-7">
+                  <div className="border border-[#E5E9E8] rounded-2xl shadow-sm overflow-hidden bg-white">
+                    <Chat
+                      title="المساعد الذكي لمنظومة HLAQA"
+                      subtitle="متصل الآن • يرد تلقائياً عبر الذكاء الاصطناعي"
+                      height="h-[560px]"
+                      autoBotReply={true}
+                    />
+                  </div>
+                </div>
+
+                {/* 2. Feature Highlights & Controls */}
+                <div className="lg:col-span-5 space-y-4">
+                  <div className="p-5 rounded-2xl border border-[#E5E9E8] bg-[#FAFBFB] space-y-3">
+                    <h3 className="font-bold text-sm text-black border-b border-[#E5E9E8] pb-2 flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-[#91B8C0]" />
+                      <span>مزايا مكون المحادثة RASHX Chat:</span>
+                    </h3>
+                    <ul className="text-xs text-[#5E6665] space-y-2.5 leading-relaxed">
+                      <li className="flex items-start gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#91B8C0] mt-1 shrink-0" />
+                        <span><strong>رد تفاعلي سياقي:</strong> يرد آلياً على الاستفسارات (حجز، فواتير، أسعار، خدمات).</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#91B8C0] mt-1 shrink-0" />
+                        <span><strong>رسائل صوتية (Voice Notes):</strong> تسجيل صوتي تفاعلي مع أمواج صوتية ومؤقت دقيق.</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#91B8C0] mt-1 shrink-0" />
+                        <span><strong>إرفاق الصور والمستندات:</strong> دعم اختيار الملفات المتعددة مع معاينة مصغرة وتنزيل.</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#91B8C0] mt-1 shrink-0" />
+                        <span><strong>أزرار الإجراءات السريعة:</strong> اقتراحات أسئلة بنقرة واحدة أسفل الرسائل وشريط الإدخال.</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#91B8C0] mt-1 shrink-0" />
+                        <span><strong>مؤشرات القراءة والتسليم:</strong> علامات الصحين الزرقاء (Read Receipts) مع الوقت والتاريخ.</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#91B8C0] mt-1 shrink-0" />
+                        <span><strong>ويدجت عائم (Floating Widget):</strong> نافذة منبثقة أسفل الشاشة بزر عائم وأفاتار 3D Animoji.</span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="p-5 rounded-2xl border border-[#91B8C0]/30 bg-[#91B8C0]/10 text-xs text-black space-y-2">
+                    <span className="font-bold block">💡 جرب المحادثة الحية الآن:</span>
+                    <p className="text-[#5E6665]">
+                      اكتب في الشات عبارات مثل <em>«أريد حجز موعد»</em>، <em>«استعلام عن الفاتورة»</em>، أو <em>«ما هي الأسعار؟»</em> وراقب الرد التلقائي وفقاعة الكتابة الحية!
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -1817,6 +2084,15 @@ export default function Home() {
         position="bottom-right"
         message="أهلاً بك في راش إكس! 🚀 جاهز لمساعدتك في أي استفسار حول الفواتير والامتثال المالي."
       />
+
+      {/* Floating Chat Widget on the bottom-left */}
+      {showFloatingChat && (
+        <FloatingChatWidget
+          position="bottom-left"
+          launcherAnimojiId={138}
+          badgeCount={1}
+        />
+      )}
       </main>
 
       {/* Reusable Footer Component */}

@@ -10,7 +10,7 @@ import {
   ShieldCheck,
   Heart,
 } from 'lucide-react';
-import { Button } from './Button';
+import { Button } from '../Button';
 
 /* =========================================================================
    TYPES & INTERFACES
@@ -101,6 +101,7 @@ const DEFAULT_FOOTER_COLUMNS: FooterColumn[] = [
     title: 'الشركة والسياسات',
     links: [
       { label: 'عن منصة راش إكس (RASHX)', href: '#about' },
+      { label: 'الهوية والعلامة التجارية (Brand Kit)', href: '/brand', badge: 'جديد' },
       { label: 'الشروط والأحكام المعتمدة', href: '#terms' },
       { label: 'سياسة الخصوصية وأمان البيانات', href: '#privacy' },
       { label: 'سياسة ملفات تعريف الارتباط', href: '#cookies' },
@@ -261,9 +262,8 @@ export const Footer: React.FC<FooterProps> = ({
             </Link>
             <span>•</span>
             <span
-              className={`rounded px-2 py-0.5 font-mono font-medium ${
-                isDark ? 'bg-white/10 text-[#91B8C0]' : 'bg-[#E5E9E8] text-black'
-              }`}
+              className={`rounded px-2 py-0.5 font-mono font-medium ${isDark ? 'bg-white/10 text-[#91B8C0]' : 'bg-[#E5E9E8] text-black'
+                }`}
             >
               v2.4.0
             </span>
@@ -369,11 +369,10 @@ export const Footer: React.FC<FooterProps> = ({
                     onChange={(e) => setNewsletterEmail(e.target.value)}
                     placeholder="أدخل بريدك الإلكتروني (e.g. name@company.sa)"
                     required
-                    className={`w-full flex-1 rounded-xl px-4 py-2.5 text-xs font-normal outline-none transition-colors focus-visible:outline-2 focus-visible:outline-[#91B8C0] sm:text-sm ${
-                      isDark
+                    className={`w-full flex-1 rounded-xl px-4 py-2.5 text-xs font-normal outline-none transition-colors focus-visible:outline-2 focus-visible:outline-[#91B8C0] sm:text-sm ${isDark
                         ? 'bg-[#000000] text-white placeholder:text-[#5E6665]'
                         : 'bg-[#F5F7F7] text-black placeholder:text-[#5E6665]/60'
-                    }`}
+                      }`}
                   />
                   <Button
                     type="submit"
@@ -411,9 +410,8 @@ export const Footer: React.FC<FooterProps> = ({
             {/* Compliance badges — بدون بوردر ولا ظل */}
             <div className="flex flex-wrap items-center gap-2 pt-1">
               <div
-                className={`inline-flex items-center gap-2 rounded-xl px-3 py-1.5 text-xs font-medium ${
-                  isDark ? 'bg-[#91B8C0]/15 text-white' : `${surfaceClass} text-black`
-                }`}
+                className={`inline-flex items-center gap-2 rounded-xl px-3 py-1.5 text-xs font-medium ${isDark ? 'bg-[#91B8C0]/15 text-white' : `${surfaceClass} text-black`
+                  }`}
                 title="نظام الفوترة الإلكترونية المعتمد من ZATCA (المرحلة الثانية)"
               >
                 <Image
@@ -427,9 +425,8 @@ export const Footer: React.FC<FooterProps> = ({
               </div>
 
               <div
-                className={`inline-flex items-center gap-2 rounded-xl px-3 py-1.5 text-xs font-medium ${
-                  isDark ? 'bg-[#F0C5AE]/15 text-white' : `${surfaceClass} text-black`
-                }`}
+                className={`inline-flex items-center gap-2 rounded-xl px-3 py-1.5 text-xs font-medium ${isDark ? 'bg-[#F0C5AE]/15 text-white' : `${surfaceClass} text-black`
+                  }`}
                 title="متوافق مع الهيئة السعودية للبيانات والذكاء الاصطناعي (SDAIA)"
               >
                 <Image
@@ -444,11 +441,10 @@ export const Footer: React.FC<FooterProps> = ({
 
               {vatNumber && (
                 <div
-                  className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 font-mono text-xs font-medium ${
-                    isDark
+                  className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 font-mono text-xs font-medium ${isDark
                       ? 'bg-[#F0C5AE]/15 text-[#F0C5AE]'
                       : 'bg-[#F0C5AE]/25 text-black'
-                  }`}
+                    }`}
                 >
                   <ShieldCheck className="h-3.5 w-3.5 text-[#F0C5AE]" />
                   <span>الرقم الضريبي: {vatNumber}</span>
@@ -469,11 +465,10 @@ export const Footer: React.FC<FooterProps> = ({
                         rel="noopener noreferrer"
                         aria-label={s.name}
                         title={s.name}
-                        className={`flex h-10 w-10 items-center justify-center rounded-xl text-xs font-medium transition-colors ${surfaceClass} ${
-                          isDark
+                        className={`flex h-10 w-10 items-center justify-center rounded-xl text-xs font-medium transition-colors ${surfaceClass} ${isDark
                             ? 'text-white hover:bg-[#91B8C0]/20'
                             : 'text-black hover:bg-[#91B8C0]/25'
-                        }`}
+                          }`}
                       >
                         {s.icon || s.name}
                       </a>
@@ -502,18 +497,16 @@ export const Footer: React.FC<FooterProps> = ({
                           href={link.href}
                           target={link.isExternal ? '_blank' : undefined}
                           rel={link.isExternal ? 'noopener noreferrer' : undefined}
-                          className={`inline-flex flex-wrap items-center gap-1.5 leading-relaxed transition-colors ${
-                            isDark ? 'hover:text-[#91B8C0]' : 'hover:text-black'
-                          }`}
+                          className={`inline-flex flex-wrap items-center gap-1.5 leading-relaxed transition-colors ${isDark ? 'hover:text-[#91B8C0]' : 'hover:text-black'
+                            }`}
                         >
                           <span>{link.label}</span>
                           {link.badge && (
                             <span
-                              className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${
-                                isDark
+                              className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${isDark
                                   ? 'bg-[#91B8C0]/20 text-[#91B8C0]'
                                   : 'bg-[#91B8C0]/20 text-black'
-                              }`}
+                                }`}
                             >
                               {link.badge}
                             </span>
