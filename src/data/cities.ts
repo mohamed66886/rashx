@@ -1004,3 +1004,4 @@ export const SAUDI_CITIES: Record<string, CityData> = {
 };
 
 export const SUPPORTED_CITY_SLUGS = Object.keys(SAUDI_CITIES);
+
