@@ -1,0 +1,125 @@
+{
+  "brand": {
+    "name": "RashX",
+    "nameEn": "RashX",
+    "fullName": "RashX – راش إكس",
+    "slogan": "RashX – More Than Management, A Complete Digital Experience.",
+    "subdomainFeature": "Independent Subdomain Ecosystem for Every Facility",
+    "zatcaBadge": "Supports ZATCA Phase 2 E-Invoicing requirements",
+    "pdplBadge": "Compliant with Saudi Personal Data Protection Law (PDPL)"
+  },
+  "nav": {
+    "solutions": "Solutions & Systems",
+    "features": "Features",
+    "pricing": "Pricing",
+    "security": "Security & PDPL",
+    "about": "About Us",
+    "blog": "Blog",
+    "contact": "Contact Us",
+    "demo": "Book a Demo",
+    "login": "Sign In",
+    "allSystems": "The 10 Core Systems",
+    "facilityTypes": "By Facility Type"
+  },
+  "actions": {
+    "bookDemo": "Book a Free Demo",
+    "exploreSystems": "Explore the 10 Systems",
+    "startTrial": "Start 14-Day Free Trial",
+    "contactSales": "Talk to an Advisor",
+    "chatWhatsapp": "Chat on WhatsApp",
+    "viewPricing": "View Pricing Plans",
+    "readMore": "Read More",
+    "submit": "Submit Request",
+    "submitting": "Submitting...",
+    "changeLanguage": "العربية",
+    "close": "Close",
+    "back": "Back"
+  },
+  "lead": {
+    "title": "Book a Personalized Demo for Your Facility",
+    "subtitle": "Discover how RashX empowers your salon or beauty center to automate appointments, sales, inventory, and comply with ZATCA Phase 2 E-Invoicing criteria.",
+    "nameLabel": "Full Name",
+    "namePlaceholder": "e.g. Sarah Al-Otaibi / Mohamed Al-Shammari",
+    "phoneLabel": "Mobile Number (Saudi)",
+    "phonePlaceholder": "05xxxxxxxx or +9665xxxxxxxx",
+    "facilityNameLabel": "Facility / Salon Name",
+    "facilityNamePlaceholder": "e.g. Silk Touch Salon / Elegance Spa",
+    "facilityTypeLabel": "Facility Type",
+    "facilityTypePlaceholder": "Select facility type",
+    "facilityTypes": {
+      "salon_women": "Women Beauty Salon / Studio",
+      "salon_men": "Men Barbershop / Grooming",
+      "beauty_center": "Full Beauty Complex",
+      "spa": "Spa & Wellness Center",
+      "clinic": "Derma & Aesthetic Clinic",
+      "other": "Other"
+    },
+    "cityLabel": "City",
+    "cityPlaceholder": "Select your city",
+    "cities": {
+      "riyadh": "Riyadh",
+      "jeddah": "Jeddah",
+      "makkah": "Makkah",
+      "madinah": "Madinah",
+      "dammam": "Dammam",
+      "khobar": "Khobar",
+      "dhahran": "Dhahran",
+      "ahsa": "Al-Ahsa",
+      "abha": "Abha",
+      "khamis": "Khamis Mushait",
+      "tabuk": "Tabuk",
+      "qassim": "Qassim (Buraidah / Unaizah)",
+      "taif": "Taif",
+      "other": "Other City"
+    },
+    "branchesLabel": "Number of Branches",
+    "branches": {
+      "1": "1 Branch",
+      "2_3": "2 - 3 Branches",
+      "4_10": "4 - 10 Branches",
+      "more_10": "More than 10 Branches (Chain)"
+    },
+    "messageLabel": "Notes or Specific Requirements (Optional)",
+    "messagePlaceholder": "Tell us about your top priorities or current software...",
+    "submitBtn": "Confirm Demo Booking",
+    "privacyNotice": "Your data is strictly protected under Saudi PDPL regulations and will never be shared.",
+    "successTitle": "Request Received Successfully!",
+    "successDesc": "A RashX specialist will contact you within two business hours to schedule your live walkthrough and setup your sandbox.",
+    "errorTitle": "Unable to Submit Request",
+    "errorDesc": "Please check your input details and try again."
+  },
+  "trust": {
+    "zatcaTitle": "E-Invoicing (ZATCA Phase 2)",
+    "zatcaDesc": "Supports ZATCA Phase 2 E-Invoicing requirements subject to facility onboarding status and integration criteria.",
+    "pdplTitle": "Data Privacy (PDPL)",
+    "pdplDesc": "Strict alignment with the Saudi Personal Data Protection Law.",
+    "subdomainTitle": "Independent Subdomain",
+    "subdomainDesc": "Each facility owns its dedicated cloud ecosystem and retains full data sovereignty.",
+    "securityTitle": "Role-Based Security",
+    "securityDesc": "Granular roles, logical multi-tenant isolation, and complete audit logging.",
+    "uptimeTitle": "99.9% Uptime",
+    "uptimeDesc": "High-availability cloud infrastructure ensuring zero business interruptions."
+  },
+  "footer": {
+    "copyright": "All Rights Reserved © 2026 RashX Platform",
+    "founderCredit": "Founded in 2026 by Eng. Mohamed Abdo Rashad Elbahy",
+    "quickContact": "Quick Contact",
+    "followUs": "Connect With Us",
+    "vatNote": "Prices exclude 15% Value Added Tax (VAT)"
+  },
+  "cookies": {
+    "bannerTitle": "Privacy Notice & Cookie Preferences",
+    "bannerDesc": "We use cookies to enhance your experience, deliver customized services, and analyze website traffic in compliance with the Saudi Personal Data Protection Law (PDPL).",
+    "acceptAll": "Accept All",
+    "rejectOptional": "Reject Non-Essential",
+    "customize": "Customize Preferences",
+    "save": "Save Choices",
+    "necessary": "Strictly Necessary Cookies",
+    "necessaryDesc": "Essential for core platform operations, security, and session management. Cannot be disabled.",
+    "analytics": "Analytical Cookies",
+    "analyticsDesc": "Helps us anonymously gauge traffic and improve user navigation performance.",
+    "marketing": "Marketing Cookies",
+    "marketingDesc": "Used to serve relevant promotional offers for your salon across Snapchat, TikTok, and Instagram."
+  }
+}
+

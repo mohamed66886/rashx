@@ -1,27 +1,30 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
+import { Locale, DEFAULT_LOCALE, isSupportedLocale } from '@/i18n/config';
+import { createTranslator } from '@/i18n/translations';
 
 /**
- * Lightweight safe next-intl shim for environments without next-intl installed.
+ * Lightweight safe next-intl drop-in replacement.
  * Automatically resolves active locale from URL pathname or document attributes.
  */
-export function useLocale(): string {
+export function useLocale(): Locale {
   const pathname = usePathname() ?? '';
   if (pathname.startsWith('/en')) return 'en';
   if (pathname.startsWith('/ar')) return 'ar';
   if (typeof document !== 'undefined') {
-    return document.documentElement.lang?.startsWith('en') ? 'en' : 'ar';
+    const docLang = document.documentElement.lang;
+    if (docLang && isSupportedLocale(docLang)) return docLang as Locale;
   }
-  return 'ar';
+  return DEFAULT_LOCALE;
 }
 
-export function useTranslations() {
-  return (key: string) => key;
+export function useTranslations(namespace: 'common' | 'seo' = 'common') {
+  const locale = useLocale();
+  return createTranslator(locale, namespace);
 }
 
 export default {
   useLocale,
   useTranslations,
 };
-

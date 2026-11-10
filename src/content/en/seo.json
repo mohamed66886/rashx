@@ -1,0 +1,57 @@
+{
+  "home": {
+    "title": "RashX | Smart Management System for Salons & Spas in Saudi Arabia",
+    "description": "Smart cloud platform for salons, studios, and spas in KSA. Dedicated subdomain, 10 integrated systems, supporting ZATCA Phase 2 E-Invoicing requirements.",
+    "keywords": [
+      "salon management software saudi",
+      "beauty parlor pos",
+      "barbershop booking system",
+      "zatca phase 2 salon e-invoicing",
+      "spa management platform",
+      "RashX"
+    ]
+  },
+  "features": {
+    "title": "RashX Features | Everything Your Salon Needs in One System",
+    "description": "Explore RashX features: 10 integrated systems covering POS, smart bookings, inventory, commissions, loyalty, and ZATCA Phase 2 readiness.",
+    "keywords": [
+      "salon management software features",
+      "saudi salon features",
+      "beauty commission tracker",
+      "salon stock control",
+      "client booking app"
+    ]
+  },
+  "pricing": {
+    "title": "RashX Pricing Plans | Flexible Tiers for Salons in KSA",
+    "description": "Explore RashX subscription plans in SAR: Basic, Professional, and Enterprise with a 14-day free trial on all 10 systems, ZATCA Phase 2 support, and zero risk.",
+    "keywords": [
+      "salon software pricing saudi",
+      "barbershop pos price SAR",
+      "rashx subscription plans",
+      "beauty salon software cost",
+      "RashX"
+    ]
+  },
+  "security": {
+    "title": "Security & PDPL Compliance | Data Isolation & Privacy",
+    "description": "Independent subdomain per facility, strict multi-tenant logical isolation, granular role permissions, and full alignment with Saudi PDPL.",
+    "keywords": ["salon data security", "saudi pdpl compliance", "multi tenant isolation", "zatca e-invoice"]
+  },
+  "demo": {
+    "title": "Book a Free Demo | Experience RashX for Your Facility",
+    "description": "Schedule a personalized live walkthrough for your salon or beauty center. Test the admin dashboard and client web portal with our specialists.",
+    "keywords": ["book rashx demo", "salon software live walkthrough", "try rashx free"]
+  },
+  "about": {
+    "title": "About RashX | Empowering the Saudi Beauty & Wellness Sector",
+    "description": "Founded in 2026 to pioneer the next generation of salon, spa, and beauty clinic management technology in Saudi Arabia.",
+    "keywords": ["about rashx", "rashx platform", "beauty tech saudi", "salon digitalization"]
+  },
+  "founder": {
+    "title": "Founder's Message | Eng. Mohamed Abdo Rashad Elbahy – RashX",
+    "description": "Vision and roadmap from Eng. Mohamed Abdo Rashad Elbahy on reimagining the digital experience for salons and wellness centers.",
+    "keywords": ["Mohamed Abdo Rashad Elbahy", "RashX founder", "RashX vision 2026"]
+  }
+}
+
