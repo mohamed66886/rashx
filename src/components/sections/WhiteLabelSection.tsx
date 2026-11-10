@@ -1,192 +1,159 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Palette, Sparkles, Check, Smartphone, FileText, Globe } from 'lucide-react';
+import { Palette, Smartphone, FileText, Globe } from 'lucide-react';
 import { Locale, DEFAULT_LOCALE } from '@/i18n/config';
+
+/**
+ * RASHX White Label section — simplified.
+ * The section itself uses the brand palette only (dusty-blue, warm-peach,
+ * mist-gray, ink, ink-muted). The four swatches below are demo client themes:
+ * they are meant to look different from RashX, so they keep their own colors.
+ */
 
 interface WhiteLabelSectionProps {
   locale?: Locale;
 }
 
+interface DemoTheme {
+  id: string;
+  nameAr: string;
+  nameEn: string;
+  primary: string; // brand color of the demo salon
+  onPrimary: string; // readable text color on top of `primary`
+  secondary: string; // soft background of the demo salon
+}
+
+const THEMES: DemoTheme[] = [
+  { id: 'rose-gold', nameAr: 'الوردي الذهبي', nameEn: 'Rose Gold', primary: '#E0A99A', onPrimary: '#4A2821', secondary: '#F8EBE7' },
+  { id: 'dusty-blue', nameAr: 'الأزرق الهادئ', nameEn: 'Dusty Blue', primary: '#91B8C0', onPrimary: '#1F3438', secondary: '#EFF5F7' },
+  { id: 'royal-emerald', nameAr: 'الزمردي الملكي', nameEn: 'Royal Emerald', primary: '#2E6F5E', onPrimary: '#FFFFFF', secondary: '#EBF4F1' },
+  { id: 'luxury-gold', nameAr: 'الذهبي الفاخر', nameEn: 'Luxury Gold', primary: '#C9A96E', onPrimary: '#1C1917', secondary: '#FBF8F2' },
+];
+
 export const WhiteLabelSection: React.FC<WhiteLabelSectionProps> = ({
   locale = DEFAULT_LOCALE,
 }) => {
   const isAr = locale === 'ar';
+  const [activeId, setActiveId] = useState(THEMES[0].id);
+  const theme = THEMES.find((t) => t.id === activeId) ?? THEMES[0];
 
-  const themes = [
+  const features = [
     {
-      id: 'rose-gold',
-      nameAr: 'الوردي الذهبي (Rose Gold)',
-      nameEn: 'Rose Gold Luxury',
-      primary: '#E0A99A',
-      secondary: '#F8EBE7',
-      text: '#4A2821',
-      bgClass: 'bg-[#E0A99A]',
+      icon: Smartphone,
+      titleAr: 'تطبيق حجز العميلة',
+      titleEn: 'Client booking app',
+      descAr: 'شعارك وألوانك على كل شاشات الحجز واختيار الأخصائية.',
+      descEn: 'Your logo and colors on every booking screen.',
     },
     {
-      id: 'dusty-blue',
-      nameAr: 'الأزرق الهادئ (Dusty Blue)',
-      nameEn: 'Dusty Blue Calm',
-      primary: '#91B8C0',
-      secondary: '#EFF5F7',
-      text: '#1F3438',
-      bgClass: 'bg-[#91B8C0]',
+      icon: FileText,
+      titleAr: 'الفواتير والإيصالات',
+      titleEn: 'Invoices & receipts',
+      descAr: 'ترويس الفاتورة بشعارك ورقمك الضريبي وبياناتك الرسمية.',
+      descEn: 'Receipts headed with your logo, VAT number and details.',
     },
     {
-      id: 'royal-emerald',
-      nameAr: 'الزمردي الملكي (Emerald Spa)',
-      nameEn: 'Royal Emerald',
-      primary: '#2E6F5E',
-      secondary: '#EBF4F1',
-      text: '#0D2D24',
-      bgClass: 'bg-[#2E6F5E]',
-    },
-    {
-      id: 'luxury-noir',
-      nameAr: 'الأسود والذهبي الفاخر',
-      nameEn: 'Luxury Noir & Gold',
-      primary: '#C9A96E',
-      secondary: '#FBF8F2',
-      text: '#1C1917',
-      bgClass: 'bg-[#C9A96E]',
+      icon: Globe,
+      titleAr: 'نطاق خاص بصالونك',
+      titleEn: 'Your own subdomain',
+      descAr: 'your-salon.rashx.org',
+      descEn: 'your-salon.rashx.org',
     },
   ];
 
-  const [activeTheme, setActiveTheme] = useState(themes[0]);
-
   return (
-    <section className="py-16 md:py-24 bg-[#FAFBFB] border-t border-mist-gray">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-3xl mx-auto space-y-4 mb-12">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-mist-gray text-ink text-xs font-bold">
-            <Palette className="w-3.5 h-3.5 text-dusty-blue" />
-            <span>{isAr ? 'علامة بيضاء بالكامل (White Label)' : '100% White Label Customization'}</span>
+    <section dir={isAr ? 'rtl' : 'ltr'} className="border-t border-mist-gray bg-white py-16 md:py-24">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="mx-auto mb-10 max-w-3xl space-y-4 text-center md:mb-14">
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-mist-gray/60 px-3 py-1 text-xs font-bold text-ink">
+            <Palette className="h-3.5 w-3.5 text-dusty-blue" aria-hidden="true" />
+            <span>{isAr ? 'علامة بيضاء (White Label)' : 'White Label'}</span>
           </div>
 
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-ink tracking-tight">
-            {isAr
-              ? 'هويتك أولاً: تخصيص كامل للشعار والألوان والنطاق'
-              : 'Your Brand First: Complete Customization of Logo, Colors & Subdomain'}
+          <h2 className="text-balance text-2xl font-extrabold text-ink sm:text-3xl md:text-4xl">
+            {isAr ? 'هويتك أولاً: الشعار والألوان والنطاق' : 'Your brand first: logo, colors & subdomain'}
           </h2>
 
-          <p className="text-sm sm:text-base text-ink-muted leading-relaxed">
+          <p className="text-sm leading-relaxed text-ink-muted sm:text-base">
             {isAr
-              ? 'صالونك أو مركزك التجميلي هو النجم الأوحد. راش إكس تعمل كشريك تقني صامت في الخلفية، بينما تظهر واجهات الحجز والتطبيقات والفواتير بشعارك وألوانك الحصرية.'
-              : 'Your beauty salon is the hero. RashX powers your backend silently, while all client portals, appointments, and receipts shine in your brand colors and logo.'}
+              ? 'صالونك هو النجم. راش إكس تعمل بهدوء في الخلفية، وتظهر واجهات الحجز والتطبيقات والفواتير بشعارك وألوانك.'
+              : 'Your salon is the hero. RashX works quietly in the background while booking pages, apps and receipts show your logo and colors.'}
           </p>
-
-          {/* Interactive Palette Switcher */}
-          <div className="pt-4 flex flex-wrap items-center justify-center gap-3">
-            <span className="text-xs font-bold text-ink me-2">
-              {isAr ? 'جرّب تغيير هوية الصالون:' : 'Preview Brand Themes:'}
-            </span>
-            {themes.map((theme) => (
-              <button
-                key={theme.id}
-                type="button"
-                onClick={() => setActiveTheme(theme)}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
-                  activeTheme.id === theme.id
-                    ? 'border-ink bg-white shadow-xs scale-105'
-                    : 'border-mist-gray bg-white/70 hover:bg-white text-ink-muted'
-                }`}
-              >
-                <span
-                  className="w-3.5 h-3.5 rounded-full border border-black/10 shrink-0"
-                  style={{ backgroundColor: theme.primary }}
-                />
-                <span>{isAr ? theme.nameAr : theme.nameEn}</span>
-                {activeTheme.id === theme.id && <Check className="w-3 h-3 text-ink" />}
-              </button>
-            ))}
-          </div>
         </div>
 
-        {/* Visual Showcase: Mobile App Mockup & Customization Details */}
-        <div className="max-w-4xl mx-auto rounded-3xl p-6 sm:p-10 bg-white border border-mist-gray shadow-xl grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
-          {/* Left: Customization Pillars (7 cols) */}
-          <div className="md:col-span-7 space-y-5">
-            <div className="space-y-1">
-              <span className="text-xs font-bold uppercase tracking-wider text-dusty-blue">
-                {isAr ? 'تجربة رقمية فريدة لعميلاتك' : 'Unique Digital Touchpoint'}
-              </span>
-              <h3 className="text-xl sm:text-2xl font-bold text-ink">
-                {isAr
-                  ? 'صالونك، ألوانك، شعارك، ونطاقك الخاص'
-                  : 'Your Logo, Your Palette, Your Domain'}
-              </h3>
-            </div>
+        {/* Showcase */}
+        <div className="mx-auto grid max-w-5xl items-center gap-10 rounded-3xl bg-neutral/40 p-6 sm:p-10 md:grid-cols-2 md:gap-12">
+          {/* Details + swatches */}
+          <div className="space-y-6">
+            <ul className="space-y-4">
+              {features.map((f) => {
+                const Icon = f.icon;
+                return (
+                  <li key={f.titleEn} className="flex items-start gap-3">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-dusty-blue/30 text-ink">
+                      <Icon className="h-4.5 w-4.5" aria-hidden="true" />
+                    </span>
+                    <div>
+                      <div className="text-sm font-bold text-ink">{isAr ? f.titleAr : f.titleEn}</div>
+                      <div
+                        className="text-xs leading-relaxed text-ink-muted sm:text-sm"
+                        dir={f.titleEn === 'Your own subdomain' ? 'ltr' : undefined}
+                      >
+                        {isAr ? f.descAr : f.descEn}
+                      </div>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
 
-            <p className="text-xs sm:text-sm text-ink-muted leading-relaxed">
-              {isAr
-                ? 'عندما تفتح عميلتك صفحة الحجز أو تستلم الفاتورة، ترى فقط اسم صالونك وهويتك المميزة، مما يرسخ مكانة علامتك التجارية الفاخرة في ذهنها.'
-                : 'Whenever your clients book or receive invoices, they experience only your unique brand presence, reinforcing your salon’s luxury reputation.'}
-            </p>
-
-            <div className="space-y-3 pt-2 text-xs">
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-lg bg-mist-gray/60 flex items-center justify-center shrink-0 mt-0.5">
-                  <Smartphone className="w-3.5 h-3.5 text-ink" />
-                </div>
-                <div>
-                  <div className="font-bold text-ink">
-                    {isAr ? 'تطبيق حجز العميل (PWA)' : 'Client Booking Portal (PWA)'}
-                  </div>
-                  <div className="text-ink-muted text-[11px]">
-                    {isAr ? 'شعارك وألوانك المختارة تكسو شاشات الحجز واختيار الأخصائيات.' : 'Your logo and color scheme customize every booking screen.'}
-                  </div>
-                </div>
+            <div className="space-y-3 border-t border-mist-gray pt-5">
+              <div className="flex items-center justify-between gap-3 text-xs">
+                <span className="font-bold text-ink">
+                  {isAr ? 'جرّب هوية مختلفة:' : 'Try a different brand:'}
+                </span>
+                <span className="font-semibold text-ink-muted">{isAr ? theme.nameAr : theme.nameEn}</span>
               </div>
 
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-lg bg-mist-gray/60 flex items-center justify-center shrink-0 mt-0.5">
-                  <FileText className="w-3.5 h-3.5 text-ink" />
-                </div>
-                <div>
-                  <div className="font-bold text-ink">
-                    {isAr ? 'الفواتير وإيصالات الكاشير' : 'Invoices & Receipts'}
-                  </div>
-                  <div className="text-ink-muted text-[11px]">
-                    {isAr ? 'طباعة وترويس الفاتورة بشعارك ورقمك الضريبي وبياناتك الرسمية.' : 'Printed & digital tax receipts branded with your exact credentials.'}
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-lg bg-mist-gray/60 flex items-center justify-center shrink-0 mt-0.5">
-                  <Globe className="w-3.5 h-3.5 text-ink" />
-                </div>
-                <div>
-                  <div className="font-bold text-ink">
-                    {isAr ? 'النطاق المخصص أو الفرعي' : 'Custom Subdomain'}
-                  </div>
-                  <div className="text-ink-muted text-[11px]" dir="ltr">
-                    your-salon.rashx.org
-                  </div>
-                </div>
+              <div className="flex items-center gap-3">
+                {THEMES.map((th) => {
+                  const active = th.id === activeId;
+                  return (
+                    <button
+                      key={th.id}
+                      type="button"
+                      onClick={() => setActiveId(th.id)}
+                      aria-pressed={active}
+                      aria-label={isAr ? th.nameAr : th.nameEn}
+                      className={`h-9 w-9 rounded-full border-2 border-white transition-shadow ${
+                        active ? 'ring-2 ring-ink' : 'ring-1 ring-mist-gray hover:ring-ink/40'
+                      }`}
+                      style={{ backgroundColor: th.primary }}
+                    />
+                  );
+                })}
               </div>
             </div>
           </div>
 
-          {/* Right: Interactive Themed Card Preview (5 cols) */}
-          <div className="md:col-span-5 flex justify-center">
-            <div className="w-full max-w-xs rounded-3xl p-5 border shadow-2xl transition-all duration-300 space-y-4"
-              style={{
-                backgroundColor: activeTheme.secondary,
-                borderColor: `${activeTheme.primary}40`,
-              }}
+          {/* Live preview of the demo salon */}
+          <div className="flex justify-center">
+            <div
+              className="w-full max-w-xs space-y-4 rounded-3xl border p-5 transition-colors duration-300"
+              style={{ backgroundColor: theme.secondary, borderColor: `${theme.primary}55` }}
             >
-              {/* Salon Branded Header */}
-              <div className="text-center space-y-2 border-b pb-3" style={{ borderColor: `${activeTheme.primary}30` }}>
+              <div className="space-y-2 border-b pb-3 text-center" style={{ borderColor: `${theme.primary}40` }}>
                 <div
-                  className="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center text-white font-bold text-sm shadow-sm transition-colors duration-300"
-                  style={{ backgroundColor: activeTheme.primary }}
+                  className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl text-xs font-extrabold transition-colors duration-300"
+                  style={{ backgroundColor: theme.primary, color: theme.onPrimary }}
                 >
                   LOGO
                 </div>
                 <div>
                   <div className="text-xs font-bold text-ink">
-                    {isAr ? 'صالون لمسة الجمال الفاخر' : 'Luxury Touch Beauty Studio'}
+                    {isAr ? 'صالون لمسة الجمال' : 'Luxury Touch Beauty'}
                   </div>
                   <div className="text-[10px] text-ink-muted" dir="ltr">
                     salon-beauty.rashx.org
@@ -194,29 +161,25 @@ export const WhiteLabelSection: React.FC<WhiteLabelSectionProps> = ({
                 </div>
               </div>
 
-              {/* Service Mock Item */}
-              <div className="p-3 rounded-2xl bg-white shadow-2xs space-y-2">
+              <div className="space-y-2 rounded-2xl bg-white p-3">
                 <div className="flex items-center justify-between text-xs font-bold text-ink">
                   <span>{isAr ? 'تصفيف شعر وعناية' : 'Hair Styling & Care'}</span>
-                  <span className="font-mono" style={{ color: activeTheme.primary }}>
-                    180 ر.س
-                  </span>
+                  <span className="font-mono">{isAr ? '180 ر.س' : '180 SAR'}</span>
                 </div>
                 <div className="text-[10px] text-ink-muted">
-                  {isAr ? 'المدة: 45 دقيقة • مع سارة الأخصائية' : 'Duration: 45 min • with Sarah'}
+                  {isAr ? '45 دقيقة • مع سارة' : '45 min • with Sarah'}
                 </div>
                 <button
                   type="button"
-                  className="w-full py-2 text-xs font-bold text-white rounded-xl shadow-xs transition-colors duration-300"
-                  style={{ backgroundColor: activeTheme.primary }}
+                  className="w-full rounded-xl py-2 text-xs font-bold transition-colors duration-300"
+                  style={{ backgroundColor: theme.primary, color: theme.onPrimary }}
                 >
-                  {isAr ? 'تأكيد الحجز الفوري' : 'Confirm Appointment'}
+                  {isAr ? 'تأكيد الحجز' : 'Confirm Appointment'}
                 </button>
               </div>
 
-              {/* Bottom Tag */}
-              <div className="text-center text-[10px] text-ink-muted/80">
-                {isAr ? '✓ تعمل بهدوء بواسطة راش إكس' : '✓ Powered securely by RashX'}
+              <div className="text-center text-[10px] text-ink-muted">
+                {isAr ? 'تعمل بهدوء بواسطة راش إكس' : 'Powered quietly by RashX'}
               </div>
             </div>
           </div>
@@ -227,4 +190,3 @@ export const WhiteLabelSection: React.FC<WhiteLabelSectionProps> = ({
 };
 
 export default WhiteLabelSection;
-

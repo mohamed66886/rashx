@@ -14,9 +14,20 @@ import {
 } from 'lucide-react';
 import { Locale, DEFAULT_LOCALE } from '@/i18n/config';
 
+/**
+ * RASHX Target Facilities — simplified.
+ * Brand colors only: dusty-blue, warm-peach, mist-gray, ink, ink-muted.
+ * Each card is a single link to its /for/[slug] page.
+ */
+
 interface TargetFacilitiesProps {
   locale?: Locale;
 }
+
+const TONES = {
+  blue: { tile: 'bg-dusty-blue/30', check: 'bg-dusty-blue/30' },
+  peach: { tile: 'bg-warm-peach/40', check: 'bg-warm-peach/50' },
+} as const;
 
 export const TargetFacilities: React.FC<TargetFacilitiesProps> = ({
   locale = DEFAULT_LOCALE,
@@ -29,142 +40,141 @@ export const TargetFacilities: React.FC<TargetFacilitiesProps> = ({
       id: 'women-salons',
       slug: 'beauty-salons',
       icon: Sparkles,
+      tone: 'blue' as const,
       titleAr: 'الصالونات النسائية والمشاغل',
       titleEn: 'Women Beauty Salons & Studios',
-      taglineAr: 'إدارة متكاملة للتصفيف، الصبغات، المكياج، والأظافر',
-      taglineEn: 'Styling, color formulas, makeup & nail artistry',
+      taglineAr: 'التصفيف والصبغات والمكياج والأظافر',
+      taglineEn: 'Styling, color, makeup & nails',
       descAr:
-        'نظام مصمم خصيصًا لطبيعة المشاغل النسائية: حفظ أرقام درجات الصبغات في ملف العميلة، حساب استهلاك المواد من المستودع، وتنظيم حجز باقات العرائس المتسلسلة.',
+        'نظام مصمم لطبيعة المشاغل النسائية: حفظ درجات الصبغات في ملف العميلة، حساب استهلاك المواد، وتنظيم باقات العرائس المتسلسلة.',
       descEn:
-        'Tailored to styling studios: digital hair formula notebooks, automated dye consumption deductions, and sequential bridal package scheduling.',
+        'Built for styling studios: digital formula notebooks, automatic dye consumption and sequential bridal packages.',
       highlightsAr: ['سجل معادلات الصبغة وتفضيلات العميلات', 'حساب عمولات الخبيرات حسب الخدمة', 'باقات متسلسلة للعرائس والمناسبات'],
-      highlightsEn: ['Hair color formula history', 'Tiered specialist commission rates', 'Sequential bridal & glam packages'],
+      highlightsEn: ['Hair color formula history', 'Tiered specialist commissions', 'Sequential bridal & glam packages'],
     },
     {
       id: 'barbershops',
       slug: 'barbershops',
       icon: Scissors,
+      tone: 'peach' as const,
       titleAr: 'الصالونات الرجالية ومراكز الحلاقة',
       titleEn: 'Men Barbershops & Grooming',
-      taglineAr: 'سرعة إنهاء الحسابات وإدارة كراسي الحلاقة والدور',
-      taglineEn: 'Fast chair turnover, queue control & commissions',
+      taglineAr: 'سرعة الحسابات وإدارة الكراسي والدور',
+      taglineEn: 'Fast checkout, chairs & queue',
       descAr:
-        'نقطة بيع سريعة بلمسة واحدة على الآيباد، إدارة طابور الانتظار، حجز الحلاق المفضل، وتوزيع عمولات كل حلاق بنهاية الوردية في ثوانٍ معدودة.',
+        'نقطة بيع سريعة بلمسة واحدة، إدارة طابور الانتظار، حجز الحلاق المفضل، وتوزيع العمولات بنهاية الوردية في ثوانٍ.',
       descEn:
-        'One-touch fast POS checkout, smart queue management, preferred barber bookings, and instant end-of-shift commission reconciliation.',
+        'One-touch POS, queue management, preferred barber bookings and instant end-of-shift commissions.',
       highlightsAr: ['نقاط بيع فورية بلمسة واحدة', 'تنظيم طابور الانتظار وحجز الكرسي', 'تقفيل يومي سريع للصندوق والعمولات'],
-      highlightsEn: ['One-touch rapid POS checkout', 'Chair queue & waitlist control', 'Fast end-of-shift cash drawer balance'],
+      highlightsEn: ['One-touch POS checkout', 'Chair queue & waitlist', 'Fast end-of-shift drawer balance'],
     },
     {
       id: 'beauty-centers',
       slug: 'beauty-salons', // maps to beauty centers
       icon: Store,
+      tone: 'peach' as const,
       titleAr: 'مراكز ومجمعات التجميل المتكاملة',
       titleEn: 'Full Beauty Complexes',
-      taglineAr: 'إدارة الأقسام المتعددة والفروع والخدمات المجمعة',
-      taglineEn: 'Multi-department, multi-floor & branch oversight',
+      taglineAr: 'الأقسام المتعددة والفروع والخدمات المجمعة',
+      taglineEn: 'Multi-department & multi-branch',
       descAr:
-        'تحكم مركزي لمجمعات التجميل الكبرى: ربط قسم الشعر بقسم العناية بالبشرة والأظافر في فاتورة موحدة، مع تقارير أداء تفصيلية لكل قسم وربط متطلبات ZATCA.',
+        'تحكم مركزي للمجمعات الكبرى: فاتورة موحدة تجمع الشعر والبشرة والأظافر، مع تقارير أداء لكل قسم وربط متطلبات ZATCA.',
       descEn:
-        'Central HQ control for multi-department beauty complexes: consolidate hair, skin, and nails in a unified invoice with multi-level tax reporting.',
+        'Central control for large complexes: one invoice across hair, skin and nails, with per-department reports and tax reporting.',
       highlightsAr: ['فاتورة واحدة جامعة لأكثر من قسم', 'تقارير أرباح وإنتاجية لكل قسم', 'إدارة فروع متعددة ونطاقات مخصصة'],
-      highlightsEn: ['Unified multi-department billings', 'Departmental P&L analytics', 'Multi-branch subdomain management'],
+      highlightsEn: ['Unified multi-department billing', 'Departmental P&L analytics', 'Multi-branch subdomains'],
     },
     {
       id: 'spas',
       slug: 'spas',
       icon: Flower2,
+      tone: 'blue' as const,
       titleAr: 'مراكز السبا والاستجمام',
       titleEn: 'Spa & Wellness Centers',
-      taglineAr: 'إدارة أجنحة المساج، الجلسات الممتدة، والاشتراكات',
-      taglineEn: 'Treatment suites, extended sessions & memberships',
+      taglineAr: 'أجنحة المساج والجلسات الممتدة والاشتراكات',
+      taglineEn: 'Suites, long sessions & memberships',
       descAr:
-        'جدولة أجنحة المساج وغرف الحمام المغربي، احتساب الفترات المستقطعة للتعقيم والتجهيز، وبيع بطاقات العضوية وباقات الجلسات الدورية مسبقة الدفع.',
+        'جدولة أجنحة المساج والحمام المغربي، احتساب فترات التعقيم والتجهيز، وبيع بطاقات العضوية وباقات الجلسات مسبقة الدفع.',
       descEn:
-        'Manage massage suites and Moroccan baths, automated sanitation buffer times, and prepaid recurring membership package engines.',
+        'Schedule massage suites and baths, automatic sanitation buffers, and prepaid membership packages.',
       highlightsAr: ['جدولة الغرف وأوقات التعقيم بين الجلسات', 'باقات اشتراكات شهرية ودورية', 'تتبع استهلاك زيوت ومستحضرات السبا'],
-      highlightsEn: ['Sanitation buffer scheduling', 'Monthly membership subscriptions', 'Spa oils & treatment supply tracking'],
+      highlightsEn: ['Sanitation buffer scheduling', 'Monthly membership plans', 'Spa oils & supplies tracking'],
     },
   ];
 
   return (
-    <section className="py-16 md:py-24 bg-white border-t border-mist-gray" id="for">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section
+      dir={isAr ? 'rtl' : 'ltr'}
+      id="for"
+      className="border-t border-mist-gray bg-white py-16 md:py-24"
+    >
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto space-y-4 mb-14">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-mist-gray text-ink text-xs font-bold">
-            <Building2 className="w-3.5 h-3.5 text-dusty-blue" />
+        <div className="mx-auto mb-12 max-w-3xl space-y-4 text-center md:mb-14">
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-mist-gray/60 px-3 py-1 text-xs font-bold text-ink">
+            <Building2 className="h-3.5 w-3.5 text-dusty-blue" aria-hidden="true" />
             <span>{isAr ? 'حلول مخصصة لمنشأتك' : 'Tailored Salon Solutions'}</span>
           </div>
 
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-ink tracking-tight">
-            {isAr
-              ? 'لمن نصلح؟ حلول مفصلة لجميع أنواع منشآت التجميل والعناية'
-              : 'Who We Serve: Tailored Solutions for Every Beauty Facility'}
+          <h2 className="text-balance text-2xl font-extrabold text-ink sm:text-3xl md:text-4xl">
+            {isAr ? 'لمن نصلح؟ حلول لكل أنواع منشآت التجميل' : 'Who we serve: a fit for every beauty facility'}
           </h2>
 
-          <p className="text-sm sm:text-base text-ink-muted leading-relaxed">
+          <p className="text-sm leading-relaxed text-ink-muted sm:text-base">
             {isAr
-              ? 'سواء كنت تدير مشغلاً نسائيًا فرديًا، مركز حلاقة رجالي سريع، مجمع تجميل فاخر، أو مركز سبا واستجمام، راش إكس توفر لك التدفق التشغيلي المثالي.'
-              : 'Whether operating an independent women’s studio, a high-volume barbershop, a luxury beauty center, or a wellness spa, RashX adapts to your workflow.'}
+              ? 'مشغل نسائي، صالون رجالي، مجمع تجميل، أو مركز سبا: راش إكس تتكيف مع طريقة عملك.'
+              : 'A women’s studio, a busy barbershop, a beauty complex or a spa: RashX adapts to the way you work.'}
           </p>
         </div>
 
-        {/* 4 Facilities Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+        {/* Cards */}
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {facilities.map((fac) => {
             const Icon = fac.icon;
+            const tone = TONES[fac.tone];
 
             return (
-              <div
+              <Link
                 key={fac.id}
-                className="group p-6 sm:p-8 rounded-3xl bg-[#FAFBFB] border border-mist-gray hover:border-dusty-blue/60 hover:bg-white hover:shadow-xl transition-all duration-300 flex flex-col justify-between space-y-6"
+                href={`/${locale}/for/${fac.slug}`}
+                className="group flex flex-col gap-5 rounded-3xl border border-mist-gray bg-white p-6 transition-colors hover:border-ink sm:p-8"
               >
-                <div className="space-y-4">
-                  {/* Top Bar with Icon & Tag */}
-                  <div className="flex items-center justify-between">
-                    <div className="w-12 h-12 rounded-2xl bg-white border border-mist-gray flex items-center justify-center text-ink group-hover:bg-dusty-blue group-hover:text-black transition-colors shadow-2xs">
-                      <Icon className="w-6 h-6" />
-                    </div>
-                    <span className="text-xs font-semibold text-dusty-blue">
-                      {isAr ? fac.taglineAr : fac.taglineEn}
-                    </span>
-                  </div>
-
-                  {/* Title & Description */}
-                  <div>
-                    <h3 className="text-xl font-bold text-ink group-hover:text-dusty-blue transition-colors">
+                <div className="flex items-center gap-4">
+                  <span
+                    className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-ink ${tone.tile}`}
+                  >
+                    <Icon className="h-6 w-6" />
+                  </span>
+                  <div className="space-y-0.5">
+                    <h3 className="text-lg font-extrabold leading-snug text-ink sm:text-xl">
                       {isAr ? fac.titleAr : fac.titleEn}
                     </h3>
-                    <p className="text-xs sm:text-sm text-ink-muted leading-relaxed mt-2">
-                      {isAr ? fac.descAr : fac.descEn}
+                    <p className="text-xs font-semibold text-ink-muted">
+                      {isAr ? fac.taglineAr : fac.taglineEn}
                     </p>
                   </div>
-
-                  {/* Bullet Highlights */}
-                  <ul className="space-y-2 pt-2 border-t border-mist-gray/60">
-                    {(isAr ? fac.highlightsAr : fac.highlightsEn).map((hl, idx) => (
-                      <li key={idx} className="flex items-start gap-2 text-xs font-medium text-ink">
-                        <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                        <span>{hl}</span>
-                      </li>
-                    ))}
-                  </ul>
                 </div>
 
-                {/* Card Link to dedicated /for/[slug] page */}
-                <div className="pt-4 border-t border-mist-gray/40">
-                  <Link
-                    href={`/${locale}/for/${fac.slug}`}
-                    className="inline-flex items-center gap-2 text-xs font-bold text-ink group-hover:text-dusty-blue transition-colors"
-                  >
-                    <span>
-                      {isAr ? `اكتشف حلول ${fac.titleAr}` : `Explore Solutions for ${fac.titleEn}`}
-                    </span>
-                    <ArrowIcon className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
-                  </Link>
-                </div>
-              </div>
+                <p className="text-sm leading-relaxed text-ink-muted">{isAr ? fac.descAr : fac.descEn}</p>
+
+                <ul className="space-y-2.5">
+                  {(isAr ? fac.highlightsAr : fac.highlightsEn).map((hl) => (
+                    <li key={hl} className="flex items-start gap-2.5 text-sm font-medium text-ink">
+                      <span
+                        className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md ${tone.check}`}
+                      >
+                        <Check className="h-3.5 w-3.5" strokeWidth={2.5} aria-hidden="true" />
+                      </span>
+                      <span>{hl}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <span className="mt-auto inline-flex items-center gap-2 pt-1 text-sm font-bold text-ink">
+                  <span>{isAr ? 'اكتشف الحلول' : 'Explore solutions'}</span>
+                  <ArrowIcon className="h-4 w-4 transition-transform group-hover:translate-x-1 rtl:group-hover:-translate-x-1" />
+                </span>
+              </Link>
             );
           })}
         </div>
@@ -174,4 +184,3 @@ export const TargetFacilities: React.FC<TargetFacilitiesProps> = ({
 };
 
 export default TargetFacilities;
-
