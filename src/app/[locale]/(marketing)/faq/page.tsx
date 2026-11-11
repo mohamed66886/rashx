@@ -66,7 +66,7 @@ export default async function FAQPage({ params }: FAQPageProps) {
       <JsonLd data={getFAQPageSchema(faqSchemaData)} id="faq-hub-schema" />
       <JsonLd data={getBreadcrumbSchema(breadcrumbs)} id="faq-breadcrumb-schema" />
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16 space-y-8">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-8 sm:pt-32 sm:pb-12 lg:pt-36 lg:pb-16 space-y-8">
         {/* Breadcrumb Navigation */}
         <div className="flex items-center gap-2 text-xs text-ink-muted">
           <Link href={`/${locale}`} className="hover:text-ink transition-colors">

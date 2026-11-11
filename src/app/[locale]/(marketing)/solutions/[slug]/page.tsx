@@ -1066,7 +1066,7 @@ export default async function SolutionSlugPage({ params }: SolutionPageProps) {
         <JsonLd data={getFAQPageSchema(brandedFaqs)} id="branded-faq-schema" />
         <JsonLd data={getBreadcrumbSchema(breadcrumbs)} id="branded-breadcrumb-schema" />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-8 sm:pt-32 sm:pb-12 lg:pt-36 lg:pb-16">
           {/* Breadcrumb Navigation */}
           <div className="mb-6 flex items-center gap-2 text-xs text-ink-muted">
             <Link href={`/${locale}`} className="hover:text-ink transition-colors">
@@ -1615,7 +1615,7 @@ export default async function SolutionSlugPage({ params }: SolutionPageProps) {
         <JsonLd data={getFAQPageSchema(loyaltyFaqs)} id="loyalty-faq-schema" />
         <JsonLd data={getBreadcrumbSchema(breadcrumbs)} id="loyalty-breadcrumb-schema" />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-8 sm:pt-32 sm:pb-12 lg:pt-36 lg:pb-16">
           {/* Breadcrumb Navigation */}
           <div className="mb-6 flex items-center gap-2 text-xs text-ink-muted">
             <Link href={`/${locale}`} className="hover:text-ink transition-colors">
@@ -2091,7 +2091,7 @@ export default async function SolutionSlugPage({ params }: SolutionPageProps) {
         <JsonLd data={getFAQPageSchema(crmFaqs)} id="crm-faq-schema" />
         <JsonLd data={getBreadcrumbSchema(breadcrumbs)} id="crm-breadcrumb-schema" />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-8 sm:pt-32 sm:pb-12 lg:pt-36 lg:pb-16">
           {/* Breadcrumb Navigation */}
           <div className="mb-6 flex items-center gap-2 text-xs text-ink-muted">
             <Link href={`/${locale}`} className="hover:text-ink transition-colors">
@@ -2616,7 +2616,7 @@ export default async function SolutionSlugPage({ params }: SolutionPageProps) {
         <JsonLd data={getFAQPageSchema(inventoryFaqs)} id="inventory-faq-schema" />
         <JsonLd data={getBreadcrumbSchema(breadcrumbs)} id="inventory-breadcrumb-schema" />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-8 sm:pt-32 sm:pb-12 lg:pt-36 lg:pb-16">
           {/* Breadcrumb Navigation */}
           <div className="mb-6 flex items-center gap-2 text-xs text-ink-muted">
             <Link href={`/${locale}`} className="hover:text-ink transition-colors">
@@ -3052,7 +3052,7 @@ export default async function SolutionSlugPage({ params }: SolutionPageProps) {
         <JsonLd data={getFAQPageSchema(hrFaqs)} id="hr-faq-schema" />
         <JsonLd data={getBreadcrumbSchema(breadcrumbs)} id="hr-breadcrumb-schema" />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-8 sm:pt-32 sm:pb-12 lg:pt-36 lg:pb-16">
           <div className="mb-6 flex items-center gap-2 text-xs text-ink-muted">
             <Link href={`/${locale}`} className="hover:text-ink transition-colors">
               {isAr ? 'الرئيسية' : 'Home'}
@@ -3487,7 +3487,7 @@ export default async function SolutionSlugPage({ params }: SolutionPageProps) {
         <JsonLd data={getFAQPageSchema(posFaqs)} id="pos-faq-schema" />
         <JsonLd data={getBreadcrumbSchema(breadcrumbs)} id="pos-breadcrumb-schema" />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-8 sm:pt-32 sm:pb-12 lg:pt-36 lg:pb-16">
           <div className="mb-6 flex items-center gap-2 text-xs text-ink-muted">
             <Link href={`/${locale}`} className="hover:text-ink transition-colors">
               {isAr ? 'الرئيسية' : 'Home'}
@@ -3973,7 +3973,7 @@ export default async function SolutionSlugPage({ params }: SolutionPageProps) {
       <JsonLd data={getFAQPageSchema(bookingFaqs)} id="booking-faq-schema" />
       <JsonLd data={getBreadcrumbSchema(breadcrumbs)} id="booking-breadcrumb-schema" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-8 sm:pt-32 sm:pb-12 lg:pt-36 lg:pb-16">
         <div className="mb-6 flex items-center gap-2 text-xs text-ink-muted">
           <Link href={`/${locale}`} className="hover:text-ink transition-colors">
             {isAr ? 'الرئيسية' : 'Home'}
