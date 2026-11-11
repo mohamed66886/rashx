@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import {
   Building2,
   TrendingUp,
@@ -10,21 +11,78 @@ import {
   ShieldCheck,
   Sparkles,
   Plus,
-  ArrowUpRight,
   ExternalLink,
-  CheckCircle2,
-  Clock,
   Database,
-  ArrowRight,
-  ArrowLeft,
   ChevronRight,
-  RefreshCw,
+  ArrowLeft,
   Inbox,
+  RefreshCw,
 } from 'lucide-react';
 import { useDashboardAuth } from '@/context/DashboardAuthContext';
 import { listTenants, listLeads, SalonTenant, PlatformLead } from '@/lib/firebase/auth-db';
 import { FirestoreRulesAlert } from '@/components/dashboard/FirestoreRulesAlert';
-import { useParams } from 'next/navigation';
+import {
+  Button,
+  Badge,
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+  Skeleton,
+} from '@/components/ui';
+
+/* ------------------------------------------------------------------ */
+/* Small helpers                                                       */
+/* ------------------------------------------------------------------ */
+
+const delay = (ms: number): React.CSSProperties => ({ animationDelay: `${ms}ms` });
+
+interface MetricProps {
+  icon: React.ReactNode;
+  iconBg: string;
+  title: string;
+  value: string | number;
+  hint?: string;
+  badge?: React.ReactNode;
+  delayMs: number;
+}
+
+/** Compact metric tile: 2x2 on mobile, 4-in-a-row from md, roomier on desktop. */
+function Metric({ icon, iconBg, title, value, hint, badge, delayMs }: MetricProps) {
+  return (
+    <div
+      style={delay(delayMs)}
+      className="animate-rx-fade-up flex flex-col gap-2 p-3.5 sm:p-4 lg:p-5 rounded-2xl border border-neutral bg-base transition-[border-color,box-shadow] duration-200 ease-smooth hover:border-primary/60 hover:shadow-md"
+    >
+      <div className="flex items-start justify-between gap-2">
+        <div
+          className={`grid place-items-center w-9 h-9 lg:w-10 lg:h-10 shrink-0 rounded-xl text-ink ${iconBg}`}
+        >
+          {icon}
+        </div>
+        {badge}
+      </div>
+
+      <div className="min-w-0">
+        <div className="text-[11px] lg:text-xs font-bold text-ink-muted leading-snug line-clamp-2">
+          {title}
+        </div>
+        <div className="mt-0.5 text-lg sm:text-xl lg:text-2xl font-black text-ink tracking-tight truncate">
+          {value}
+        </div>
+        {hint && (
+          <div className="mt-0.5 text-[10px] lg:text-[11px] text-ink-muted truncate">{hint}</div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Page                                                                */
+/* ------------------------------------------------------------------ */
 
 export default function PlatformOverviewPage() {
   const { admin } = useDashboardAuth();
@@ -54,320 +112,471 @@ export default function PlatformOverviewPage() {
   const totalMRR = tenants.reduce((acc, t) => acc + (Number(t.mrr) || 0), 0);
   const activeTenantsCount = tenants.filter((t) => t.status === 'active').length;
 
+  const subdomainLink = (t: SalonTenant) => (
+    <a
+      href={`https://${t.subdomain}.rashx.org`}
+      target="_blank"
+      rel="noreferrer"
+      className="inline-flex items-center gap-1 font-mono text-[11px] font-bold text-ink underline decoration-primary decoration-2 underline-offset-4 hover:decoration-warm-peach transition-colors"
+      dir="ltr"
+    >
+      <span>{t.subdomain}.rashx.org</span>
+      <ExternalLink className="w-3 h-3 shrink-0" />
+    </a>
+  );
+
+  const statusBadge = (t: SalonTenant) =>
+    t.status === 'active' ? (
+      <Badge variant="success" size="sm" dot>
+        {isAr ? 'نشط' : 'Active'}
+      </Badge>
+    ) : (
+      <Badge variant="warning" size="sm">
+        {isAr ? 'تجريبي' : 'Trial'}
+      </Badge>
+    );
+
   return (
-    <div className="space-y-8 animate-fadeIn">
-      {/* ------------------------------------------------------------------ */}
-      {/* 1. EXECUTIVE WELCOME BANNER */}
-      {/* ------------------------------------------------------------------ */}
-      <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-l from-[#080D0C] via-[#0E1716] to-[#152321] text-white relative overflow-hidden shadow-2xl border border-white/5">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-[#91B8C0]/15 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#F0C5AE]/10 rounded-full blur-2xl pointer-events-none" />
+    <div className="space-y-4 sm:space-y-6 lg:space-y-8">
+      {/* ================================================================ */}
+      {/* 1. WELCOME BANNER                                                 */}
+      {/*    mobile  : stacked, actions in a 1-2 col grid                   */}
+      {/*    tablet+ : text on the start side, actions on the end side      */}
+      {/* ================================================================ */}
+      <section
+        style={delay(0)}
+        className="animate-rx-fade-up relative overflow-hidden rounded-2xl sm:rounded-3xl bg-primary text-ink p-5 sm:p-6 lg:p-8"
+      >
+        {/* Solid brand shapes */}
+        <span
+          aria-hidden="true"
+          className="absolute -top-16 -end-16 w-32 h-32 sm:w-36 sm:h-36 rounded-full bg-warm-peach"
+        />
+        <span
+          aria-hidden="true"
+          className="absolute top-3 end-12 sm:top-4 sm:end-20 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-base"
+        />
 
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-white text-xs font-semibold backdrop-blur-md mb-3 border border-white/10">
-              <Sparkles className="w-3.5 h-3.5 text-[#91B8C0]" />
-              <span>لوحة القيادة المركزية لمنصة راش إكس • admin.rashx.org</span>
-            </div>
+        <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-5 lg:gap-8">
+          <div className="min-w-0">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 mb-3 rounded-full bg-base text-ink text-[10px] sm:text-[11px] font-bold">
+              <Sparkles className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">
+                {isAr
+                  ? 'لوحة القيادة المركزية • admin.rashx.org'
+                  : 'RashX Central HQ • admin.rashx.org'}
+              </span>
+            </span>
 
-            <h1 className="text-2xl sm:text-3xl font-black tracking-tight">
-              أهلاً بك، {admin?.name} 👋
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight text-ink">
+              {isAr
+                ? `أهلاً بك، ${admin?.name || 'المشرف'} 👋`
+                : `Welcome, ${admin?.name || 'Admin'} 👋`}
             </h1>
-            <p className="text-sm text-[#E5E9E8]/80 mt-1">
-              {admin?.title} • التحكم المركزي في الصالونات والنطاقات وقاعدة البيانات
+            <p className="mt-1 text-xs sm:text-sm text-ink/80">
+              {admin?.title || (isAr ? 'المشرف العام' : 'Super Admin')} •{' '}
+              {isAr
+                ? 'التحكم المركزي في الصالونات والنطاقات وقاعدة البيانات'
+                : 'Centralized control of tenants, subdomains & database'}
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <Link
-              href={`/${locale}/dashboard/tenants?action=new`}
-              className="px-4 py-2.5 rounded-2xl bg-[#91B8C0] text-[#0D1514] font-black text-xs hover:bg-white transition-all shadow-md flex items-center gap-2 cursor-pointer"
-            >
-              <Plus className="w-4 h-4" />
-              <span>توليد صالون ونطاق جديد</span>
+          <div className="grid grid-cols-1 min-[420px]:grid-cols-2 sm:flex sm:flex-wrap items-center gap-2.5 sm:gap-3 shrink-0">
+            <Link href={`/${locale}/dashboard/tenants?action=new`} className="block">
+              <Button
+                variant="outline"
+                size="md"
+                leftIcon={<Plus className="w-4 h-4 stroke-[2.5]" />}
+                className="w-full sm:w-auto bg-ink text-base border-ink hover:bg-ink/85 font-black text-xs"
+              >
+                {isAr ? 'توليد صالون ونطاق جديد' : 'Provision New Salon'}
+              </Button>
             </Link>
 
-            <Link
-              href={`/${locale}/dashboard/database`}
-              className="px-4 py-2.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs backdrop-blur-md transition-all flex items-center gap-2 border border-white/10"
-            >
-              <Database className="w-4 h-4 text-[#91B8C0]" />
-              <span>فحص قاعدة بيانات فايربيز</span>
+            <Link href={`/${locale}/dashboard/database`} className="block">
+              <Button
+                variant="outline"
+                size="md"
+                leftIcon={<Database className="w-4 h-4" />}
+                className="w-full sm:w-auto bg-base text-ink border-base hover:bg-warm-peach hover:border-warm-peach font-bold text-xs"
+              >
+                {isAr ? 'فحص قاعدة بيانات فايربيز' : 'Inspect Firestore DB'}
+              </Button>
             </Link>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* Firestore Cloud Security Rules Status Alert */}
       <FirestoreRulesAlert />
-      {/* ------------------------------------------------------------------ */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Metric 1 */}
-        <div className="p-5 rounded-3xl bg-white border border-[#E5E9E8] shadow-xs hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-bold text-[#5E6665]">المنشآت المسجلة في DB</span>
-            <div className="w-9 h-9 rounded-2xl bg-[#91B8C0]/15 text-[#91B8C0] flex items-center justify-center">
-              <Building2 className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="text-2xl font-black text-[#0D1514] tracking-tight">
-            {tenants.length} {tenants.length === 1 ? 'منشأة' : 'منشآت'}
-          </div>
-          <div className="flex items-center gap-1.5 text-xs text-[#5E6665] font-semibold mt-2">
-            <span>{activeTenantsCount} نشط في الخدمة</span>
-          </div>
-        </div>
 
-        {/* Metric 2 */}
-        <div className="p-5 rounded-3xl bg-white border border-[#E5E9E8] shadow-xs hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-bold text-[#5E6665]">الإيراد الشهري الفعلي (MRR)</span>
-            <div className="w-9 h-9 rounded-2xl bg-[#F0C5AE]/20 text-[#8F593E] flex items-center justify-center">
-              <TrendingUp className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="text-2xl font-black text-[#0D1514] tracking-tight">
-            {totalMRR.toLocaleString('ar-SA')} ر.س
-          </div>
-          <div className="flex items-center gap-1.5 text-xs text-emerald-600 font-bold mt-2">
-            <ArrowUpRight className="w-3.5 h-3.5" />
-            <span>مجموع اشتراكات الصالونات النشطة</span>
-          </div>
-        </div>
-
-        {/* Metric 3 */}
-        <div className="p-5 rounded-3xl bg-white border border-[#E5E9E8] shadow-xs hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-bold text-[#5E6665]">النطاقات الفرعية المخصصة</span>
-            <div className="w-9 h-9 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
-              <Globe className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="text-2xl font-black text-[#0D1514] tracking-tight">
-            {tenants.length} Subdomains
-          </div>
-          <div className="flex items-center gap-1.5 text-xs text-[#5E6665] font-semibold mt-2 font-mono">
-            <span>*.rashx.org</span>
-          </div>
-        </div>
-
-        {/* Metric 4 */}
-        <div className="p-5 rounded-3xl bg-white border border-[#E5E9E8] shadow-xs hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-bold text-[#5E6665]">بوابة الفوترة المركزية (ZATCA)</span>
-            <div className="w-9 h-9 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-              <ShieldCheck className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="text-2xl font-black text-[#0D1514] tracking-tight">Phase 2 Ready</div>
-          <div className="flex items-center gap-1.5 text-xs text-emerald-700 font-bold mt-2">
-            <CheckCircle2 className="w-3.5 h-3.5" />
-            <span>ربط وتشفير إلكتروني مركزي</span>
-          </div>
-        </div>
+      {/* ================================================================ */}
+      {/* 2. METRICS  - 2x2 (mobile)  /  1x4 (md+)                         */}
+      {/* ================================================================ */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+        {loading ? (
+          <>
+            <Skeleton className="h-32 rounded-2xl" />
+            <Skeleton className="h-32 rounded-2xl" />
+            <Skeleton className="h-32 rounded-2xl" />
+            <Skeleton className="h-32 rounded-2xl" />
+          </>
+        ) : (
+          <>
+            <Metric
+              delayMs={60}
+              icon={<Building2 className="w-[18px] h-[18px]" />}
+              iconBg="bg-primary"
+              title={isAr ? 'المنشآت المسجلة' : 'Registered Salons'}
+              value={tenants.length}
+              hint={
+                isAr ? `${activeTenantsCount} نشط في الخدمة` : `${activeTenantsCount} active tenants`
+              }
+            />
+            <Metric
+              delayMs={110}
+              icon={<TrendingUp className="w-[18px] h-[18px]" />}
+              iconBg="bg-warm-peach"
+              title={isAr ? 'الإيراد الشهري (MRR)' : 'Monthly Revenue (MRR)'}
+              value={`${totalMRR.toLocaleString(isAr ? 'ar-SA' : 'en-US')} ${isAr ? 'ر.س' : 'SAR'}`}
+              hint={isAr ? 'اشتراكات الصالونات النشطة' : 'Active salon subscriptions'}
+            />
+            <Metric
+              delayMs={160}
+              icon={<Globe className="w-[18px] h-[18px]" />}
+              iconBg="bg-neutral"
+              title={isAr ? 'النطاقات الفرعية' : 'Custom Subdomains'}
+              value={tenants.length}
+              hint="*.rashx.org"
+            />
+            <Metric
+              delayMs={210}
+              icon={<ShieldCheck className="w-[18px] h-[18px]" />}
+              iconBg="bg-emerald-100"
+              title={isAr ? 'الفوترة المركزية (ZATCA)' : 'Central Invoicing (ZATCA)'}
+              value="Phase 2"
+              hint={isAr ? 'ربط وتشفير إلكتروني مركزي' : 'Central encrypted integration'}
+              badge={
+                <Badge variant="success" size="sm" dot>
+                  {isAr ? 'معتمد' : 'Certified'}
+                </Badge>
+              }
+            />
+          </>
+        )}
       </div>
 
-      {/* ------------------------------------------------------------------ */}
-      {/* 3. REAL DATA TABLES */}
-      {/* ------------------------------------------------------------------ */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Column: Client Salons (Tenants) Table (2 Cols) */}
-        <div className="lg:col-span-2 space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-lg font-black text-[#0D1514]">
-                الصالونات والمنشآت المسجلة في Firestore ({tenants.length})
+      {/* ================================================================ */}
+      {/* 3. LEADS / TENANTS / DB                                           */}
+      {/*    mobile  : leads (swipe row) -> tenants (cards) -> DB           */}
+      {/*    tablet  : leads (3 cols)    -> tenants (table) -> DB strip     */}
+      {/*    desktop : tenants (2 cols) | leads + DB (1 col)                */}
+      {/* ================================================================ */}
+      <div className="space-y-4 sm:space-y-6 lg:space-y-0 lg:grid lg:grid-cols-3 lg:grid-rows-[auto_1fr] lg:gap-6">
+        {/* ───────── Inbound leads ───────── */}
+        <section
+          style={delay(240)}
+          className="animate-rx-fade-up rounded-2xl lg:rounded-3xl border border-neutral bg-base overflow-hidden lg:col-start-3 lg:row-start-1"
+        >
+          <div className="flex items-center justify-between gap-3 p-4 sm:p-5 lg:p-6 pb-3 sm:pb-3 lg:pb-3">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="grid place-items-center w-9 h-9 shrink-0 rounded-xl bg-primary text-ink">
+                <UserPlus className="w-4 h-4" />
+              </div>
+              <h2 className="text-sm font-black text-ink truncate">
+                {isAr ? 'طلبات الانضمام (Leads)' : 'Inbound Leads'}
               </h2>
-              <p className="text-xs text-[#5E6665]">
-                البيانات الحية الموثقة في مجموعة <code className="bg-[#F5F8F8] px-1 py-0.5 rounded text-[#0D1514]">tenants</code>
-              </p>
             </div>
-            <Link
-              href={`/${locale}/dashboard/tenants`}
-              className="text-xs font-bold text-[#91B8C0] hover:underline flex items-center gap-1"
-            >
-              <span>إدارة النطاقات والمنشآت</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </Link>
+            <Badge variant="primary" size="sm">
+              {leads.length} {isAr ? 'طلبات' : 'Leads'}
+            </Badge>
           </div>
 
-          <div className="bg-white rounded-3xl border border-[#E5E9E8] overflow-hidden shadow-xs">
-            {tenants.length === 0 ? (
-              <div className="p-12 text-center">
-                <div className="w-14 h-14 rounded-2xl bg-[#91B8C0]/10 text-[#91B8C0] flex items-center justify-center mx-auto mb-3">
-                  <Building2 className="w-7 h-7" />
-                </div>
-                <h3 className="font-bold text-sm text-[#0D1514] mb-1">
-                  لا توجد صالونات مسجلة في قاعدة البيانات حالياً
-                </h3>
-                <p className="text-xs text-[#5E6665] max-w-sm mx-auto mb-4">
-                  ابدأ بإضافة أول صالون مشترك في راش إكس لتوليد نطاقه الفرعي وتفعيله على الفور.
-                </p>
-                <Link
-                  href={`/${locale}/dashboard/tenants?action=new`}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0D1514] hover:bg-[#1A2524] text-white text-xs font-bold transition-colors shadow-xs"
-                >
-                  <Plus className="w-4 h-4 text-[#91B8C0]" />
-                  <span>إضافة أول صالون الآن</span>
-                </Link>
+          <p className="hidden sm:block px-5 lg:px-6 pb-3 text-xs text-ink-muted leading-relaxed">
+            {isAr
+              ? 'طلبات أصحاب الصالونات الواردة من الموقع الرسمي أو روبوت الواتساب:'
+              : 'Salon requests submitted via the landing page or WhatsApp bot:'}
+          </p>
+
+          <div className="px-4 sm:px-5 lg:px-6 pb-4">
+            {loading ? (
+              <div className="flex gap-3 sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-1">
+                <Skeleton className="h-28 w-[78%] sm:w-full shrink-0 rounded-2xl" />
+                <Skeleton className="h-28 w-[78%] sm:w-full shrink-0 rounded-2xl" />
+              </div>
+            ) : leads.length === 0 ? (
+              <div className="text-center py-8 text-xs text-ink-muted">
+                <Inbox className="w-8 h-8 mx-auto mb-2 text-ink-muted" />
+                <span>{isAr ? 'لا توجد طلبات واردة جديدة حالياً' : 'No new leads found'}</span>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-right text-xs">
-                  <thead className="bg-[#F8FAFB] text-[#5E6665] font-bold border-b border-[#E5E9E8]">
-                    <tr>
-                      <th className="py-3.5 px-4">المنشأة والمالك</th>
-                      <th className="py-3.5 px-4">النطاق الفرعي (Subdomain)</th>
-                      <th className="py-3.5 px-4">المدينة</th>
-                      <th className="py-3.5 px-4">الباقة والاشتراك</th>
-                      <th className="py-3.5 px-4">الحالة</th>
-                      <th className="py-3.5 px-4 text-center">إجراء</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[#E5E9E8]">
-                    {tenants.map((t) => (
-                      <tr key={t.id} className="hover:bg-[#FDFEFE] transition-colors">
-                        <td className="py-3.5 px-4">
-                          <div className="font-bold text-[#0D1514]">{t.businessName}</div>
-                          <div className="text-[10px] text-[#5E6665]">{t.ownerName}</div>
-                        </td>
-                        <td className="py-3.5 px-4">
-                          <a
-                            href={`https://${t.subdomain}.rashx.org`}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="font-mono text-[11px] text-[#91B8C0] font-bold hover:underline inline-flex items-center gap-1"
-                            dir="ltr"
-                          >
-                            <span>{t.subdomain}.rashx.org</span>
-                            <ExternalLink className="w-3 h-3" />
-                          </a>
-                        </td>
-                        <td className="py-3.5 px-4 text-[#5E6665]">{t.city}</td>
-                        <td className="py-3.5 px-4">
-                          <div className="font-black text-[#0D1514]">{t.mrr} ر.س / شهرياً</div>
-                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-[#F0C5AE]/20 text-[#8F593E]">
-                            باقة {t.plan}
-                          </span>
-                        </td>
-                        <td className="py-3.5 px-4">
-                          {t.status === 'active' ? (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-bold text-[10px]">
-                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                              <span>نشط</span>
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 font-bold text-[10px]">
-                              <span>تجريبي</span>
-                            </span>
-                          )}
-                        </td>
-                        <td className="py-3.5 px-4 text-center">
-                          <Link
-                            href={`/${locale}/dashboard/tenants`}
-                            className="px-2.5 py-1 rounded-xl bg-[#F8FAFB] hover:bg-[#E5E9E8] text-[#0D1514] text-[10px] font-bold transition-colors inline-block"
-                          >
-                            إدارة
-                          </Link>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Right Column: Inbound Leads Pipeline (1 Col) */}
-        <div className="space-y-6">
-          <div className="bg-white rounded-3xl border border-[#E5E9E8] p-6 shadow-xs">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <UserPlus className="w-5 h-5 text-[#91B8C0]" />
-                <h3 className="font-black text-sm text-[#0D1514]">طلبات الانضمام والعروض (Leads)</h3>
-              </div>
-              <span className="px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 text-[10px] font-bold">
-                {leads.length} طلبات
-              </span>
-            </div>
-
-            <p className="text-xs text-[#5E6665] leading-relaxed mb-4">
-              طلبات أصحاب الصالونات الواردة من الموقع الرسمي أو روبوت الواتساب:
-            </p>
-
-            {leads.length === 0 ? (
-              <div className="text-center py-8 text-xs text-[#5E6665]">
-                <Inbox className="w-8 h-8 mx-auto text-[#5E6665]/50 mb-2" />
-                <span>لا توجد طلبات واردة جديدة مسجلة حالياً</span>
-              </div>
-            ) : (
-              <div className="space-y-3 mb-4">
-                {leads.slice(0, 3).map((lead) => (
+              <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory -mx-4 px-4 pb-1 sm:mx-0 sm:px-0 sm:pb-0 sm:grid sm:grid-cols-2 sm:overflow-visible md:grid-cols-3 lg:grid-cols-1">
+                {leads.slice(0, 3).map((lead, index) => (
                   <div
                     key={lead.id}
-                    className="p-3.5 rounded-2xl bg-[#F8FAFB] border border-[#E5E9E8] text-xs hover:border-[#91B8C0] transition-colors"
+                    style={delay(280 + index * 50)}
+                    className="animate-rx-fade-up min-w-[78%] snap-start sm:min-w-0 p-3.5 rounded-2xl bg-neutral/30 border border-neutral text-xs transition-colors duration-200 hover:border-primary"
                   >
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <div className="font-bold text-[#0D1514]">{lead.salonName}</div>
-                        <div className="text-[11px] text-[#5E6665]">
-                          المسؤول: {lead.ownerName} • {lead.city}
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <div className="font-bold text-ink truncate">{lead.salonName}</div>
+                        <div className="text-[11px] text-ink-muted mt-0.5 truncate">
+                          {lead.ownerName} • {lead.city}
                         </div>
-                        <div className="text-[10px] font-mono text-[#91B8C0] mt-1" dir="ltr">
+                        <div className="text-[11px] font-mono font-bold text-ink mt-1" dir="ltr">
                           {lead.phone}
                         </div>
                       </div>
-                      <span className="px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 text-[9px] font-bold">
-                        {lead.status === 'new' ? 'جديد' : 'قيد التواصل'}
-                      </span>
+                      <Badge variant={lead.status === 'new' ? 'primary' : 'neutral'} size="sm">
+                        {lead.status === 'new'
+                          ? isAr
+                            ? 'جديد'
+                            : 'New'
+                          : isAr
+                          ? 'قيد التواصل'
+                          : 'In Touch'}
+                      </Badge>
                     </div>
 
-                    <div className="mt-3 pt-2 border-t border-[#E5E9E8] flex items-center justify-between">
-                      <span className="text-[10px] text-[#5E6665]">{lead.source}</span>
+                    <div className="mt-3 pt-2 border-t border-neutral flex items-center justify-between gap-2">
+                      <span className="text-[10px] text-ink-muted truncate">{lead.source}</span>
                       <Link
                         href={`/${locale}/dashboard/tenants?action=new&name=${encodeURIComponent(
                           lead.salonName
                         )}&owner=${encodeURIComponent(lead.ownerName)}&phone=${encodeURIComponent(
                           lead.phone
                         )}&city=${encodeURIComponent(lead.city)}`}
-                        className="text-[10px] font-bold text-[#0D1514] hover:text-[#91B8C0]"
+                        className="shrink-0 flex items-center gap-1 text-[10px] font-bold text-ink underline decoration-primary decoration-2 underline-offset-4"
                       >
-                        تحويل لمنشأة مشتركة ←
+                        <span>{isAr ? 'تحويل لمنشأة' : 'Convert'}</span>
+                        <ArrowLeft className="w-3 h-3 ltr:rotate-180" />
                       </Link>
                     </div>
                   </div>
                 ))}
               </div>
             )}
-
-            <Link
-              href={`/${locale}/dashboard/leads`}
-              className="w-full py-2.5 px-4 rounded-xl bg-[#F5F8F8] hover:bg-[#E5E9E8] text-[#0D1514] text-xs font-bold flex items-center justify-center gap-2 transition-colors"
-            >
-              <span>عرض سجل طلبات الانضمام الكامل</span>
-            </Link>
           </div>
 
-          {/* Cloud Database Live Session Info */}
-          <div className="p-6 rounded-3xl bg-[#0E1514] text-white border border-white/5 relative overflow-hidden">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-[#91B8C0]">قاعدة بيانات Firebase Firestore</span>
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <div className="p-3 sm:p-4 bg-neutral/20 border-t border-neutral">
+            <Link href={`/${locale}/dashboard/leads`} className="block">
+              <Button variant="ghost" size="sm" fullWidth className="text-xs font-bold text-ink">
+                {isAr ? 'عرض سجل طلبات الانضمام الكامل' : 'View All Inbound Leads'}
+              </Button>
+            </Link>
+          </div>
+        </section>
+
+        {/* ───────── Tenants ───────── */}
+        <section
+          style={delay(300)}
+          className="animate-rx-fade-up rounded-2xl lg:rounded-3xl border border-neutral bg-base overflow-hidden lg:col-span-2 lg:col-start-1 lg:row-span-2 lg:row-start-1"
+        >
+          <div className="flex items-center justify-between gap-3 p-4 sm:p-5 lg:p-6">
+            <div className="min-w-0">
+              <h2 className="text-sm sm:text-base lg:text-lg font-black text-ink leading-snug">
+                {isAr ? 'الصالونات المسجلة' : 'Registered Tenants'} ({tenants.length})
+              </h2>
+              <p className="hidden sm:block mt-1 text-xs text-ink-muted">
+                {isAr ? 'البيانات الحية من مجموعة ' : 'Live data from collection '}
+                <code className="bg-neutral/60 px-1 py-0.5 rounded text-ink font-mono">tenants</code>
+              </p>
             </div>
-            <div className="font-mono text-sm font-bold text-white mb-2">aya2-a5057.firebaseapp.com</div>
-            <p className="text-[11px] text-[#E5E9E8]/70 leading-relaxed mb-4">
-              المسؤول الحالي: <strong>{admin?.name}</strong> • تم توثيق الجلسة في Firestore (`admin_sessions`).
-            </p>
-            <Link
-              href={`/${locale}/dashboard/database`}
-              className="inline-flex items-center gap-2 py-2 px-3 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold text-white transition-colors"
-            >
-              <span>فتح مركز فحص قاعدة البيانات</span>
-              <ArrowLeft className="w-3.5 h-3.5" />
-            </Link>
+
+            <div className="flex items-center gap-1.5 shrink-0">
+              <button
+                type="button"
+                onClick={fetchData}
+                disabled={loading}
+                aria-label={isAr ? 'تحديث البيانات' : 'Refresh data'}
+                title={isAr ? 'تحديث البيانات' : 'Refresh data'}
+                className="grid place-items-center w-9 h-9 rounded-xl border border-neutral text-ink-muted hover:text-ink hover:bg-primary/10 hover:border-primary/50 disabled:opacity-60 transition-colors"
+              >
+                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+              </button>
+
+              <Link href={`/${locale}/dashboard/tenants`}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  rightIcon={<ChevronRight className="w-4 h-4 ltr:rotate-180" />}
+                >
+                  {isAr ? 'إدارة المنشآت' : 'Manage Tenants'}
+                </Button>
+              </Link>
+            </div>
           </div>
-        </div>
+
+          {loading ? (
+            <div className="p-4 sm:p-6 space-y-3">
+              <Skeleton className="h-10 w-full rounded-xl" />
+              <Skeleton className="h-12 w-full rounded-xl" />
+              <Skeleton className="h-12 w-full rounded-xl" />
+              <Skeleton className="h-12 w-full rounded-xl" />
+            </div>
+          ) : tenants.length === 0 ? (
+            <div className="p-8 sm:p-12 text-center">
+              <div className="grid place-items-center w-14 h-14 mx-auto mb-3 rounded-2xl bg-primary text-ink">
+                <Building2 className="w-7 h-7" />
+              </div>
+              <h3 className="font-bold text-sm text-ink mb-1">
+                {isAr
+                  ? 'لا توجد صالونات مسجلة في قاعدة البيانات حالياً'
+                  : 'No salons registered in database yet'}
+              </h3>
+              <p className="text-xs text-ink-muted max-w-sm mx-auto mb-4">
+                {isAr
+                  ? 'ابدأ بإضافة أول صالون مشترك في راش إكس لتوليد نطاقه الفرعي وتفعيله على الفور.'
+                  : 'Get started by creating your first salon tenant to provision a custom subdomain.'}
+              </p>
+              <Link href={`/${locale}/dashboard/tenants?action=new`}>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  leftIcon={<Plus className="w-4 h-4 stroke-[2.5]" />}
+                >
+                  {isAr ? 'إضافة أول صالون الآن' : 'Add First Salon Now'}
+                </Button>
+              </Link>
+            </div>
+          ) : (
+            <>
+              {/* Mobile: card list */}
+              <ul className="md:hidden divide-y divide-neutral border-t border-neutral">
+                {tenants.map((t, index) => (
+                  <li
+                    key={t.id}
+                    style={delay(340 + Math.min(index, 8) * 40)}
+                    className="animate-rx-fade-up p-4 space-y-2.5"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="font-bold text-ink text-sm truncate">{t.businessName}</div>
+                        <div className="text-[11px] text-ink-muted truncate">
+                          {t.ownerName} • {t.city}
+                        </div>
+                      </div>
+                      {statusBadge(t)}
+                    </div>
+
+                    <div>{subdomainLink(t)}</div>
+
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="font-mono font-bold text-ink text-xs">
+                          {t.mrr} {isAr ? 'ر.س' : 'SAR'}
+                        </span>
+                        <Badge variant="secondary" size="sm">
+                          {isAr ? `باقة ${t.plan}` : `${t.plan} Plan`}
+                        </Badge>
+                      </div>
+                      <Link href={`/${locale}/dashboard/tenants`}>
+                        <Button variant="outline" size="sm" className="text-[11px] px-3 h-8">
+                          {isAr ? 'إدارة' : 'Manage'}
+                        </Button>
+                      </Link>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+
+              {/* Tablet + desktop: table (city & action columns appear from lg) */}
+              <div className="hidden md:block">
+                <Table bordered={false}>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>{isAr ? 'المنشأة والمالك' : 'Salon & Owner'}</TableHead>
+                      <TableHead>{isAr ? 'النطاق الفرعي' : 'Subdomain'}</TableHead>
+                      <TableHead className="hidden lg:table-cell">{isAr ? 'المدينة' : 'City'}</TableHead>
+                      <TableHead>{isAr ? 'الباقة والاشتراك' : 'Plan & MRR'}</TableHead>
+                      <TableHead>{isAr ? 'الحالة' : 'Status'}</TableHead>
+                      <TableHead align="center" className="hidden lg:table-cell">
+                        {isAr ? 'إجراء' : 'Action'}
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {tenants.map((t) => (
+                      <TableRow key={t.id}>
+                        <TableCell>
+                          <div className="font-bold text-ink text-xs">{t.businessName}</div>
+                          <div className="text-[10px] text-ink-muted">{t.ownerName}</div>
+                        </TableCell>
+                        <TableCell>{subdomainLink(t)}</TableCell>
+                        <TableCell className="hidden lg:table-cell text-ink-muted text-xs">
+                          {t.city}
+                        </TableCell>
+                        <TableCell>
+                          <div className="font-bold text-ink text-xs font-mono">
+                            {t.mrr} {isAr ? 'ر.س' : 'SAR'}
+                          </div>
+                          <Badge variant="secondary" size="sm" className="mt-0.5">
+                            {isAr ? `باقة ${t.plan}` : `${t.plan} Plan`}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>{statusBadge(t)}</TableCell>
+                        <TableCell align="center" className="hidden lg:table-cell">
+                          <Link href={`/${locale}/dashboard/tenants`}>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-[10px] px-2.5 py-1 h-7"
+                            >
+                              {isAr ? 'إدارة' : 'Manage'}
+                            </Button>
+                          </Link>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
+          )}
+        </section>
+
+        {/* ───────── Database session ───────── */}
+        <section
+          style={delay(360)}
+          className="animate-rx-fade-up rounded-2xl lg:rounded-3xl border border-neutral bg-base p-4 sm:p-5 lg:p-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between lg:flex-col lg:items-stretch lg:col-start-3 lg:row-start-2"
+        >
+          <div className="min-w-0">
+            <div className="flex items-center gap-2.5 mb-2">
+              <div className="grid place-items-center w-9 h-9 shrink-0 rounded-xl bg-primary text-ink">
+                <Database className="w-4 h-4" />
+              </div>
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="text-xs font-black text-ink truncate">
+                  {isAr ? 'قاعدة بيانات Firebase Firestore' : 'Firebase Firestore Live DB'}
+                </span>
+                <span className="w-2 h-2 shrink-0 rounded-full bg-emerald-500 animate-pulse" />
+              </div>
+            </div>
+
+            <div className="font-mono text-sm font-bold text-ink break-all" dir="ltr">
+              aya2-a5057.firebaseapp.com
+            </div>
+            <p className="mt-1.5 text-[11px] text-ink-muted leading-relaxed">
+              {isAr ? 'المسؤول الحالي: ' : 'Current session: '}
+              <strong className="text-ink">{admin?.name}</strong>
+              {isAr ? ' • الجلسة موثقة في ' : ' • active session in '}
+              <code className="bg-neutral/60 px-1 py-0.5 rounded text-ink font-mono">
+                admin_sessions
+              </code>
+            </p>
+          </div>
+
+          <Link href={`/${locale}/dashboard/database`} className="block shrink-0">
+            <Button
+              variant="outline"
+              size="sm"
+              rightIcon={<ArrowLeft className="w-3.5 h-3.5 ltr:rotate-180" />}
+              className="w-full md:w-auto lg:w-full text-xs font-bold"
+            >
+              {isAr ? 'فتح مركز فحص قاعدة البيانات' : 'Open DB Health Console'}
+            </Button>
+          </Link>
+        </section>
       </div>
     </div>
   );
