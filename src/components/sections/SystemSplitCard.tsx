@@ -76,13 +76,13 @@ export const SystemSplitCard: React.FC<SystemSplitCardProps> = ({
             <div className="grid grid-cols-2 gap-3 text-xs">
               <div className="p-3 rounded-2xl bg-[#FAFBFB] border border-mist-gray space-y-1">
                 <div className="text-[10px] text-ink-muted">فواتير اليوم المنجزة</div>
-                <div className="text-lg font-black text-ink">8 خدمات</div>
+                <div className="text-lg font-semibold text-ink">8 خدمات</div>
                 <div className="text-[10px] text-emerald-600 font-medium">مكتملة 100%</div>
               </div>
 
               <div className="p-3 rounded-2xl bg-[#FAFBFB] border border-mist-gray space-y-1">
                 <div className="text-[10px] text-ink-muted">عمولات اليوم المحققة</div>
-                <div className="text-lg font-black font-mono text-ink">340 ر.س</div>
+                <div className="text-lg font-semibold font-mono text-ink">340 ر.س</div>
                 <div className="text-[10px] text-dusty-blue font-medium">نسبة 15% للخدمة</div>
               </div>
             </div>
@@ -338,7 +338,7 @@ export const SystemSplitCard: React.FC<SystemSplitCardProps> = ({
               </div>
               <div className="space-y-1">
                 <div className="text-[11px] text-mist-gray">رصيد الاسترداد النقدي (Cashback)</div>
-                <div className="text-2xl font-black font-mono text-warm-peach">85.00 ر.س</div>
+                <div className="text-2xl font-semibold font-mono text-warm-peach">85.00 ر.س</div>
               </div>
               <div className="text-[10px] text-mist-gray/80 pt-1 border-t border-white/10 flex items-center justify-between">
                 <span>تكتسب 5% نقاط مع كل زيارة</span>
@@ -453,19 +453,19 @@ export const SystemSplitCard: React.FC<SystemSplitCardProps> = ({
         >
           {/* Order Badge & Category */}
           <div className="flex items-center gap-3">
-            <span className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-mist-gray font-mono font-bold text-xs text-ink">
+            <span className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-mist-gray font-mono font-medium text-xs text-ink">
               {system.order}
             </span>
-            <span className="text-xs font-bold text-dusty-blue uppercase tracking-wider">
+            <span className="text-xs font-medium text-dusty-blue uppercase tracking-wider">
               {isAr ? system.taglineAr : system.taglineEn}
             </span>
           </div>
 
-          <h3 className="text-2xl sm:text-3xl font-extrabold text-ink tracking-tight">
+          <h3 className="text-xl sm:text-2xl md:text-3xl font-semibold text-ink tracking-tight leading-tight">
             {isAr ? system.nameAr : system.nameEn}
           </h3>
 
-          <p className="text-xs sm:text-sm text-ink-muted leading-relaxed">
+          <p className="text-xs sm:text-sm font-normal text-ink-muted leading-relaxed">
             {isAr ? system.descAr : system.descEn}
           </p>
 
@@ -483,7 +483,7 @@ export const SystemSplitCard: React.FC<SystemSplitCardProps> = ({
           <div className="pt-4">
             <Link
               href={`/${locale}/solutions/${system.slug}`}
-              className="inline-flex items-center gap-2 px-5 py-2.5 text-xs sm:text-sm font-bold text-black bg-dusty-blue hover:bg-dusty-blue/90 rounded-xl shadow-xs transition-colors"
+              className="inline-flex items-center gap-2 px-5 py-2.5 text-xs sm:text-sm font-semibold text-black bg-dusty-blue hover:bg-dusty-blue/90 rounded-xl shadow-xs transition-colors"
             >
               <span>{isAr ? 'اعرف أكثر عن هذا النظام' : 'Learn More About This System'}</span>
               <ArrowIcon className="w-3.5 h-3.5" />

@@ -123,14 +123,14 @@ export const FourPillarsSubdomain: React.FC<FourPillarsSubdomainProps> = ({
         {/* Header + subdomain switcher */}
         <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
           <div className="max-w-2xl space-y-4">
-            <div className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-bold text-ink">
+            <div className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-medium text-ink">
               <Sparkles className="h-4 w-4 text-dusty-blue" aria-hidden="true" />
               <span>{isAr ? '4 واجهات في نطاق واحد' : '4 Portals, 1 Subdomain'}</span>
             </div>
-            <h2 className="text-balance text-3xl font-extrabold leading-tight text-ink sm:text-4xl">
+            <h2 className="text-balance text-2xl font-semibold leading-tight text-ink sm:text-3xl lg:text-4xl">
               {isAr ? 'نظام مستقل لكل فرد في صالونك' : 'One independent system for every role'}
             </h2>
-            <p className="text-sm leading-relaxed text-ink-muted sm:text-base">
+            <p className="text-xs font-normal leading-relaxed text-ink-muted sm:text-sm md:text-base">
               {isAr
                 ? 'يمنحك راش إكس نطاقًا خاصًا بصالونك يربط 4 شاشات تعمل معًا لحظيًا، بدل أن تكون ضمن تطبيق مزدحم بالمنافسين.'
                 : 'RashX gives your salon its own subdomain linking 4 live screens, instead of a crowded directory full of competitors.'}
@@ -139,10 +139,10 @@ export const FourPillarsSubdomain: React.FC<FourPillarsSubdomainProps> = ({
 
           <div className="w-full space-y-3 rounded-2xl border border-mist-gray bg-white p-4 lg:w-[380px]">
             <div className="flex items-center justify-between gap-2 text-xs">
-              <span className="font-bold text-ink-muted">
+              <span className="font-medium text-ink-muted">
                 {isAr ? 'جرّب اسم النطاق:' : 'Try a subdomain:'}
               </span>
-              <span className="inline-flex items-center gap-1 rounded-full bg-dusty-blue/30 px-2.5 py-1 text-[11px] font-bold text-ink">
+              <span className="inline-flex items-center gap-1 rounded-full bg-dusty-blue/30 px-2.5 py-1 text-[11px] font-medium text-ink">
                 <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
                 {isAr ? 'بيانات معزولة' : 'Isolated data'}
               </span>
@@ -152,7 +152,7 @@ export const FourPillarsSubdomain: React.FC<FourPillarsSubdomainProps> = ({
               <Lock className="h-4 w-4 shrink-0 text-ink" aria-hidden="true" />
               <div className="truncate font-mono text-xs text-ink-muted sm:text-sm">
                 https://
-                <span className="rounded bg-dusty-blue/30 px-1.5 py-0.5 font-extrabold text-ink">{salonSlug}</span>
+                <span className="rounded bg-dusty-blue/30 px-1.5 py-0.5 font-semibold text-ink">{salonSlug}</span>
                 .rashx.org
               </div>
             </div>
@@ -163,7 +163,7 @@ export const FourPillarsSubdomain: React.FC<FourPillarsSubdomainProps> = ({
                   key={item.slug}
                   type="button"
                   onClick={() => setSalonSlug(item.slug)}
-                  className={`flex-1 rounded-lg px-2 py-1.5 text-xs font-bold transition-colors ${
+                  className={`flex-1 rounded-lg px-2 py-1.5 text-xs font-medium transition-colors ${
                     salonSlug === item.slug
                       ? 'bg-ink text-white'
                       : 'bg-neutral/60 text-ink-muted hover:text-ink'
@@ -190,12 +190,12 @@ export const FourPillarsSubdomain: React.FC<FourPillarsSubdomainProps> = ({
                   <span className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${tone.tile}`}>
                     <Icon className="h-6 w-6" strokeWidth={1.8} aria-hidden="true" />
                   </span>
-                  <span className="text-xs font-bold text-ink-muted">{portal.tag[i]}</span>
+                  <span className="text-xs font-medium text-ink-muted">{portal.tag[i]}</span>
                 </div>
 
                 <div className="space-y-2">
-                  <h3 className="text-xl font-extrabold text-ink sm:text-2xl">{portal.title[i]}</h3>
-                  <p className="text-sm leading-relaxed text-ink-muted">{portal.desc[i]}</p>
+                  <h3 className="text-lg font-semibold text-ink sm:text-xl lg:text-2xl">{portal.title[i]}</h3>
+                  <p className="text-xs font-normal leading-relaxed text-ink-muted sm:text-sm">{portal.desc[i]}</p>
                 </div>
 
                 <div
@@ -207,7 +207,7 @@ export const FourPillarsSubdomain: React.FC<FourPillarsSubdomainProps> = ({
 
                 <ul className="grid gap-3 pt-1 sm:grid-cols-2">
                   {portal.features.map((feat) => (
-                    <li key={feat[0]} className="flex items-center gap-2 text-xs font-bold text-ink">
+                    <li key={feat[0]} className="flex items-center gap-2 text-xs font-medium text-ink">
                       <span
                         className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-lg ${tone.check}`}
                       >

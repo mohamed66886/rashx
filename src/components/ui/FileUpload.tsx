@@ -529,7 +529,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
     >
       <UploadArt active={isDragOver} />
       <div>
-        <p className="text-base font-extrabold text-black">
+        <p className="text-base font-semibold text-black">
           {isDragOver ? 'أفلت الملفات الآن للرفع' : description}
         </p>
         <p className="mt-1 text-xs text-[#5E6665]">

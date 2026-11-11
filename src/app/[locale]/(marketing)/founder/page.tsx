@@ -175,7 +175,7 @@ export default async function FounderPage({ params }: FounderPageProps) {
                 <div className="relative z-10 flex flex-col items-center space-y-4">
                   {/* Monogram / Portrait Avatar */}
                   <div className="w-24 h-24 rounded-2xl bg-ink text-white flex flex-col items-center justify-center shadow-lg border-2 border-dusty-blue/40">
-                    <span className="text-2xl font-black tracking-widest text-dusty-blue">
+                    <span className="text-2xl font-semibold tracking-widest text-dusty-blue">
                       {isAr ? 'م.ر' : 'MR'}
                     </span>
                     <span className="text-[9px] uppercase font-mono text-mist-gray/80 mt-0.5">
@@ -207,7 +207,7 @@ export default async function FounderPage({ params }: FounderPageProps) {
             {/* Profile Information & Actions Column (8 Cols on Large) */}
             <div className="lg:col-span-8 space-y-6">
               {/* Badge */}
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-mist-gray text-xs font-bold text-ink">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-mist-gray text-xs font-medium text-ink">
                 <Terminal className="w-3.5 h-3.5 text-dusty-blue" />
                 <span>
                   {isAr
@@ -217,7 +217,7 @@ export default async function FounderPage({ params }: FounderPageProps) {
               </div>
 
               {/* Exact H1 requested */}
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-black text-ink tracking-tight leading-tight">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-semibold text-ink tracking-tight leading-tight">
                 {isAr
                   ? 'م. محمد عبده رشاد البهي – مؤسس RashX'
                   : 'Eng. Mohamed Abdo Rashad Elbahy – Founder of RashX'}
@@ -225,10 +225,10 @@ export default async function FounderPage({ params }: FounderPageProps) {
 
               {/* Section 1: نبذة (بالمعلومات المتوفرة فقط) */}
               <div className="space-y-3">
-                <h2 className="text-xs font-bold text-dusty-blue uppercase tracking-wider">
+                <h2 className="text-xs font-medium text-dusty-blue uppercase tracking-wider">
                   {isAr ? 'نبذة عن المؤسس' : 'About the Founder'}
                 </h2>
-                <p className="text-sm sm:text-base text-ink-muted leading-relaxed">
+                <p className="text-sm sm:text-base text-ink-muted leading-relaxed font-normal">
                   {isAr
                     ? 'مهندس برمجيات ومؤسس منصة راش إكس (RashX) في عام 2026 م، يقود الرؤية التقنية والهندسية للمنصة بهدف رقمنة قطاع صالونات التجميل والمشاغل ومراكز السبا في المملكة العربية السعودية، وتحويلها إلى بنية تحتية سحابية مستقلة تمكّن أصحاب المنشآت من امتلاك هويتهم الرقمية وحماية بيانات عملائهم دون وسيط.'
                     : 'Software Engineer and Founder of RashX in 2026, leading the technological and engineering vision to digitize beauty salons, studios, and wellness centers in Saudi Arabia through sovereign cloud infrastructure granting owners full digital autonomy and uncompromised client data privacy.'}
@@ -306,15 +306,15 @@ export default async function FounderPage({ params }: FounderPageProps) {
            ========================================================================= */}
         <div className="mt-16 space-y-8">
           <div className="text-center max-w-2xl mx-auto space-y-2">
-            <span className="text-xs font-bold text-dusty-blue uppercase tracking-wider">
+            <span className="text-xs font-medium text-dusty-blue uppercase tracking-wider">
               {isAr ? 'الرؤية التقنية' : 'The Vision'}
             </span>
-            <h2 className="text-2xl sm:text-3xl font-black text-ink">
+            <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
               {isAr
                 ? 'رؤية المؤسس لرقمنة قطاع التجميل في السعودية'
                 : 'Founder’s Vision for Digitizing the Saudi Beauty Sector'}
             </h2>
-            <p className="text-xs sm:text-sm text-ink-muted">
+            <p className="text-xs sm:text-sm text-ink-muted font-normal">
               {isAr
                 ? 'المبادئ الأربعة التي يقود بها م. محمد عبده رشاد البهي تطوير راش إكس لخدمة الصالونات والمشاغل.'
                 : 'The four core convictions guiding Eng. Mohamed Abdo Rashad Elbahy in engineering RashX for Saudi salons.'}
@@ -332,10 +332,10 @@ export default async function FounderPage({ params }: FounderPageProps) {
                   <div className="w-12 h-12 rounded-2xl bg-mist-gray/70 flex items-center justify-center text-ink">
                     <IconComp className="w-6 h-6 text-dusty-blue" />
                   </div>
-                  <h3 className="text-lg font-bold text-ink">
+                  <h3 className="text-lg font-semibold text-ink">
                     {isAr ? pillar.titleAr : pillar.titleEn}
                   </h3>
-                  <p className="text-xs sm:text-sm text-ink-muted leading-relaxed">
+                  <p className="text-xs sm:text-sm text-ink-muted leading-relaxed font-normal">
                     {isAr ? pillar.descAr : pillar.descEn}
                   </p>
                 </div>
@@ -349,16 +349,16 @@ export default async function FounderPage({ params }: FounderPageProps) {
            ========================================================================= */}
         <div className="mt-16 rounded-3xl bg-white border border-mist-gray p-8 sm:p-12 space-y-8">
           <div className="max-w-3xl space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-mist-gray text-xs font-bold text-ink">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-mist-gray text-xs font-medium text-ink">
               <Quote className="w-3.5 h-3.5 text-dusty-blue" />
               <span>{isAr ? 'دوافع التأسيس' : 'Founding Motivations'}</span>
             </div>
 
-            <h2 className="text-2xl sm:text-3xl font-black text-ink">
+            <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
               {isAr ? 'لماذا بدأ RashX؟' : 'Why He Started RashX'}
             </h2>
 
-            <p className="text-xs sm:text-sm text-ink-muted leading-relaxed">
+            <p className="text-xs sm:text-sm text-ink-muted leading-relaxed font-normal">
               {isAr
                 ? 'انطلقت راش إكس في عام 2026 لمعالجة فجوة واضحة في السوق السعودي: الصالونات كانت مجبرة إما على استخدام برامج كاشير قديمة لا تفهم تعقيد مواعيد التجميل، أو الانضمام لتطبيقات وسيطة تقتطع عمولات ضخمة وتتحكم في بيانات العميلات.'
                 : 'RashX was founded in 2026 to bridge a critical market gap in Saudi Arabia: salons were forced to choose between rigid retail cashiers blind to beauty workflows, or aggregator directories charging aggressive commissions while hoarding client lists.'}
@@ -394,13 +394,13 @@ export default async function FounderPage({ params }: FounderPageProps) {
         <div className="mt-16 space-y-8">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div className="space-y-2">
-              <span className="text-xs font-bold text-dusty-blue uppercase tracking-wider">
+              <span className="text-xs font-medium text-dusty-blue uppercase tracking-wider">
                 {isAr ? 'المقالات والأدلة الإرشادية' : 'Articles & Guides'}
               </span>
-              <h2 className="text-2xl sm:text-3xl font-black text-ink">
+              <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
                 {isAr ? 'أحدث مقالات المؤسس' : 'Latest Articles by the Founder'}
               </h2>
-              <p className="text-xs sm:text-sm text-ink-muted">
+              <p className="text-xs sm:text-sm text-ink-muted font-normal">
                 {isAr
                   ? 'أدلة متخصصة كتبها م. محمد عبده رشاد البهي لمساعدة أصحاب الصالونات والمشاغل في المملكة.'
                   : 'Actionable guides authored by Eng. Mohamed Abdo Rashad Elbahy for Saudi salon and studio owners.'}
@@ -409,7 +409,7 @@ export default async function FounderPage({ params }: FounderPageProps) {
 
             <Link
               href={`/${locale}/blog`}
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-dusty-blue hover:text-ink transition-colors shrink-0"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-dusty-blue hover:text-ink transition-colors shrink-0"
             >
               <span>{isAr ? 'عرض كافة المقالات' : 'View All Articles'}</span>
               <ArrowIcon className="w-3.5 h-3.5" />
@@ -424,7 +424,7 @@ export default async function FounderPage({ params }: FounderPageProps) {
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between text-[11px] text-ink-muted">
-                    <span className="px-2.5 py-1 rounded-full bg-mist-gray font-semibold text-ink">
+                    <span className="px-2.5 py-1 rounded-full bg-mist-gray font-medium text-ink">
                       {isAr ? post.categoryAr : post.categoryEn}
                     </span>
                     <span className="inline-flex items-center gap-1">
@@ -433,13 +433,13 @@ export default async function FounderPage({ params }: FounderPageProps) {
                     </span>
                   </div>
 
-                  <h3 className="text-base sm:text-lg font-bold text-ink leading-snug hover:text-dusty-blue transition-colors">
+                  <h3 className="text-base sm:text-lg font-semibold text-ink leading-snug hover:text-dusty-blue transition-colors">
                     <Link href={`/${locale}/blog/${post.slug}`}>
                       {isAr ? post.titleAr : post.titleEn}
                     </Link>
                   </h3>
 
-                  <p className="text-xs text-ink-muted line-clamp-3 leading-relaxed">
+                  <p className="text-xs sm:text-sm text-ink-muted line-clamp-3 leading-relaxed font-normal">
                     {isAr ? post.descriptionAr : post.descriptionEn}
                   </p>
                 </div>
@@ -450,7 +450,7 @@ export default async function FounderPage({ params }: FounderPageProps) {
                   </span>
                   <Link
                     href={`/${locale}/blog/${post.slug}`}
-                    className="inline-flex items-center gap-1 text-xs font-bold text-ink hover:text-dusty-blue transition-colors"
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-ink hover:text-dusty-blue transition-colors"
                   >
                     <span>{isAr ? 'اقرأ المقال' : 'Read Article'}</span>
                     <ArrowIcon className="w-3 h-3" />
@@ -466,12 +466,12 @@ export default async function FounderPage({ params }: FounderPageProps) {
            ========================================================================= */}
         <div className="mt-16 rounded-3xl bg-ink text-white p-8 sm:p-12 text-center space-y-6 relative overflow-hidden shadow-xl">
           <div className="max-w-2xl mx-auto space-y-3 relative z-10">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-white text-xs font-semibold backdrop-blur-xs">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-white text-xs font-medium backdrop-blur-xs">
               <Sparkles className="w-3.5 h-3.5 text-dusty-blue" />
               <span>{isAr ? 'قنوات التواصل المباشر' : 'Direct Communication'}</span>
             </div>
 
-            <h2 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight">
+            <h2 className="text-2xl sm:text-4xl font-semibold tracking-tight leading-tight">
               {isAr
                 ? 'تواصل مع المؤسس وفريق راش إكس'
                 : 'Connect with the Founder & RashX Team'}

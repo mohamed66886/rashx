@@ -111,16 +111,16 @@ export const TargetFacilities: React.FC<TargetFacilitiesProps> = ({
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="mx-auto mb-12 max-w-3xl space-y-4 text-center md:mb-14">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-mist-gray/60 px-3 py-1 text-xs font-bold text-ink">
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-mist-gray/60 px-3 py-1 text-xs font-medium text-ink">
             <Building2 className="h-3.5 w-3.5 text-dusty-blue" aria-hidden="true" />
             <span>{isAr ? 'حلول مخصصة لمنشأتك' : 'Tailored Salon Solutions'}</span>
           </div>
 
-          <h2 className="text-balance text-2xl font-extrabold text-ink sm:text-3xl md:text-4xl">
+          <h2 className="text-balance text-2xl font-semibold leading-tight text-ink sm:text-3xl md:text-4xl">
             {isAr ? 'لمن نصلح؟ حلول لكل أنواع منشآت التجميل' : 'Who we serve: a fit for every beauty facility'}
           </h2>
 
-          <p className="text-sm leading-relaxed text-ink-muted sm:text-base">
+          <p className="text-xs font-normal leading-relaxed text-ink-muted sm:text-sm md:text-base">
             {isAr
               ? 'مشغل نسائي، صالون رجالي، مجمع تجميل، أو مركز سبا: راش إكس تتكيف مع طريقة عملك.'
               : 'A women’s studio, a busy barbershop, a beauty complex or a spa: RashX adapts to the way you work.'}
@@ -146,20 +146,20 @@ export const TargetFacilities: React.FC<TargetFacilitiesProps> = ({
                     <Icon className="h-6 w-6" />
                   </span>
                   <div className="space-y-0.5">
-                    <h3 className="text-lg font-extrabold leading-snug text-ink sm:text-xl">
+                    <h3 className="text-lg font-semibold leading-snug text-ink sm:text-xl">
                       {isAr ? fac.titleAr : fac.titleEn}
                     </h3>
-                    <p className="text-xs font-semibold text-ink-muted">
+                    <p className="text-xs font-medium text-ink-muted sm:text-sm">
                       {isAr ? fac.taglineAr : fac.taglineEn}
                     </p>
                   </div>
                 </div>
 
-                <p className="text-sm leading-relaxed text-ink-muted">{isAr ? fac.descAr : fac.descEn}</p>
+                <p className="text-xs font-normal leading-relaxed text-ink-muted sm:text-sm">{isAr ? fac.descAr : fac.descEn}</p>
 
                 <ul className="space-y-2.5">
                   {(isAr ? fac.highlightsAr : fac.highlightsEn).map((hl) => (
-                    <li key={hl} className="flex items-start gap-2.5 text-sm font-medium text-ink">
+                    <li key={hl} className="flex items-start gap-2.5 text-xs font-normal text-ink sm:text-sm">
                       <span
                         className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md ${tone.check}`}
                       >
@@ -170,7 +170,7 @@ export const TargetFacilities: React.FC<TargetFacilitiesProps> = ({
                   ))}
                 </ul>
 
-                <span className="mt-auto inline-flex items-center gap-2 pt-1 text-sm font-bold text-ink">
+                <span className="mt-auto inline-flex items-center gap-2 pt-1 text-xs font-medium text-ink sm:text-sm">
                   <span>{isAr ? 'اكتشف الحلول' : 'Explore solutions'}</span>
                   <ArrowIcon className="h-4 w-4 transition-transform group-hover:translate-x-1 rtl:group-hover:-translate-x-1" />
                 </span>

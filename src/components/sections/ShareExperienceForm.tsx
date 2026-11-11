@@ -120,10 +120,10 @@ export const ShareExperienceForm: React.FC<ShareExperienceFormProps> = ({
         <div className="w-14 h-14 rounded-full bg-[#10B981]/15 text-[#10B981] flex items-center justify-center mx-auto">
           <CheckCircle2 className="w-8 h-8" />
         </div>
-        <h3 className="text-xl sm:text-2xl font-black text-ink">
+        <h3 className="text-xl sm:text-2xl font-semibold text-ink">
           {isAr ? 'شكراً لمشاركتك قصة نجاح منشأتك!' : 'Thank You for Sharing Your Success Story!'}
         </h3>
-        <p className="text-xs sm:text-sm text-ink-muted max-w-md mx-auto leading-relaxed">
+        <p className="text-xs sm:text-sm font-normal text-ink-muted max-w-md mx-auto leading-relaxed">
           {isAr
             ? 'وصلتنا تفاصيل تجربتك بنجاح. سيتواصل معك فريق راش إكس لتوثيق المؤشرات وصياغة القصة بشكل احترافي واعتمادها قبل نشرها.'
             : 'We received your story proposal. The RashX content team will reach out to document metrics and review the draft prior to publishing.'}
@@ -145,7 +145,7 @@ export const ShareExperienceForm: React.FC<ShareExperienceFormProps> = ({
                 honeypot: '',
               });
             }}
-            className="px-5 py-2.5 rounded-xl bg-mist-gray hover:bg-mist-gray/80 text-xs font-bold text-ink transition-colors"
+            className="px-5 py-2.5 rounded-xl bg-mist-gray hover:bg-mist-gray/80 text-xs sm:text-sm font-semibold text-ink transition-colors"
           >
             {isAr ? 'إرسال مشاركة أخرى' : 'Submit Another Story'}
           </button>
@@ -168,14 +168,14 @@ export const ShareExperienceForm: React.FC<ShareExperienceFormProps> = ({
       />
 
       <div className="space-y-1">
-        <div className="inline-flex items-center gap-1.5 text-xs font-bold text-dusty-blue uppercase tracking-wider">
+        <div className="inline-flex items-center gap-1.5 text-xs font-medium text-dusty-blue uppercase tracking-wider">
           <Sparkles className="w-3.5 h-3.5" />
           <span>{isAr ? 'نموذج انضمام الشركاء' : 'Partner Story Submission'}</span>
         </div>
-        <h3 className="text-xl sm:text-2xl font-black text-ink">
+        <h3 className="text-xl sm:text-2xl font-semibold text-ink">
           {isAr ? 'شاركنا تجربة منشأتك مع راش إكس' : 'Share Your Facility Experience with RashX'}
         </h3>
-        <p className="text-xs text-ink-muted">
+        <p className="text-xs sm:text-sm font-normal text-ink-muted">
           {isAr
             ? 'هل تدير صالونك أو مشغلك أو مركز السبا عبر راش إكس؟ شاركنا أثر التحول الرقمي لنبرز قصة نجاحك لرواد الأعمال في المملكة.'
             : 'Are you powering your salon or spa with RashX? Share your operational milestones with us.'}
@@ -192,7 +192,7 @@ export const ShareExperienceForm: React.FC<ShareExperienceFormProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Facility Name */}
         <div className="space-y-1.5">
-          <label className="text-xs font-bold text-ink flex items-center gap-1.5">
+          <label className="text-xs font-medium text-ink flex items-center gap-1.5">
             <Building className="w-3.5 h-3.5 text-dusty-blue" />
             <span>{isAr ? 'اسم المنشأة *' : 'Facility Name *'}</span>
           </label>
@@ -202,19 +202,19 @@ export const ShareExperienceForm: React.FC<ShareExperienceFormProps> = ({
             value={formData.facilityName}
             onChange={(e) => setFormData({ ...formData, facilityName: e.target.value })}
             placeholder={isAr ? 'مثال: صالون لمسة حرير' : 'e.g. Silk Touch Salon'}
-            className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAFBFB] border border-mist-gray focus:border-dusty-blue focus:outline-hidden text-xs text-ink"
+            className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAFBFB] border border-mist-gray focus:border-dusty-blue focus:outline-hidden text-xs text-ink font-normal"
           />
         </div>
 
         {/* Facility Type */}
         <div className="space-y-1.5">
-          <label className="text-xs font-bold text-ink">
+          <label className="text-xs font-medium text-ink">
             {isAr ? 'نوع النشاط *' : 'Facility Type *'}
           </label>
           <select
             value={formData.facilityType}
             onChange={(e) => setFormData({ ...formData, facilityType: e.target.value })}
-            className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAFBFB] border border-mist-gray focus:border-dusty-blue focus:outline-hidden text-xs text-ink"
+            className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAFBFB] border border-mist-gray focus:border-dusty-blue focus:outline-hidden text-xs text-ink font-normal"
           >
             <option value="beauty_salon">{isAr ? 'صالون نسائي / مشغل' : 'Beauty Salon / Studio'}</option>
             <option value="barbershop">{isAr ? 'صالون حلاقة رجالي' : 'Barbershop'}</option>
@@ -225,14 +225,14 @@ export const ShareExperienceForm: React.FC<ShareExperienceFormProps> = ({
 
         {/* City */}
         <div className="space-y-1.5">
-          <label className="text-xs font-bold text-ink flex items-center gap-1.5">
+          <label className="text-xs font-medium text-ink flex items-center gap-1.5">
             <MapPin className="w-3.5 h-3.5 text-dusty-blue" />
             <span>{isAr ? 'المدينة *' : 'City *'}</span>
           </label>
           <select
             value={formData.city}
             onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-            className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAFBFB] border border-mist-gray focus:border-dusty-blue focus:outline-hidden text-xs text-ink"
+            className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAFBFB] border border-mist-gray focus:border-dusty-blue focus:outline-hidden text-xs text-ink font-normal"
           >
             <option value="riyadh">{isAr ? 'الرياض' : 'Riyadh'}</option>
             <option value="jeddah">{isAr ? 'جدة' : 'Jeddah'}</option>
@@ -246,7 +246,7 @@ export const ShareExperienceForm: React.FC<ShareExperienceFormProps> = ({
 
         {/* Owner / Contact Name */}
         <div className="space-y-1.5">
-          <label className="text-xs font-bold text-ink flex items-center gap-1.5">
+          <label className="text-xs font-medium text-ink flex items-center gap-1.5">
             <User className="w-3.5 h-3.5 text-dusty-blue" />
             <span>{isAr ? 'اسم المالك أو المسؤول *' : 'Contact Person *'}</span>
           </label>
@@ -256,13 +256,13 @@ export const ShareExperienceForm: React.FC<ShareExperienceFormProps> = ({
             value={formData.ownerName}
             onChange={(e) => setFormData({ ...formData, ownerName: e.target.value })}
             placeholder={isAr ? 'مثال: نورة العتيبي' : 'e.g. Noura Al-Otaibi'}
-            className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAFBFB] border border-mist-gray focus:border-dusty-blue focus:outline-hidden text-xs text-ink"
+            className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAFBFB] border border-mist-gray focus:border-dusty-blue focus:outline-hidden text-xs text-ink font-normal"
           />
         </div>
 
         {/* Phone */}
         <div className="space-y-1.5">
-          <label className="text-xs font-bold text-ink flex items-center gap-1.5">
+          <label className="text-xs font-medium text-ink flex items-center gap-1.5">
             <PhoneCall className="w-3.5 h-3.5 text-dusty-blue" />
             <span>{isAr ? 'رقم الجوال أو الواتساب *' : 'Saudi Mobile / WhatsApp *'}</span>
           </label>
@@ -273,13 +273,13 @@ export const ShareExperienceForm: React.FC<ShareExperienceFormProps> = ({
             value={formData.phone}
             onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
             placeholder="05XXXXXXXX"
-            className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAFBFB] border border-mist-gray focus:border-dusty-blue focus:outline-hidden text-xs text-ink font-mono text-start"
+            className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAFBFB] border border-mist-gray focus:border-dusty-blue focus:outline-hidden text-xs text-ink font-mono text-start font-normal"
           />
         </div>
 
         {/* Subdomain or Website */}
         <div className="space-y-1.5">
-          <label className="text-xs font-bold text-ink flex items-center gap-1.5">
+          <label className="text-xs font-medium text-ink flex items-center gap-1.5">
             <Globe className="w-3.5 h-3.5 text-dusty-blue" />
             <span>{isAr ? 'النطاق الفرعي أو حساب إنستغرام' : 'Subdomain / Social Link'}</span>
           </label>
@@ -288,14 +288,14 @@ export const ShareExperienceForm: React.FC<ShareExperienceFormProps> = ({
             value={formData.subdomain}
             onChange={(e) => setFormData({ ...formData, subdomain: e.target.value })}
             placeholder={isAr ? 'مثال: salon.rashx.org أو @salon' : 'e.g. salon.rashx.org or @handle'}
-            className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAFBFB] border border-mist-gray focus:border-dusty-blue focus:outline-hidden text-xs text-ink"
+            className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAFBFB] border border-mist-gray focus:border-dusty-blue focus:outline-hidden text-xs text-ink font-normal"
           />
         </div>
       </div>
 
       {/* Story summary */}
       <div className="space-y-1.5">
-        <label className="text-xs font-bold text-ink flex items-center gap-1.5">
+        <label className="text-xs font-medium text-ink flex items-center gap-1.5">
           <MessageSquare className="w-3.5 h-3.5 text-dusty-blue" />
           <span>{isAr ? 'نبذة عن تجربة منشأتك والنتائج المحققة *' : 'Summary of Your Experience & Results *'}</span>
         </label>
@@ -309,7 +309,7 @@ export const ShareExperienceForm: React.FC<ShareExperienceFormProps> = ({
               ? 'اشرح التحديات التشغيلية التي واجهتها سابقاً، وكيف ساعدك نظام راش إكس (في تنظيم المواعيد، الفوترة ZATCA، تطبيق العميل، أو عمولات الكادر)...'
               : 'Describe previous operational bottlenecks and how RashX streamlined your appointments, POS, or staff commissions...'
           }
-          className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAFBFB] border border-mist-gray focus:border-dusty-blue focus:outline-hidden text-xs text-ink leading-relaxed"
+          className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAFBFB] border border-mist-gray focus:border-dusty-blue focus:outline-hidden text-xs text-ink leading-relaxed font-normal"
         />
       </div>
 
@@ -322,7 +322,7 @@ export const ShareExperienceForm: React.FC<ShareExperienceFormProps> = ({
           onChange={(e) => setFormData({ ...formData, publishConsent: e.target.checked })}
           className="mt-0.5 rounded border-mist-gray text-dusty-blue focus:ring-dusty-blue"
         />
-        <label htmlFor="consent-check" className="cursor-pointer leading-relaxed">
+        <label htmlFor="consent-check" className="cursor-pointer leading-relaxed font-normal">
           {isAr
             ? 'أوافق على تواصل فريق راش إكس لمراجعة وتدقيق المؤشرات واعتماد صياغة قصة النجاح قبل نشرها على المنصة.'
             : 'I agree to be contacted by RashX to verify operational benchmarks and review the story draft prior to publication.'}
@@ -333,7 +333,7 @@ export const ShareExperienceForm: React.FC<ShareExperienceFormProps> = ({
       <button
         type="submit"
         disabled={status === 'loading'}
-        className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-ink text-white hover:bg-ink/90 text-xs font-bold transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+        className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-ink text-white hover:bg-ink/90 text-xs sm:text-sm font-semibold transition-all disabled:opacity-50 flex items-center justify-center gap-2"
       >
         <Send className="w-3.5 h-3.5 text-dusty-blue rtl:-rotate-90" />
         <span>{status === 'loading' ? (isAr ? 'جاري الإرسال...' : 'Submitting...') : (isAr ? 'إرسال مشاركة التجربة' : 'Submit Success Story')}</span>

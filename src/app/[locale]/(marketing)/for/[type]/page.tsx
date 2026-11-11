@@ -688,7 +688,7 @@ export default async function FacilityTypePage({ params }: FacilityPageProps) {
                 </span>
               </div>
 
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-ink tracking-tight leading-tight">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-ink tracking-tight leading-tight">
                 {isAr
                   ? 'برنامج متكامل للصالونات النسائية'
                   : 'Comprehensive Management Software for Beauty Salons'}
@@ -751,7 +751,7 @@ export default async function FacilityTypePage({ params }: FacilityPageProps) {
                 <span className="text-xs font-bold text-dusty-blue uppercase tracking-wider">
                   {isAr ? 'محاكاة تشغيلية متطورة' : 'Operational Salon Interface'}
                 </span>
-                <h2 className="text-2xl sm:text-3xl font-black text-ink">
+                <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
                   {isAr
                     ? 'إدارة محكمة لباقات العرائس وانسيابية كاملة في مواسم الذروة'
                     : 'Mastering Bridal Packages & Conquering Holiday Rushes'}
@@ -966,7 +966,7 @@ export default async function FacilityTypePage({ params }: FacilityPageProps) {
                 <span className="text-xs font-bold text-dusty-blue uppercase tracking-wider">
                   {isAr ? 'ركائز المشاغل النسائية' : 'Specialized Capabilities'}
                 </span>
-                <h2 className="text-2xl sm:text-3xl font-black text-ink">
+                <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
                   {isAr
                     ? '6 ركائز صُممت خصيصاً لتفاصيل المشاغل والصالونات النسائية'
                     : '6 Pillars Built Exclusively for Saudi Female Salons & Studios'}
@@ -1013,7 +1013,7 @@ export default async function FacilityTypePage({ params }: FacilityPageProps) {
                   </span>
                 </div>
 
-                <h2 className="text-2xl sm:text-3xl font-black text-ink leading-tight">
+                <h2 className="text-2xl sm:text-3xl font-semibold text-ink leading-tight">
                   {isAr
                     ? 'خصوصية عميلاتك وسرية الملاحظات الفنية.. أمان مطلق والتزام أخلاقي'
                     : 'Strict Client Privacy & Formula Confidentiality by Design'}
@@ -1047,7 +1047,7 @@ export default async function FacilityTypePage({ params }: FacilityPageProps) {
                 <span className="text-xs font-bold text-dusty-blue uppercase tracking-wider">
                   {isAr ? 'الأسئلة الشائعة' : 'Frequently Asked Questions'}
                 </span>
-                <h2 className="text-2xl sm:text-3xl font-black text-ink">
+                <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
                   {isAr
                     ? 'أسئلة شائعة حول إدارة الصالونات والمشاغل النسائية'
                     : 'Frequently Asked Questions about Beauty Salon Management'}
@@ -1080,7 +1080,7 @@ export default async function FacilityTypePage({ params }: FacilityPageProps) {
                   <span>{isAr ? 'إدارة ذكية لمشغل راقٍ' : 'Smart Salon Operations'}</span>
                 </div>
 
-                <h2 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight">
+                <h2 className="text-2xl sm:text-4xl font-semibold tracking-tight leading-tight">
                   {isAr
                     ? 'جاهزة لتنظيم مشغلك ومضاعفة إشغال المواعيد في المواسم؟'
                     : 'Ready to Streamline Your Salon & Maximize Peak Season Bookings?'}
@@ -1135,7 +1135,7 @@ export default async function FacilityTypePage({ params }: FacilityPageProps) {
                 </span>
               </div>
 
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-ink tracking-tight leading-tight">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-ink tracking-tight leading-tight">
                 {isAr
                   ? 'نظام إدارة لصالونات الرجال ومحلات الحلاقة'
                   : 'Management Software for Barbershops & Men Grooming'}
@@ -1193,7 +1193,7 @@ export default async function FacilityTypePage({ params }: FacilityPageProps) {
                 <span className="text-xs font-bold text-dusty-blue uppercase tracking-wider">
                   {isAr ? 'محاكاة تشغيلية لصالة الحلاقة' : 'Interactive Barbershop Simulation'}
                 </span>
-                <h2 className="text-2xl sm:text-3xl font-black text-ink">
+                <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
                   {isAr
                     ? 'شاشة كراسي الحلاقة الحية واشتراكات شهرية تؤمّن دخلك'
                     : 'Live Chair Queue Board & Recurring Monthly Passes'}
@@ -1397,7 +1397,7 @@ export default async function FacilityTypePage({ params }: FacilityPageProps) {
                 <span className="text-xs font-bold text-dusty-blue uppercase tracking-wider">
                   {isAr ? 'ركائز صالونات الحلاقة' : 'Barbershop Pillars'}
                 </span>
-                <h2 className="text-2xl sm:text-3xl font-black text-ink">
+                <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
                   {isAr
                     ? '6 ركائز لتسريع خدمة الزبائن ومضاعفة إيرادات صالونك'
                     : '6 Pillars to Turbocharge Turnover & Maximize Chair Revenue'}
@@ -1444,7 +1444,7 @@ export default async function FacilityTypePage({ params }: FacilityPageProps) {
                   </span>
                 </div>
 
-                <h2 className="text-2xl sm:text-3xl font-black text-ink leading-tight">
+                <h2 className="text-2xl sm:text-3xl font-semibold text-ink leading-tight">
                   {isAr
                     ? 'زبونك يحجز في طريقه للصالون.. ويدخل الكرسي بدون انتظار دقيقة واحدة!'
                     : 'Clients Book En Route & Walk Straight to the Barber Chair'}
@@ -1480,7 +1480,7 @@ export default async function FacilityTypePage({ params }: FacilityPageProps) {
                 <span className="text-xs font-bold text-dusty-blue uppercase tracking-wider">
                   {isAr ? 'الأسئلة الشائعة' : 'Frequently Asked Questions'}
                 </span>
-                <h2 className="text-2xl sm:text-3xl font-black text-ink">
+                <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
                   {isAr
                     ? 'أسئلة شائعة حول برنامج إدارة صالونات الحلاقة الرجالية'
                     : 'Frequently Asked Questions about Barbershop Management'}
@@ -1513,7 +1513,7 @@ export default async function FacilityTypePage({ params }: FacilityPageProps) {
                   <span>{isAr ? 'سرعة وتشغيل منظم' : 'High-Speed Barbershop Ops'}</span>
                 </div>
 
-                <h2 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight">
+                <h2 className="text-2xl sm:text-4xl font-semibold tracking-tight leading-tight">
                   {isAr
                     ? 'جاهز لتسريع صالونك ومضاعفة دوران كراسي الحلاقة؟'
                     : 'Ready to Accelerate Chair Turnover & Eliminate Wait Times?'}
@@ -1568,7 +1568,7 @@ export default async function FacilityTypePage({ params }: FacilityPageProps) {
                 </span>
               </div>
 
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-ink tracking-tight leading-tight">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-ink tracking-tight leading-tight">
                 {isAr
                   ? 'منظومة لمراكز التجميل والسبا متعددة الخدمات'
                   : 'All-in-One Platform for Multi-Service Beauty Centers & Spas'}
@@ -1626,7 +1626,7 @@ export default async function FacilityTypePage({ params }: FacilityPageProps) {
                 <span className="text-xs font-bold text-dusty-blue uppercase tracking-wider">
                   {isAr ? 'محاكاة تشغيلية لمركز السبا' : 'Interactive Spa Operations'}
                 </span>
-                <h2 className="text-2xl sm:text-3xl font-black text-ink">
+                <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
                   {isAr
                     ? 'جدولة أجنحة السبا متعددة المدد ولوحة رقابة مركزية للفروع'
                     : 'Multi-Duration Room Dispatcher & Multi-Branch Executive KPIs'}
@@ -1844,7 +1844,7 @@ export default async function FacilityTypePage({ params }: FacilityPageProps) {
                 <span className="text-xs font-bold text-dusty-blue uppercase tracking-wider">
                   {isAr ? 'ركائز مراكز التجميل والسبا' : 'Enterprise Spa Pillars'}
                 </span>
-                <h2 className="text-2xl sm:text-3xl font-black text-ink">
+                <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
                   {isAr
                     ? '6 ركائز مصممة للتعقيد التشغيلي لمراكز التجميل والسبا الكبرى'
                     : '6 Pillars Engineered for Large Multi-Service Beauty Centers'}
@@ -1891,7 +1891,7 @@ export default async function FacilityTypePage({ params }: FacilityPageProps) {
                   </span>
                 </div>
 
-                <h2 className="text-2xl sm:text-3xl font-black text-ink leading-tight">
+                <h2 className="text-2xl sm:text-3xl font-semibold text-ink leading-tight">
                   {isAr
                     ? 'من مركز واحد إلى سلسلة فروع.. إدارة موحدة بأعلى درجات التحكم'
                     : 'From a Single Sanctuary to a National Chain: Unified Enterprise Command'}
@@ -1927,7 +1927,7 @@ export default async function FacilityTypePage({ params }: FacilityPageProps) {
                 <span className="text-xs font-bold text-dusty-blue uppercase tracking-wider">
                   {isAr ? 'الأسئلة الشائعة' : 'Frequently Asked Questions'}
                 </span>
-                <h2 className="text-2xl sm:text-3xl font-black text-ink">
+                <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
                   {isAr
                     ? 'أسئلة شائعة حول إدارة مراكز التجميل والسبا'
                     : 'Frequently Asked Questions about Beauty Centers & Spas'}
@@ -1960,7 +1960,7 @@ export default async function FacilityTypePage({ params }: FacilityPageProps) {
                   <span>{isAr ? 'إدارة فاخرة وانسيابية تامة' : 'Luxury Spa Orchestration'}</span>
                 </div>
 
-                <h2 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight">
+                <h2 className="text-2xl sm:text-4xl font-semibold tracking-tight leading-tight">
                   {isAr
                     ? 'جاهز لضبط تشغيل مركز التجميل والسبا ومضاعفة أرباح فروعك؟'
                     : 'Ready to Elevate Your Spa Operations & Maximize Multi-Branch Growth?'}
@@ -2015,7 +2015,7 @@ export default async function FacilityTypePage({ params }: FacilityPageProps) {
                 </span>
               </div>
 
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-ink tracking-tight leading-tight">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-ink tracking-tight leading-tight">
                 {isAr
                   ? 'برنامج إدارة عيادات ومجمعات التجميل والجلدية'
                   : 'Precision Management for Aesthetic & Dermatology Clinics'}
@@ -2073,7 +2073,7 @@ export default async function FacilityTypePage({ params }: FacilityPageProps) {
                 <span className="text-xs font-bold text-dusty-blue uppercase tracking-wider">
                   {isAr ? 'محاكاة تشغيلية للعيادة ومجمع التجميل' : 'Interactive Clinical Operations'}
                 </span>
-                <h2 className="text-2xl sm:text-3xl font-black text-ink">
+                <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
                   {isAr
                     ? 'جدولة أجهزة الليزر ثلاثية الموارد والسجل الطبي المشفر'
                     : 'Tri-Resource Laser Dispatcher & Encrypted E-Health Record'}
@@ -2318,7 +2318,7 @@ export default async function FacilityTypePage({ params }: FacilityPageProps) {
                 <span className="text-xs font-bold text-dusty-blue uppercase tracking-wider">
                   {isAr ? 'الركائز الست لمنظومة العيادات' : 'The 6 Clinical Pillars'}
                 </span>
-                <h2 className="text-2xl sm:text-3xl font-black text-ink">
+                <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
                   {isAr
                     ? 'كل ما يحتاجه مجمع التجميل والجلدية في منصة سحابية واحدة'
                     : 'Everything Your Aesthetic Clinic Needs in One Unified Platform'}
@@ -2365,7 +2365,7 @@ export default async function FacilityTypePage({ params }: FacilityPageProps) {
                   </span>
                 </div>
 
-                <h2 className="text-2xl sm:text-3xl font-black text-ink leading-tight">
+                <h2 className="text-2xl sm:text-3xl font-semibold text-ink leading-tight">
                   {isAr
                     ? 'بيانات مرضاك وملاحظاتهم الطبية في حصن سحابي مشفر'
                     : 'Confidential Patient Health Records in a Bank-Grade Cloud Fortress'}
@@ -2401,7 +2401,7 @@ export default async function FacilityTypePage({ params }: FacilityPageProps) {
                 <span className="text-xs font-bold text-dusty-blue uppercase tracking-wider">
                   {isAr ? 'الأسئلة الشائعة' : 'Frequently Asked Questions'}
                 </span>
-                <h2 className="text-2xl sm:text-3xl font-black text-ink">
+                <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
                   {isAr
                     ? 'أسئلة شائعة حول إدارة عيادات ومجمعات التجميل'
                     : 'Frequently Asked Questions about Aesthetic Clinic Software'}
@@ -2434,7 +2434,7 @@ export default async function FacilityTypePage({ params }: FacilityPageProps) {
                   <span>{isAr ? 'دقة سريرية وتشغيل احترافي' : 'Clinical Precision & Seamless Ops'}</span>
                 </div>
 
-                <h2 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight">
+                <h2 className="text-2xl sm:text-4xl font-semibold tracking-tight leading-tight">
                   {isAr
                     ? 'جاهز لضبط تشغيل عيادتك ومضاعفة كفاءة أجهزة التجميل؟'
                     : 'Ready to Streamline Your Clinic & Maximize Aesthetic Device ROI?'}

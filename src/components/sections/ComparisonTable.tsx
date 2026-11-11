@@ -94,12 +94,12 @@ export const ComparisonTable: React.FC<ComparisonTableProps> = ({
     <section className="py-16 md:py-24 bg-[#FAFBFB] border-t border-mist-gray">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto space-y-4 mb-12">
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-ink tracking-tight">
+          <h2 className="text-2xl sm:text-3xl font-semibold text-ink tracking-tight leading-tight">
             {isAr
               ? 'لماذا يختار أصحاب الصالونات والمشاغل راش إكس؟'
               : 'Why Salons & Studios Choose RashX'}
           </h2>
-          <p className="text-sm text-ink-muted">
+          <p className="text-xs sm:text-sm font-normal leading-relaxed text-ink-muted">
             {isAr
               ? 'مقارنة شفافة بين راش إكس والحلول البرمجية التقليدية والدفاتر اليدوية.'
               : 'A transparent comparison between RashX, legacy desktop software, and manual registers.'}
@@ -110,19 +110,19 @@ export const ComparisonTable: React.FC<ComparisonTableProps> = ({
           <table className="w-full text-start text-xs sm:text-sm">
             <thead>
               <tr className="border-b border-mist-gray bg-mist-gray/30">
-                <th className="py-4 px-6 text-start font-bold text-ink w-1/2">
+                <th className="py-4 px-6 text-start font-semibold text-ink w-1/2">
                   {isAr ? 'المعيار / الميزة' : 'Criterion / Feature'}
                 </th>
-                <th className="py-4 px-4 text-center font-bold text-black bg-dusty-blue/20">
+                <th className="py-4 px-4 text-center font-semibold text-black bg-dusty-blue/20">
                   <div className="flex items-center justify-center gap-1">
                     <Sparkles className="w-3.5 h-3.5 text-dusty-blue" />
                     <span>راش إكس (RashX)</span>
                   </div>
                 </th>
-                <th className="py-4 px-4 text-center font-semibold text-ink-muted">
+                <th className="py-4 px-4 text-center font-medium text-ink-muted">
                   {isAr ? 'البرامج القديمة المنفصلة' : 'Legacy Software'}
                 </th>
-                <th className="py-4 px-4 text-center font-semibold text-ink-muted">
+                <th className="py-4 px-4 text-center font-medium text-ink-muted">
                   {isAr ? 'الدفاتر والملفات اليدوية' : 'Manual / Excel'}
                 </th>
               </tr>

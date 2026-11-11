@@ -137,11 +137,11 @@ export default async function DemoPage({ params }: DemoPageProps) {
             </span>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-ink tracking-tight leading-tight">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-ink tracking-tight leading-tight">
             {isAr ? 'شاهد RashX تعمل على صالونك خلال 20 دقيقة' : 'See RashX Live on Your Salon in 20 Minutes'}
           </h1>
 
-          <p className="text-base sm:text-lg text-ink-muted leading-relaxed">
+          <p className="text-base sm:text-lg text-ink-muted leading-relaxed font-normal">
             {isAr
               ? 'احجز جلسة تفاعلية مباشرة عبر زووم أو جوجل ميت مع مستشار متخصص في قطاع التجميل السعودي. نوضح لك كيف تدير الحجوزات والموظفين والمخزون وفواتير ZATCA بكفاءة عالية وبدون تعقيد.'
               : 'Schedule a tailored live session with our Saudi beauty and wellness specialist. We will show you how to streamline appointments, staff commissions, inventory, and ZATCA e-invoicing effortlessly.'}

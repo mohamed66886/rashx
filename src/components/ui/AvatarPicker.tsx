@@ -232,7 +232,7 @@ export const AvatarPicker: React.FC<AvatarPickerProps> = ({
 
             <div className="min-w-0 flex-1 lg:flex-none">
               <p className="text-[11px] font-semibold text-[#5E6665]">معاينة مباشرة</p>
-              <h3 className="mt-0.5 text-lg font-extrabold text-black truncate">{label}</h3>
+              <h3 className="mt-0.5 text-lg font-semibold text-black truncate">{label}</h3>
               <p className="mt-1 hidden sm:block text-xs leading-relaxed text-[#5E6665]">
                 غيّر الشكل واللون والحالة وشوف النتيجة فورًا.
               </p>

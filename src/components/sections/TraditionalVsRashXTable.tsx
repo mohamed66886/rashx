@@ -85,18 +85,18 @@ export const TraditionalVsRashXTable: React.FC<TraditionalVsRashXTableProps> = (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto space-y-4 mb-14">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-mist-gray text-ink text-xs font-bold">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-mist-gray text-ink text-xs font-medium">
             <Sparkles className="w-3.5 h-3.5 text-dusty-blue" />
             <span>{isAr ? 'مقارنة الفوارق التشغيلية' : 'Operational Comparison'}</span>
           </div>
 
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-ink tracking-tight">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-ink tracking-tight leading-tight">
             {isAr
               ? 'الإدارة بالطريقة التقليدية (ورق / إكسل / واتساب) مقابل راش إكس'
               : 'Traditional Salon Management (Paper / Excel / WhatsApp) vs. RashX'}
           </h2>
 
-          <p className="text-sm sm:text-base text-ink-muted leading-relaxed">
+          <p className="text-xs sm:text-sm font-normal text-ink-muted leading-relaxed">
             {isAr
               ? 'اكتشف الفرق الجوهري بين إهدار الساعات في الأعمال اليدوية المعرضة للخطأ، وبين إدارة منشأتك بمنظومة رقمية ذكية ومؤتمتة بالكامل.'
               : 'Discover the profound shift from manual error-prone tasks to a synchronized, automated digital ecosystem.'}
@@ -108,16 +108,16 @@ export const TraditionalVsRashXTable: React.FC<TraditionalVsRashXTableProps> = (
           <table className="w-full text-start text-xs sm:text-sm">
             <thead>
               <tr className="border-b border-mist-gray">
-                <th className="py-5 px-6 text-start font-bold text-ink w-1/4 bg-mist-gray/30">
+                <th className="py-5 px-6 text-start font-semibold text-ink w-1/4 bg-mist-gray/30">
                   {isAr ? 'مجال العمليات' : 'Operational Area'}
                 </th>
-                <th className="py-5 px-6 text-start font-bold text-rose-700 w-[37.5%] bg-rose-50/50 border-e border-mist-gray/70">
+                <th className="py-5 px-6 text-start font-semibold text-rose-700 w-[37.5%] bg-rose-50/50 border-e border-mist-gray/70">
                   <div className="flex items-center gap-2">
                     <X className="w-4 h-4 text-rose-600" />
                     <span>{isAr ? 'الطريقة التقليدية (ورق / إكسل / شات)' : 'Traditional Methods (Paper / Excel)'}</span>
                   </div>
                 </th>
-                <th className="py-5 px-6 text-start font-bold text-black w-[37.5%] bg-dusty-blue/20">
+                <th className="py-5 px-6 text-start font-semibold text-black w-[37.5%] bg-dusty-blue/20">
                   <div className="flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-dusty-blue" />
                     <span>{isAr ? 'منظومة راش إكس (RashX)' : 'RashX Platform'}</span>

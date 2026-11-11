@@ -125,11 +125,11 @@ export const LeadForm: React.FC<LeadFormProps> = ({
             <CheckCircle2 className="w-10 h-10" />
           </div>
 
-          <h3 className="text-2xl font-bold text-ink">
+          <h3 className="text-xl sm:text-2xl font-semibold text-ink">
             {isAr ? 'تم استلام طلبك بنجاح!' : 'Your Request Has Been Received!'}
           </h3>
 
-          <p className="text-sm text-ink-muted max-w-md mx-auto leading-relaxed">
+          <p className="text-xs sm:text-sm font-normal text-ink-muted max-w-md mx-auto leading-relaxed">
             {isAr
               ? 'شكرًا لاهتمامك بمنصة راش إكس. سيتواصل معك أحد مستشارينا في السعودية خلال أقل من ساعتي عمل لجدولة العرض الحي وتجهيز نطاقك التجريبي.'
               : 'Thank you for choosing RashX. A Saudi specialist will contact you within two business hours to schedule your walkthrough.'}
@@ -152,7 +152,7 @@ export const LeadForm: React.FC<LeadFormProps> = ({
                   websiteUrlHoneypot: '',
                 });
               }}
-              className="px-5 py-2.5 text-xs font-bold text-ink bg-mist-gray hover:bg-mist-gray/80 rounded-xl transition-colors"
+              className="px-5 py-2.5 text-xs font-medium text-ink bg-mist-gray hover:bg-mist-gray/80 rounded-xl transition-colors"
             >
               {isAr ? 'إرسال طلب لمنشأة أخرى' : 'Submit Another Request'}
             </button>
@@ -161,10 +161,10 @@ export const LeadForm: React.FC<LeadFormProps> = ({
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
           <div className="space-y-1">
-            <h3 className="text-xl sm:text-2xl font-extrabold text-ink">
+            <h3 className="text-lg sm:text-xl md:text-2xl font-semibold text-ink">
               {title || (isAr ? 'احجز عرضًا تجريبيًا مخصصًا لمنشأتك' : 'Book a Tailored Demo for Your Facility')}
             </h3>
-            <p className="text-xs sm:text-sm text-ink-muted">
+            <p className="text-xs sm:text-sm font-normal text-ink-muted">
               {subtitle ||
                 (isAr
                   ? 'استكشف لوحة التحكم، موقع المنشأة، وتطبيق العميل مع مستشار سعودي متمرس.'
@@ -199,7 +199,7 @@ export const LeadForm: React.FC<LeadFormProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Full Name */}
             <div className="space-y-1.5">
-              <label className="block text-xs font-bold text-ink">
+              <label className="block text-xs font-medium text-ink">
                 {isAr ? 'الاسم الكامل *' : 'Full Name *'}
               </label>
               <input
@@ -208,13 +208,13 @@ export const LeadForm: React.FC<LeadFormProps> = ({
                 value={formData.fullName}
                 onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                 placeholder={isAr ? 'مثال: سارة العتيبي' : 'e.g. Sarah Al-Otaibi'}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-mist-gray bg-[#FAFBFB] text-ink text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-dusty-blue focus:bg-white transition-all"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-mist-gray bg-[#FAFBFB] text-ink text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-dusty-blue focus:bg-white transition-all font-normal"
               />
             </div>
 
             {/* Mobile Number */}
             <div className="space-y-1.5">
-              <label className="block text-xs font-bold text-ink">
+              <label className="block text-xs font-medium text-ink">
                 {isAr ? 'رقم الجوال (سعودي) *' : 'Mobile Number (Saudi) *'}
               </label>
               <input
@@ -224,7 +224,7 @@ export const LeadForm: React.FC<LeadFormProps> = ({
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                 placeholder="05xxxxxxxx"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-mist-gray bg-[#FAFBFB] text-ink text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-dusty-blue focus:bg-white text-start transition-all"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-mist-gray bg-[#FAFBFB] text-ink text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-dusty-blue focus:bg-white text-start transition-all font-normal"
               />
             </div>
           </div>
@@ -232,7 +232,7 @@ export const LeadForm: React.FC<LeadFormProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Facility Name */}
             <div className="space-y-1.5">
-              <label className="block text-xs font-bold text-ink">
+              <label className="block text-xs font-medium text-ink">
                 {isAr ? 'اسم المنشأة / الصالون *' : 'Facility / Salon Name *'}
               </label>
               <input
@@ -241,19 +241,19 @@ export const LeadForm: React.FC<LeadFormProps> = ({
                 value={formData.facilityName}
                 onChange={(e) => setFormData({ ...formData, facilityName: e.target.value })}
                 placeholder={isAr ? 'مثال: صالون لمسة حرير' : 'e.g. Silk Touch Salon'}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-mist-gray bg-[#FAFBFB] text-ink text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-dusty-blue focus:bg-white transition-all"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-mist-gray bg-[#FAFBFB] text-ink text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-dusty-blue focus:bg-white transition-all font-normal"
               />
             </div>
 
             {/* Facility Type */}
             <div className="space-y-1.5">
-              <label className="block text-xs font-bold text-ink">
+              <label className="block text-xs font-medium text-ink">
                 {isAr ? 'نوع المنشأة *' : 'Facility Type *'}
               </label>
               <select
                 value={formData.facilityType}
                 onChange={(e) => setFormData({ ...formData, facilityType: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-mist-gray bg-[#FAFBFB] text-ink text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-dusty-blue focus:bg-white transition-all"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-mist-gray bg-[#FAFBFB] text-ink text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-dusty-blue focus:bg-white transition-all font-normal"
               >
                 <option value="salon_women">
                   {isAr ? 'صالون نسائي / مشغل' : 'Women Salon / Studio'}
@@ -274,13 +274,13 @@ export const LeadForm: React.FC<LeadFormProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* City */}
             <div className="space-y-1.5">
-              <label className="block text-xs font-bold text-ink">
+              <label className="block text-xs font-medium text-ink">
                 {isAr ? 'المدينة *' : 'City *'}
               </label>
               <select
                 value={formData.city}
                 onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-mist-gray bg-[#FAFBFB] text-ink text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-dusty-blue focus:bg-white transition-all"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-mist-gray bg-[#FAFBFB] text-ink text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-dusty-blue focus:bg-white transition-all font-normal"
               >
                 <option value="riyadh">{isAr ? 'الرياض' : 'Riyadh'}</option>
                 <option value="jeddah">{isAr ? 'جدة' : 'Jeddah'}</option>
@@ -300,13 +300,13 @@ export const LeadForm: React.FC<LeadFormProps> = ({
 
             {/* Branches Count */}
             <div className="space-y-1.5">
-              <label className="block text-xs font-bold text-ink">
+              <label className="block text-xs font-medium text-ink">
                 {isAr ? 'عدد الفروع *' : 'Number of Branches *'}
               </label>
               <select
                 value={formData.branches}
                 onChange={(e) => setFormData({ ...formData, branches: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-mist-gray bg-[#FAFBFB] text-ink text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-dusty-blue focus:bg-white transition-all"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-mist-gray bg-[#FAFBFB] text-ink text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-dusty-blue focus:bg-white transition-all font-normal"
               >
                 <option value="1">{isAr ? 'فرع واحد' : '1 Branch'}</option>
                 <option value="2_3">{isAr ? '2 - 3 فروع' : '2 - 3 Branches'}</option>
@@ -321,16 +321,16 @@ export const LeadForm: React.FC<LeadFormProps> = ({
           {/* Preferred Demo Time (Morning / Evening / Any) */}
           {showPreferredTime && (
             <div className="space-y-1.5">
-              <label className="block text-xs font-bold text-ink">
+              <label className="block text-xs font-medium text-ink">
                 {isAr ? 'الموعد المفضل للعرض التجريبي *' : 'Preferred Demo Time *'}
               </label>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                 <button
                   type="button"
                   onClick={() => setFormData({ ...formData, preferredTime: 'morning' })}
-                  className={`flex items-center justify-center gap-2 p-2.5 rounded-xl border text-xs font-semibold transition-all ${
+                  className={`flex items-center justify-center gap-2 p-2.5 rounded-xl border text-xs font-medium transition-all ${
                     formData.preferredTime === 'morning'
-                      ? 'bg-dusty-blue/20 border-dusty-blue text-black shadow-2xs font-bold'
+                      ? 'bg-dusty-blue/20 border-dusty-blue text-black shadow-2xs font-semibold'
                       : 'bg-[#FAFBFB] border-mist-gray text-ink hover:bg-mist-gray/40'
                   }`}
                 >
@@ -341,9 +341,9 @@ export const LeadForm: React.FC<LeadFormProps> = ({
                 <button
                   type="button"
                   onClick={() => setFormData({ ...formData, preferredTime: 'evening' })}
-                  className={`flex items-center justify-center gap-2 p-2.5 rounded-xl border text-xs font-semibold transition-all ${
+                  className={`flex items-center justify-center gap-2 p-2.5 rounded-xl border text-xs font-medium transition-all ${
                     formData.preferredTime === 'evening'
-                      ? 'bg-dusty-blue/20 border-dusty-blue text-black shadow-2xs font-bold'
+                      ? 'bg-dusty-blue/20 border-dusty-blue text-black shadow-2xs font-semibold'
                       : 'bg-[#FAFBFB] border-mist-gray text-ink hover:bg-mist-gray/40'
                   }`}
                 >
@@ -354,9 +354,9 @@ export const LeadForm: React.FC<LeadFormProps> = ({
                 <button
                   type="button"
                   onClick={() => setFormData({ ...formData, preferredTime: 'any' })}
-                  className={`col-span-2 sm:col-span-1 flex items-center justify-center gap-2 p-2.5 rounded-xl border text-xs font-semibold transition-all ${
+                  className={`col-span-2 sm:col-span-1 flex items-center justify-center gap-2 p-2.5 rounded-xl border text-xs font-medium transition-all ${
                     formData.preferredTime === 'any'
-                      ? 'bg-dusty-blue/20 border-dusty-blue text-black shadow-2xs font-bold'
+                      ? 'bg-dusty-blue/20 border-dusty-blue text-black shadow-2xs font-semibold'
                       : 'bg-[#FAFBFB] border-mist-gray text-ink hover:bg-mist-gray/40'
                   }`}
                 >
@@ -369,7 +369,7 @@ export const LeadForm: React.FC<LeadFormProps> = ({
 
           {/* Notes / Message */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-ink">
+            <label className="block text-xs font-medium text-ink">
               {isAr ? 'ملاحظات أو متطلبات خاصة (اختياري)' : 'Special Requirements (Optional)'}
             </label>
             <textarea
@@ -381,7 +381,7 @@ export const LeadForm: React.FC<LeadFormProps> = ({
                   ? 'أخبرنا بأهم أولوياتك (مثل: ضبط العمولات، جرد المخزون، الفوترة الإلكترونية)...'
                   : 'Tell us your top operational priorities...'
               }
-              className="w-full px-3.5 py-2.5 rounded-xl border border-mist-gray bg-[#FAFBFB] text-ink text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-dusty-blue focus:bg-white transition-all"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-mist-gray bg-[#FAFBFB] text-ink text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-dusty-blue focus:bg-white transition-all font-normal"
             />
           </div>
 
@@ -389,7 +389,7 @@ export const LeadForm: React.FC<LeadFormProps> = ({
           <button
             type="submit"
             disabled={status === 'loading'}
-            className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 text-sm font-bold text-black bg-dusty-blue hover:bg-dusty-blue/90 disabled:opacity-50 rounded-2xl shadow-md transition-all active:scale-[0.99] cursor-pointer"
+            className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 text-xs font-semibold sm:text-sm md:text-base text-black bg-dusty-blue hover:bg-dusty-blue/90 disabled:opacity-50 rounded-2xl shadow-md transition-all active:scale-[0.99] cursor-pointer"
           >
             {status === 'loading' ? (
               <span>{isAr ? 'جاري الإرسال وتأكيد الطلب...' : 'Submitting...'}</span>

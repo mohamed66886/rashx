@@ -461,7 +461,7 @@ export const TimePicker = React.forwardRef<HTMLInputElement, TimePickerProps>(
                           : 'bg-white hover:bg-[#E5E9E8]/60 text-black'
                       }`}
                     >
-                      <span className="text-sm font-black">{p}</span>
+                      <span className="text-sm font-semibold">{p}</span>
                       <span className="text-[10px] font-normal opacity-90">
                         {p === 'AM' ? 'صباحاً (ص)' : 'مساءً (م)'}
                       </span>

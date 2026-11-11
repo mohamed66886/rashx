@@ -168,12 +168,12 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           </div>
 
           {/* Title H1 */}
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-black text-ink tracking-tight leading-tight">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-semibold text-ink tracking-tight leading-tight">
             {articleTitle}
           </h1>
 
           {/* Summary / Deck */}
-          <p className="text-base sm:text-lg text-ink-muted leading-relaxed">
+          <p className="text-base sm:text-lg text-ink-muted leading-relaxed font-normal">
             {isAr ? post.descriptionAr : post.descriptionEn}
           </p>
 
@@ -251,11 +251,11 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           {post.sections.map((sec, sIdx) => (
             <React.Fragment key={sec.id}>
               <section id={sec.id} className="space-y-4 scroll-mt-24">
-                <h2 className="text-xl sm:text-2xl font-black text-ink tracking-tight">
+                <h2 className="text-xl sm:text-2xl font-semibold text-ink tracking-tight">
                   {isAr ? sec.titleAr : sec.titleEn}
                 </h2>
 
-                <div className="space-y-3.5 text-sm sm:text-base text-ink-muted leading-relaxed">
+                <div className="space-y-3.5 text-sm sm:text-base text-ink-muted leading-relaxed font-normal">
                   {(isAr ? sec.contentAr : sec.contentEn).map((paragraph, pIdx) => (
                     <p key={pIdx}>{paragraph}</p>
                   ))}
@@ -336,7 +336,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
         {/* Author Bio Box */}
         <div className="p-6 sm:p-8 rounded-3xl bg-white border border-mist-gray flex flex-col sm:flex-row items-start sm:items-center gap-6 shadow-xs">
-          <div className="w-16 h-16 rounded-2xl bg-ink text-dusty-blue flex items-center justify-center font-black text-xl border border-dusty-blue/30 shadow-md shrink-0">
+          <div className="w-16 h-16 rounded-2xl bg-ink text-dusty-blue flex items-center justify-center font-semibold text-xl border border-dusty-blue/30 shadow-md shrink-0">
             {post.authorType === 'founder' ? 'MR' : 'RX'}
           </div>
 
@@ -421,13 +421,13 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         {/* Closing CTA Box */}
         <div className="rounded-3xl bg-ink text-white p-8 sm:p-10 text-center space-y-5 relative overflow-hidden shadow-xl">
           <div className="max-w-2xl mx-auto space-y-3 relative z-10">
-            <h2 className="text-xl sm:text-3xl font-black tracking-tight leading-tight">
+            <h2 className="text-xl sm:text-3xl font-semibold tracking-tight leading-tight">
               {isAr
                 ? 'جاهز لتطبيق هذه الرؤى العملية على صالونك؟'
                 : 'Ready to Put These Operational Insights into Practice?'}
             </h2>
 
-            <p className="text-xs sm:text-sm text-mist-gray/80 leading-relaxed max-w-xl mx-auto">
+            <p className="text-xs sm:text-sm text-mist-gray/80 leading-relaxed max-w-xl mx-auto font-normal">
               {isAr
                 ? 'شاهد كيف تدير راش إكس الفوترة الإلكترونية ZATCA، طابور الانتظار، وعمولات الكوادر في عرض حي مخصص مدته 20 دقيقة، مع تجربة مجانية لمدة 14 يومًا.'
                 : 'Discover how RashX automates ZATCA e-invoicing, walk-in queues, and staff commissions in a 20-minute tailored walkthrough. Includes a 14-day free trial.'}

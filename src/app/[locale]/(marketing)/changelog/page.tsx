@@ -131,13 +131,13 @@ export default async function ChangelogPage({ params }: ChangelogPageProps) {
             </span>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-ink tracking-tight leading-tight">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-ink tracking-tight leading-tight">
             {isAr
               ? 'سجل التحديثات والأخبار: كل جديد في راش إكس'
               : 'Product Changelog: What’s New in RashX'}
           </h1>
 
-          <p className="text-base sm:text-lg text-ink-muted leading-relaxed">
+          <p className="text-base sm:text-lg text-ink-muted leading-relaxed font-normal">
             {isAr
               ? 'تتبع تطور المنصة لحظة بلحظة: الإطلاقات الكبرى، المزايا التشغيلية المضافة لكاشير الصالونات، التحسينات النظامية والأمنية، والشراكات المعتمدة في المملكة العربية السعودية.'
               : 'Follow our platform journey: major releases, new cashier workflows, regulatory and cybersecurity updates, and strategic Saudi partnerships.'}
@@ -150,18 +150,18 @@ export default async function ChangelogPage({ params }: ChangelogPageProps) {
         {/* Closing CTA */}
         <div className="rounded-3xl bg-ink text-white p-8 sm:p-12 text-center space-y-6 relative overflow-hidden shadow-xl mt-16">
           <div className="max-w-2xl mx-auto space-y-3 relative z-10">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-white text-xs font-semibold backdrop-blur-xs">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-white text-xs font-medium backdrop-blur-xs">
               <Sparkles className="w-3.5 h-3.5 text-dusty-blue" />
               <span>{isAr ? 'تطوير مستمر لخدمة صالونك' : 'Continuous Evolution'}</span>
             </div>
 
-            <h2 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight">
+            <h2 className="text-2xl sm:text-4xl font-semibold tracking-tight leading-tight">
               {isAr
                 ? 'جاهز لاختبار هذه المزايا في صالونك؟'
                 : 'Ready to Experience These Features in Your Facility?'}
             </h2>
 
-            <p className="text-xs sm:text-sm text-mist-gray/80 leading-relaxed max-w-xl mx-auto">
+            <p className="text-xs sm:text-sm text-mist-gray/80 leading-relaxed max-w-xl mx-auto font-normal">
               {isAr
                 ? 'احجز جلسة عرض حي مدتها 20 دقيقة لنشرح لك كيف توفر راش إكس الفوترة الإلكترونية، أمان البيانات، وإدارة العمولات آلياً لصالونك، مع تجربة مجانية لمدة 14 يومًا.'
                 : 'Book a 20-minute tailored walkthrough and see how RashX automates booking, ZATCA e-invoicing, and loyalty for your facility. Includes a 14-day free trial.'}

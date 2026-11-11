@@ -95,13 +95,13 @@ export default async function CaseStudiesPage({ params }: CaseStudiesPageProps) 
           </div>
 
           {/* Mandatory Exact H1 */}
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-ink tracking-tight leading-tight">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-ink tracking-tight leading-tight">
             {isAr
               ? 'قصص نجاح منشآت تدير أعمالها مع RashX'
               : 'Success Stories of Facilities Powered by RashX'}
           </h1>
 
-          <p className="text-base sm:text-lg text-ink-muted leading-relaxed">
+          <p className="text-base sm:text-lg text-ink-muted leading-relaxed font-normal">
             {isAr
               ? 'كيف تسهم راش إكس في رفع كفاءة التشغيل، القضاء على تعارض المواعيد، وضبط العمولات والفوترة الإلكترونية للصالونات والمشاغل والسبا في المملكة العربية السعودية.'
               : 'Discover how RashX elevates operational efficiency, eliminates double-bookings, and streamlines e-invoicing for salons and spas across Saudi Arabia.'}
@@ -136,10 +136,10 @@ export default async function CaseStudiesPage({ params }: CaseStudiesPageProps) 
         {/* Section 2: Case Study Template Blueprints */}
         <div className="space-y-8">
           <div className="space-y-2">
-            <div className="text-xs font-bold text-dusty-blue uppercase tracking-wider">
+            <div className="text-xs font-medium text-dusty-blue uppercase tracking-wider">
               {isAr ? 'قوالب دراسات الحالة التشغيلية' : 'Case Study Impact Blueprints'}
             </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-ink">
+            <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
               {isAr
                 ? 'هيكلية قياس الأثر والتحول في المنشآت الشريكة'
                 : 'Operational Transformation Framework Across Facility Types'}
@@ -382,18 +382,18 @@ export default async function CaseStudiesPage({ params }: CaseStudiesPageProps) 
         {/* Section 4: Closing CTA */}
         <div className="rounded-3xl bg-ink text-white p-8 sm:p-12 text-center space-y-6 relative overflow-hidden shadow-xl">
           <div className="max-w-2xl mx-auto space-y-3 relative z-10">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-white text-xs font-semibold backdrop-blur-xs">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-white text-xs font-medium backdrop-blur-xs">
               <Sparkles className="w-3.5 h-3.5 text-dusty-blue" />
               <span>{isAr ? 'ابدأ رحلة تحول صالونك' : 'Begin Your Salon Transformation'}</span>
             </div>
 
-            <h2 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight">
+            <h2 className="text-2xl sm:text-4xl font-semibold tracking-tight leading-tight">
               {isAr
                 ? 'جاهز لتكون قصة النجاح القادمة مع راش إكس؟'
                 : 'Ready to Become the Next Success Story with RashX?'}
             </h2>
 
-            <p className="text-xs sm:text-sm text-mist-gray/80 leading-relaxed max-w-xl mx-auto">
+            <p className="text-xs sm:text-sm text-mist-gray/80 leading-relaxed max-w-xl mx-auto font-normal">
               {isAr
                 ? 'اكتشف كيف تدير راش إكس الحجوزات والمبيعات والعمولات بنطاق فرعي مستقل وهوية صالونك في جلسة عرض حي مدتها 20 دقيقة، مع تجربة مجانية لمدة 14 يومًا.'
                 : 'Discover how RashX streamlines appointments, sales, and commissions under your dedicated subdomain in a 20-minute tailored walkthrough. Includes a 14-day free trial.'}
@@ -403,7 +403,7 @@ export default async function CaseStudiesPage({ params }: CaseStudiesPageProps) 
           <div className="pt-2 flex flex-wrap items-center justify-center gap-4 relative z-10">
             <Link
               href={`/${locale}/demo`}
-              className="px-6 py-3.5 text-sm font-bold text-black bg-dusty-blue hover:bg-dusty-blue/90 rounded-xl shadow-md transition-all active:scale-[0.98]"
+              className="px-6 py-3.5 text-sm font-semibold text-black bg-dusty-blue hover:bg-dusty-blue/90 rounded-xl shadow-md transition-all active:scale-[0.98]"
             >
               {isAr ? 'احجز عرضًا تجريبيًا مجانيًا (20 دقيقة)' : 'Book Free 20-Min Demo'}
             </Link>

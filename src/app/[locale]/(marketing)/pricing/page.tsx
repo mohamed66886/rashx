@@ -93,12 +93,12 @@ export default async function PricingPage({ params }: PageProps) {
 
           <div className="pt-4">
             <div className="text-center max-w-2xl mx-auto mb-8 space-y-2">
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-ink tracking-tight">
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-ink tracking-tight">
                 {isAr
                   ? 'احجز عرضًا تجريبيًا مجانيًا لمنشأتك'
                   : 'Book a Free Personalized Walkthrough'}
               </h2>
-              <p className="text-xs sm:text-sm text-ink-muted">
+              <p className="text-xs sm:text-sm text-ink-muted font-normal">
                 {isAr
                   ? 'اختر الباقة المناسبة وسيقوم مستشارنا بتهيئة بيئة الاختبار لصالونك بدون أي رسوم أو التزام مالي.'
                   : 'Select your preferred tier and a specialist will set up your sandbox instance with zero risk.'}

@@ -108,7 +108,7 @@ export default async function TermsPage({ params }: TermsPageProps) {
             </span>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-ink tracking-tight">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-ink tracking-tight">
             {isAr ? 'شروط استخدام الموقع والخدمة' : 'Terms of Website & Service Usage'}
           </h1>
 

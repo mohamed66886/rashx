@@ -126,7 +126,7 @@ export function BlogArchiveClient({ posts, locale }: BlogArchiveClientProps) {
         <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={() => handleCategoryChange('all')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all active:scale-95 ${
+            className={`px-4 py-2 rounded-xl text-xs font-medium transition-all active:scale-95 ${
               selectedCategory === 'all'
                 ? 'bg-ink text-white shadow-xs'
                 : 'bg-white border border-mist-gray text-ink hover:bg-mist-gray/60'
@@ -145,7 +145,7 @@ export function BlogArchiveClient({ posts, locale }: BlogArchiveClientProps) {
               <button
                 key={cat.key}
                 onClick={() => handleCategoryChange(cat.key)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all active:scale-95 ${
+                className={`px-4 py-2 rounded-xl text-xs font-medium transition-all active:scale-95 ${
                   isSelected
                     ? 'bg-dusty-blue text-black shadow-xs'
                     : 'bg-white border border-mist-gray text-ink hover:bg-mist-gray/60'
@@ -165,8 +165,8 @@ export function BlogArchiveClient({ posts, locale }: BlogArchiveClientProps) {
           <div>
             {isAr ? (
               <>
-                عرض <span className="font-bold text-ink">{filteredPosts.length}</span> من أصل{' '}
-                <span className="font-bold text-ink">{posts.length}</span> مقالاً
+                عرض <span className="font-semibold text-ink">{filteredPosts.length}</span> من أصل{' '}
+                <span className="font-semibold text-ink">{posts.length}</span> مقالاً
                 {searchQuery && (
                   <span className="ms-1">
                     لمطابقة &ldquo;<span className="text-dusty-blue font-semibold">{searchQuery}</span>&rdquo;
@@ -175,8 +175,8 @@ export function BlogArchiveClient({ posts, locale }: BlogArchiveClientProps) {
               </>
             ) : (
               <>
-                Showing <span className="font-bold text-ink">{filteredPosts.length}</span> of{' '}
-                <span className="font-bold text-ink">{posts.length}</span> guides
+                Showing <span className="font-semibold text-ink">{filteredPosts.length}</span> of{' '}
+                <span className="font-semibold text-ink">{posts.length}</span> guides
                 {searchQuery && (
                   <span className="ms-1">
                     matching &ldquo;<span className="text-dusty-blue font-semibold">{searchQuery}</span>&rdquo;
@@ -189,7 +189,7 @@ export function BlogArchiveClient({ posts, locale }: BlogArchiveClientProps) {
           {(selectedCategory !== 'all' || searchQuery) && (
             <button
               onClick={handleClearFilters}
-              className="text-dusty-blue hover:underline font-bold text-xs"
+              className="text-dusty-blue hover:underline font-medium text-xs"
             >
               {isAr ? 'إعادة ضبط التصفية' : 'Reset filters'}
             </button>
@@ -208,7 +208,7 @@ export function BlogArchiveClient({ posts, locale }: BlogArchiveClientProps) {
               <div className="space-y-3.5">
                 {/* Meta Header */}
                 <div className="flex items-center justify-between text-[11px] text-ink-muted">
-                  <span className="px-2.5 py-1 rounded-full bg-mist-gray font-semibold text-ink">
+                  <span className="px-2.5 py-1 rounded-full bg-mist-gray font-medium text-ink">
                     {isAr ? post.categoryAr : post.categoryEn}
                   </span>
                   <span className="inline-flex items-center gap-1 font-mono">
@@ -218,14 +218,14 @@ export function BlogArchiveClient({ posts, locale }: BlogArchiveClientProps) {
                 </div>
 
                 {/* Title */}
-                <h2 className="text-base sm:text-lg font-bold text-ink leading-snug group-hover:text-dusty-blue transition-colors">
+                <h2 className="text-base sm:text-lg font-semibold text-ink leading-snug group-hover:text-dusty-blue transition-colors">
                   <Link href={`/${locale}/blog/${post.slug}`}>
                     {isAr ? post.titleAr : post.titleEn}
                   </Link>
                 </h2>
 
                 {/* Description */}
-                <p className="text-xs text-ink-muted leading-relaxed line-clamp-3">
+                <p className="text-xs sm:text-sm text-ink-muted leading-relaxed line-clamp-3 font-normal">
                   {isAr ? post.descriptionAr : post.descriptionEn}
                 </p>
               </div>
@@ -234,10 +234,10 @@ export function BlogArchiveClient({ posts, locale }: BlogArchiveClientProps) {
               <div className="pt-4 border-t border-mist-gray/70 space-y-3">
                 <div className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-full bg-ink text-white text-[9px] font-bold flex items-center justify-center">
+                    <div className="w-6 h-6 rounded-full bg-ink text-white text-[9px] font-semibold flex items-center justify-center">
                       {post.authorType === 'founder' ? 'MR' : 'RX'}
                     </div>
-                    <span className="font-semibold text-ink text-[11px] truncate max-w-[130px]">
+                    <span className="font-medium text-ink text-[11px] truncate max-w-[130px]">
                       {isAr ? post.authorAr : post.authorEn}
                     </span>
                   </div>
@@ -250,7 +250,7 @@ export function BlogArchiveClient({ posts, locale }: BlogArchiveClientProps) {
                 <div className="pt-1 flex items-center justify-end">
                   <Link
                     href={`/${locale}/blog/${post.slug}`}
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-ink group-hover:text-dusty-blue transition-colors"
+                    className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-ink group-hover:text-dusty-blue transition-colors"
                   >
                     <span>{isAr ? 'قراءة الدليل كاملاً' : 'Read Full Guide'}</span>
                     <ArrowIcon className="w-3.5 h-3.5" />
@@ -266,17 +266,17 @@ export function BlogArchiveClient({ posts, locale }: BlogArchiveClientProps) {
           <div className="w-16 h-16 rounded-2xl bg-mist-gray/60 mx-auto flex items-center justify-center text-ink-muted">
             <Search className="w-8 h-8 text-dusty-blue" />
           </div>
-          <h3 className="text-lg font-bold text-ink">
+          <h3 className="text-lg sm:text-xl font-semibold text-ink">
             {isAr ? 'لم نعثر على مقالات مطابقة' : 'No Matching Guides Found'}
           </h3>
-          <p className="text-xs sm:text-sm text-ink-muted max-w-md mx-auto leading-relaxed">
+          <p className="text-xs sm:text-sm text-ink-muted max-w-md mx-auto leading-relaxed font-normal">
             {isAr
               ? 'جرّب تعديل كلمات البحث أو تصفح جميع التصنيفات لاستعراض الأدلة الإرشادية المتوفرة.'
               : 'Try adjusting your search query or clear filters to view all available guides.'}
           </p>
           <button
             onClick={handleClearFilters}
-            className="px-5 py-2.5 rounded-xl bg-ink text-white text-xs font-bold hover:bg-ink/90 transition-colors"
+            className="px-5 py-2.5 rounded-xl bg-ink text-white text-xs sm:text-sm font-semibold hover:bg-ink/90 transition-colors"
           >
             {isAr ? 'إعادة ضبط التصفية' : 'Reset All Filters'}
           </button>
@@ -296,7 +296,7 @@ export function BlogArchiveClient({ posts, locale }: BlogArchiveClientProps) {
             <button
               onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
               disabled={currentPage === 1}
-              className="px-3.5 py-2 rounded-xl text-xs font-bold border border-mist-gray bg-white text-ink disabled:opacity-40 disabled:cursor-not-allowed hover:bg-mist-gray/60 transition-colors inline-flex items-center gap-1"
+              className="px-3.5 py-2 rounded-xl text-xs font-medium border border-mist-gray bg-white text-ink disabled:opacity-40 disabled:cursor-not-allowed hover:bg-mist-gray/60 transition-colors inline-flex items-center gap-1"
             >
               <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
               <span>{isAr ? 'السابق' : 'Previous'}</span>
@@ -307,7 +307,7 @@ export function BlogArchiveClient({ posts, locale }: BlogArchiveClientProps) {
                 <button
                   key={pageNum}
                   onClick={() => setCurrentPage(pageNum)}
-                  className={`w-9 h-9 rounded-xl text-xs font-bold transition-all ${
+                  className={`w-9 h-9 rounded-xl text-xs font-medium transition-all ${
                     currentPage === pageNum
                       ? 'bg-ink text-white shadow-xs'
                       : 'bg-white border border-mist-gray text-ink hover:bg-mist-gray/60'
@@ -321,7 +321,7 @@ export function BlogArchiveClient({ posts, locale }: BlogArchiveClientProps) {
             <button
               onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
               disabled={currentPage === totalPages}
-              className="px-3.5 py-2 rounded-xl text-xs font-bold border border-mist-gray bg-white text-ink disabled:opacity-40 disabled:cursor-not-allowed hover:bg-mist-gray/60 transition-colors inline-flex items-center gap-1"
+              className="px-3.5 py-2 rounded-xl text-xs font-medium border border-mist-gray bg-white text-ink disabled:opacity-40 disabled:cursor-not-allowed hover:bg-mist-gray/60 transition-colors inline-flex items-center gap-1"
             >
               <span>{isAr ? 'التالي' : 'Next'}</span>
               <ArrowRight className="w-3.5 h-3.5 rtl:rotate-180" />

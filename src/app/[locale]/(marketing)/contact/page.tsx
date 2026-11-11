@@ -298,11 +298,11 @@ export default async function ContactPage({ params }: ContactPageProps) {
             </span>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-ink tracking-tight">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-ink tracking-tight">
             {isAr ? 'تواصل مع فريق RashX' : 'Connect with the RashX Team'}
           </h1>
 
-          <p className="text-base sm:text-lg text-ink-muted leading-relaxed">
+          <p className="text-base sm:text-lg text-ink-muted leading-relaxed font-normal">
             {isAr
               ? 'فريقنا المتخصص في إدارة الصالونات والمشاغل ومراكز التجميل والسبا في المملكة العربية السعودية جاهز للإجابة عن كافة استفساراتك الفنية والتشغيلية وتقديم الدعم المباشر لمنشأتك.'
               : 'Our specialists in Saudi beauty salons, styling centers, barbershops, and wellness spas are ready to assist you with onboarding, technical queries, and operational growth.'}
@@ -339,11 +339,11 @@ export default async function ContactPage({ params }: ContactPageProps) {
                 </div>
 
                 <div>
-                  <h3 className="text-base font-bold text-ink mb-1.5">{channel.title}</h3>
-                  <p className="text-xs text-ink-muted leading-relaxed mb-3">
+                  <h3 className="text-base font-semibold text-ink mb-1.5">{channel.title}</h3>
+                  <p className="text-xs sm:text-sm text-ink-muted leading-relaxed mb-3 font-normal">
                     {channel.desc}
                   </p>
-                  <div className="text-sm font-black font-mono text-ink" dir="ltr">
+                  <div className="text-sm font-semibold font-mono text-ink" dir="ltr">
                     {channel.value}
                   </div>
                 </div>

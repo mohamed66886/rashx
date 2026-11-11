@@ -149,14 +149,14 @@ export const FeatureGrid: React.FC<FeatureGridProps> = ({
         {/* Header + arrows */}
         <div className="mb-8 flex flex-col gap-6 md:mb-10 md:flex-row md:items-end md:justify-between">
           <div className="max-w-2xl space-y-4">
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-mist-gray/60 px-3 py-1 text-xs font-bold text-ink">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-mist-gray/60 px-3 py-1 text-xs font-medium text-ink">
               <Sparkles className="h-3.5 w-3.5 text-dusty-blue" aria-hidden="true" />
               <span>{isAr ? 'منظومة تشغيل متكاملة' : 'Complete Operating System'}</span>
             </div>
-            <h2 className="text-balance text-2xl font-extrabold text-ink sm:text-3xl md:text-4xl">
+            <h2 className="text-balance text-2xl font-semibold leading-tight text-ink sm:text-3xl md:text-4xl">
               {isAr ? titleAr : titleEn}
             </h2>
-            <p className="text-sm leading-relaxed text-ink-muted sm:text-base">
+            <p className="text-xs font-normal leading-relaxed text-ink-muted sm:text-sm md:text-base">
               {isAr ? subtitleAr : subtitleEn}
             </p>
           </div>
@@ -213,26 +213,26 @@ export const FeatureGrid: React.FC<FeatureGridProps> = ({
                     <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-ink">
                       <Icon className="h-6 w-6" />
                     </span>
-                    <span className="font-mono text-3xl font-extrabold text-ink/20">
+                    <span className="font-mono text-3xl font-semibold text-ink/20">
                       {String(system.order).padStart(2, '0')}
                     </span>
                   </div>
 
                   <div className="flex flex-1 flex-col gap-3 p-6">
                     <div className="space-y-1.5">
-                      <h3 className="text-lg font-extrabold text-ink">
+                      <h3 className="text-base font-semibold text-ink sm:text-lg">
                         {isAr ? system.nameAr : system.nameEn}
                       </h3>
-                      <p className="text-sm font-semibold text-ink-muted">
+                      <p className="text-xs font-medium text-ink-muted sm:text-sm">
                         {isAr ? system.taglineAr : system.taglineEn}
                       </p>
                     </div>
 
-                    <p className="line-clamp-3 text-sm leading-relaxed text-ink-muted">
+                    <p className="line-clamp-3 text-xs font-normal leading-relaxed text-ink-muted sm:text-sm">
                       {isAr ? system.descriptionAr : system.descriptionEn}
                     </p>
 
-                    <span className="mt-auto inline-flex items-center gap-1.5 pt-2 text-sm font-bold text-ink">
+                    <span className="mt-auto inline-flex items-center gap-1.5 pt-2 text-xs font-medium text-ink sm:text-sm">
                       <span>{isAr ? 'استكشف النظام' : 'Explore system'}</span>
                       <NextIcon className="h-4 w-4 transition-transform group-hover:translate-x-1 rtl:group-hover:-translate-x-1" />
                     </span>

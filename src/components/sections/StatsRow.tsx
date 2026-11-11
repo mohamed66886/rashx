@@ -43,10 +43,10 @@ export const StatsRow: React.FC<StatsRowProps> = ({ locale = DEFAULT_LOCALE }) =
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
           {stats.map((stat, idx) => (
             <div key={idx} className="space-y-1">
-              <div className="text-3xl sm:text-4xl lg:text-5xl font-black font-mono text-ink tracking-tight">
+              <div className="text-3xl sm:text-4xl lg:text-5xl font-semibold font-mono text-ink tracking-tight">
                 {stat.value}
               </div>
-              <p className="text-xs sm:text-sm text-ink-muted font-medium max-w-[200px] mx-auto">
+              <p className="text-xs sm:text-sm text-ink-muted font-normal max-w-[200px] mx-auto">
                 {isAr ? stat.labelAr : stat.labelEn}
               </p>
             </div>

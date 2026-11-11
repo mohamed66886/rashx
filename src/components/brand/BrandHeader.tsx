@@ -91,7 +91,7 @@ export function BrandHeader({ title, subtitle, badge, children }: BrandHeaderPro
           {/* Main Content Row: Title/Subtitle on right, Actions on left (RTL) */}
           <div className="flex items-center justify-between gap-6">
             <div className="max-w-2xl">
-              <h1 className="text-xl lg:text-2xl font-extrabold text-ink tracking-tight">
+              <h1 className="text-xl lg:text-2xl font-semibold text-ink tracking-tight">
                 {title || 'هوية راش إكس الرسمية'}
               </h1>
               {subtitle && (
@@ -184,7 +184,7 @@ export function BrandHeader({ title, subtitle, badge, children }: BrandHeaderPro
         {/* Title + Quick Download Action */}
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
-            <h1 className="text-base font-extrabold text-ink leading-tight truncate">
+            <h1 className="text-base font-semibold text-ink leading-tight truncate">
               {title || 'هوية راش إكس الرسمية'}
             </h1>
             {subtitle && (

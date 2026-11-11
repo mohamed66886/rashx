@@ -254,10 +254,10 @@ const DashboardScreen: React.FC<{ ui: UIStrings }> = ({ ui }) => (
     {/* Sidebar */}
     <aside className="flex w-[11em] shrink-0 flex-col gap-[0.4em] border-e border-mist-gray/70 bg-white p-[1em]">
       <div className="mb-[1em] flex items-center gap-[0.6em]">
-        <span className="flex h-[2em] w-[2em] items-center justify-center rounded-[0.6em] bg-dusty-blue text-[0.9em] font-extrabold">
+        <span className="flex h-[2em] w-[2em] items-center justify-center rounded-[0.6em] bg-dusty-blue text-[0.9em] font-semibold">
           X
         </span>
-        <span className="text-[1.1em] font-extrabold">{ui.brand}</span>
+        <span className="text-[1.1em] font-semibold">{ui.brand}</span>
       </div>
       {ui.nav.map((item, i) => (
         <div
@@ -282,7 +282,7 @@ const DashboardScreen: React.FC<{ ui: UIStrings }> = ({ ui }) => (
         </div>
         <div className="flex items-center gap-[0.7em]">
           <Bell className="h-[1.3em] w-[1.3em] text-ink/50" />
-          <span className="flex h-[2em] w-[2em] items-center justify-center rounded-full bg-dusty-blue text-[0.85em] font-extrabold">
+          <span className="flex h-[2em] w-[2em] items-center justify-center rounded-full bg-dusty-blue text-[0.85em] font-semibold">
             {ui.brand.charAt(0)}
           </span>
         </div>
@@ -295,7 +295,7 @@ const DashboardScreen: React.FC<{ ui: UIStrings }> = ({ ui }) => (
             key={s.label}
             className={`rounded-[0.9em] border border-t-[0.25em] border-mist-gray/70 bg-white p-[0.9em] ${STAT_ACCENTS[i]}`}
           >
-            <p className="text-[1.6em] font-extrabold leading-none">{s.value}</p>
+            <p className="text-[1.6em] font-semibold leading-none">{s.value}</p>
             <p className="mt-[0.5em] text-[0.8em] font-semibold text-ink/55">{s.label}</p>
           </div>
         ))}
@@ -303,7 +303,7 @@ const DashboardScreen: React.FC<{ ui: UIStrings }> = ({ ui }) => (
 
       {/* Table */}
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[0.9em] border border-mist-gray/70 bg-white">
-        <p className="px-[1em] pt-[0.9em] pb-[0.6em] text-[1em] font-extrabold">{ui.tableTitle}</p>
+        <p className="px-[1em] pt-[0.9em] pb-[0.6em] text-[1em] font-semibold">{ui.tableTitle}</p>
         <div className="grid grid-cols-[1fr_1.4fr_0.9fr_0.9fr] bg-neutral/40 px-[1em] py-[0.55em] text-[0.8em] font-bold text-ink/55">
           {ui.tableHead.map((h) => (
             <span key={h}>{h}</span>
@@ -339,13 +339,13 @@ const PhoneScreen: React.FC<{ ui: UIStrings }> = ({ ui }) => {
       {/* App bar */}
       <div className="flex items-center justify-between px-[1.1em] pb-[0.8em]">
         <Menu className="h-[1.5em] w-[1.5em]" />
-        <span className="flex h-[1.9em] w-[1.9em] items-center justify-center rounded-[0.6em] bg-dusty-blue text-[0.9em] font-extrabold">
+        <span className="flex h-[1.9em] w-[1.9em] items-center justify-center rounded-[0.6em] bg-dusty-blue text-[0.9em] font-semibold">
           X
         </span>
       </div>
 
       <div className="flex flex-1 flex-col gap-[0.8em] bg-neutral/40 p-[1em]">
-        <p className="text-[1.15em] font-extrabold">{ui.phoneTitle}</p>
+        <p className="text-[1.15em] font-semibold">{ui.phoneTitle}</p>
 
         <div className="rounded-[1em] border border-mist-gray/70 bg-white p-[0.9em]">
           <div className="mb-[0.7em] flex items-center justify-between">
@@ -354,7 +354,7 @@ const PhoneScreen: React.FC<{ ui: UIStrings }> = ({ ui }) => {
             </span>
             <span className="text-[0.8em] font-semibold text-ink/45">#24071</span>
           </div>
-          <p className="text-[1.05em] font-extrabold">{ui.phoneService}</p>
+          <p className="text-[1.05em] font-semibold">{ui.phoneService}</p>
           <div className="mt-[0.7em] flex items-center gap-[0.6em] rounded-[0.8em] bg-dusty-blue/15 p-[0.7em] text-[0.85em] font-semibold">
             <Clock className="h-[1.2em] w-[1.2em] shrink-0" />
             <div>
@@ -367,14 +367,14 @@ const PhoneScreen: React.FC<{ ui: UIStrings }> = ({ ui }) => {
               <Scissors className="h-[1.1em] w-[1.1em]" />
               {ui.phoneStylist}
             </span>
-            <span className="font-extrabold">
+            <span className="font-semibold">
               {ui.phonePrice} {ui.currency}
             </span>
           </div>
           <p className="mt-[0.8em] text-[0.75em] leading-[1.6] text-ink/55">{ui.phoneNote}</p>
         </div>
 
-        <div className="rounded-[0.9em] bg-warm-peach py-[0.8em] text-center text-[0.9em] font-extrabold text-ink">
+        <div className="rounded-[0.9em] bg-warm-peach py-[0.8em] text-center text-[0.9em] font-semibold text-ink">
           {ui.phoneBtn}
         </div>
       </div>
@@ -407,12 +407,12 @@ const DuoScreen: React.FC<{ ui: UIStrings }> = ({ ui }) => {
     <div className="flex h-full w-full flex-col gap-[1em] bg-neutral/40 p-[1.5em] text-ink">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-[1.3em] font-extrabold">{ui.duoTitle}</p>
+          <p className="text-[1.3em] font-semibold">{ui.duoTitle}</p>
           <p className="text-[0.85em] font-semibold text-ink/50">{ui.duoSub}</p>
         </div>
         <div className="rounded-[0.8em] border border-mist-gray/70 bg-white px-[1em] py-[0.5em]">
           <p className="text-[0.7em] font-semibold text-ink/50">{ui.duoTotalLabel}</p>
-          <p className="text-[1.3em] font-extrabold leading-tight">
+          <p className="text-[1.3em] font-semibold leading-tight">
             {ui.duoTotal} <span className="text-[0.6em] text-ink/50">{ui.currency}</span>
           </p>
         </div>
@@ -570,7 +570,7 @@ export const Hero: React.FC<HeroProps> = ({ locale = DEFAULT_LOCALE }) => {
             1. HEADLINE + SUBTITLE + BUTTONS
            ============================================================= */}
         <div className="mx-auto max-w-4xl space-y-4 text-center sm:space-y-5">
-          <h1 className="flex flex-wrap items-center justify-center gap-x-[0.3em] text-[clamp(1.25rem,5.2vw,4rem)] font-extrabold leading-[1.4] tracking-normal text-ink">
+          <h1 className="flex flex-wrap items-center justify-center gap-x-[0.3em] text-[clamp(1.25rem,5.2vw,4rem)] font-semibold leading-[1.3] tracking-normal text-ink">
             <span>{isAr ? 'راش إكس يقدم:' : 'RashX Presents:'}</span>
             <span className="relative block h-[1.4em] max-w-full overflow-hidden">
               <span
@@ -582,7 +582,7 @@ export const Hero: React.FC<HeroProps> = ({ locale = DEFAULT_LOCALE }) => {
                 {loopPhrases.map((phrase, idx) => (
                   <span
                     key={idx}
-                    className="flex h-[1.4em] shrink-0 items-center justify-start gap-[0.25em] whitespace-nowrap font-extrabold text-ink"
+                    className="flex h-[1.4em] shrink-0 items-center justify-start gap-[0.25em] whitespace-nowrap font-semibold text-ink"
                   >
                     <span>{phrase.text}</span>
                     <PhraseIcon name={phrase.icon} />
@@ -592,7 +592,7 @@ export const Hero: React.FC<HeroProps> = ({ locale = DEFAULT_LOCALE }) => {
             </span>
           </h1>
 
-          <p className="mx-auto max-w-[19rem] text-balance text-[0.95rem] font-medium leading-relaxed text-ink/70 sm:max-w-2xl sm:text-lg">
+          <p className="mx-auto max-w-[19rem] text-balance text-xs font-normal leading-relaxed text-ink/70 sm:max-w-2xl sm:text-base md:text-lg">
             {isAr
               ? 'مواعيد، فريق، كاشير، وموقع إلكتروني لصالونك. كل أدواتك في مكان واحد، بلا تعقيد.'
               : 'Appointments, team, POS and a branded website for your salon. All your tools in one place, zero hassle.'}
@@ -601,7 +601,7 @@ export const Hero: React.FC<HeroProps> = ({ locale = DEFAULT_LOCALE }) => {
           <div className="mx-auto flex w-full max-w-xs flex-col items-center justify-center gap-3 pt-2 sm:max-w-none sm:flex-row">
             <a
               href="#demo-form"
-              className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-warm-peach px-8 py-3.5 sm:w-auto text-sm font-bold text-ink shadow-xs transition-all hover:bg-warm-peach/80 sm:text-base"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-warm-peach px-8 py-3.5 sm:w-auto text-xs font-semibold text-ink shadow-xs transition-all hover:bg-warm-peach/80 sm:text-sm md:text-base"
             >
               <span>{isAr ? 'احجز عرضاً تجريبياً مجاناً' : 'Book a Free Demo'}</span>
               <ArrowIcon className="h-4 w-4 text-ink" />
@@ -611,7 +611,7 @@ export const Hero: React.FC<HeroProps> = ({ locale = DEFAULT_LOCALE }) => {
               href={whatsappHref}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-dusty-blue px-7 py-3.5 sm:w-auto text-sm font-semibold text-ink shadow-2xs transition-all hover:bg-dusty-blue/80 sm:text-base"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-dusty-blue px-7 py-3.5 sm:w-auto text-xs font-semibold text-ink shadow-2xs transition-all hover:bg-dusty-blue/80 sm:text-sm md:text-base"
             >
               <PhoneCall className="h-4 w-4 text-ink" />
               <span>{isAr ? 'تواصل عبر واتساب' : 'Chat on WhatsApp'}</span>

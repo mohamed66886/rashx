@@ -11,6 +11,13 @@ import { Locale, DEFAULT_LOCALE } from '@/i18n/config';
  * Each card = the problem (quiet, grey) on top, the solution (brand tint) below.
  */
 
+/* =========================================================================
+   FONT WEIGHT SCALE (موحّد مع الفوتر والهيدر)
+   - font-normal   (400): الفقرات والنصوص الوصفية
+   - font-medium   (500): الشارات، الروابط، الكبسولات
+   - font-semibold (600): العناوين الرئيسية وأسماء المشاكل والحلول
+   ========================================================================= */
+
 interface ProblemSolutionProps {
   locale?: Locale;
 }
@@ -95,11 +102,15 @@ export const ProblemSolution: React.FC<ProblemSolutionProps> = ({ locale = DEFAU
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <header className="mx-auto mb-10 max-w-2xl space-y-4 text-center md:mb-14">
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-mist-gray/60 px-3 py-1 text-xs font-medium text-ink">
+            <Sparkles className="h-3.5 w-3.5 text-dusty-blue" aria-hidden="true" />
+            <span>{t('حلول عملية مدروسة', 'Practical Solutions')}</span>
+          </div>
 
-          <h2 className="text-balance text-3xl font-extrabold leading-[1.25] text-ink md:text-4xl">
+          <h2 className="text-balance text-2xl font-semibold leading-tight text-ink sm:text-3xl md:text-4xl">
             {t('تحديات الصالون اليومية... وراش إكس يحلها', 'Daily salon struggles, solved by RashX')}
           </h2>
-          <p className="text-base leading-relaxed text-ink-muted md:text-lg">
+          <p className="text-xs font-normal leading-relaxed text-ink-muted sm:text-sm md:text-base">
             {t(
               'صُمم راش إكس حول أكبر التحديات التشغيلية والمالية في المشاغل ومراكز التجميل بالمملكة.',
               'Built around the real operational and financial pain points of salons across Saudi Arabia.',
@@ -119,12 +130,12 @@ export const ProblemSolution: React.FC<ProblemSolutionProps> = ({ locale = DEFAU
               >
                 {/* Problem */}
                 <div className="flex flex-1 flex-col gap-3 p-6 sm:p-7">
-                  <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-mist-gray px-3 py-1 text-xs font-bold text-ink-muted">
-                    <X className="h-3 w-3" strokeWidth={3} aria-hidden="true" />
+                  <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-mist-gray px-3 py-1 text-xs font-medium text-ink-muted">
+                    <X className="h-3 w-3" strokeWidth={2.5} aria-hidden="true" />
                     {before}
                   </span>
-                  <h3 className="text-lg font-bold leading-snug text-ink">{item.problemTitle}</h3>
-                  <p className="text-sm leading-relaxed text-ink-muted">{item.problemText}</p>
+                  <h3 className="text-base font-semibold leading-snug text-ink sm:text-lg">{item.problemTitle}</h3>
+                  <p className="text-xs font-normal leading-relaxed text-ink-muted sm:text-sm">{item.problemText}</p>
                 </div>
 
                 {/* Solution */}
@@ -133,15 +144,15 @@ export const ProblemSolution: React.FC<ProblemSolutionProps> = ({ locale = DEFAU
                     <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${tone.tile}`}>
                       <Icon className="h-5 w-5" strokeWidth={1.9} aria-hidden="true" />
                     </span>
-                    <span className="text-xs font-bold text-ink">{after}</span>
+                    <span className="text-xs font-medium text-ink">{after}</span>
                   </div>
-                  <h3 className="text-xl font-extrabold leading-snug text-ink">{item.solutionTitle}</h3>
-                  <p className="text-sm leading-relaxed text-ink/75">{item.solutionText}</p>
+                  <h3 className="text-lg font-semibold leading-snug text-ink sm:text-xl">{item.solutionTitle}</h3>
+                  <p className="text-xs font-normal leading-relaxed text-ink/75 sm:text-sm">{item.solutionText}</p>
                   <ul className="flex flex-wrap gap-2 pt-1">
                     {item.chips.map((chip) => (
                       <li
                         key={chip}
-                        className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-ink"
+                        className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-medium text-ink"
                       >
                         <Check className="h-3.5 w-3.5 text-ink" strokeWidth={2.5} aria-hidden="true" />
                         {chip}

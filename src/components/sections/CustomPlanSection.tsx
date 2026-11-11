@@ -60,18 +60,18 @@ export const CustomPlanSection: React.FC<CustomPlanSectionProps> = ({
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
             {/* Left Content Column (7 cols) */}
             <div className="lg:col-span-7 space-y-6">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-mist-gray text-ink text-xs font-bold">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-mist-gray text-ink text-xs font-medium">
                 <Building2 className="w-3.5 h-3.5 text-dusty-blue" />
                 <span>{isAr ? 'للسلاسل والامتياز التجاري (Franchises)' : 'For Salon Chains & Franchises'}</span>
               </div>
 
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-ink tracking-tight leading-tight">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-ink tracking-tight leading-tight">
                 {isAr
                   ? 'هل تحتاج باقة مخصصة لسلسلة فروعك أو مجمعك التجميلي؟'
                   : 'Need a Custom Tailored Plan for Your Multi-Branch Salon Chain?'}
               </h2>
 
-              <p className="text-sm sm:text-base text-ink-muted leading-relaxed">
+              <p className="text-xs sm:text-sm font-normal text-ink-muted leading-relaxed">
                 {isAr
                   ? 'إذا كانت منشأتك تتكون من فروع متعددة، أو تدير علامة امتياز تجاري بحاجة لتقارير مالية مجمعة وربط مخصص مع أنظمة المحاسبة، نوفر لك بنية سحابية مستقلة مصممة خصيصًا لحجم أعمالك.'
                   : 'If you operate multi-branch complexes or salon franchise networks requiring consolidated financial rollups, we engineer an enterprise tier matching your exact scope.'}
@@ -80,11 +80,11 @@ export const CustomPlanSection: React.FC<CustomPlanSectionProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                 {highlights.map((h, idx) => (
                   <div key={idx} className="space-y-1 p-3 rounded-2xl bg-[#FAFBFB] border border-mist-gray/70">
-                    <div className="flex items-center gap-2 font-bold text-xs sm:text-sm text-ink">
+                    <div className="flex items-center gap-2 font-semibold text-xs sm:text-sm text-ink">
                       <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                       <span>{isAr ? h.titleAr : h.titleEn}</span>
                     </div>
-                    <p className="text-[11px] text-ink-muted leading-relaxed">
+                    <p className="text-[11px] font-normal text-ink-muted leading-relaxed">
                       {isAr ? h.descAr : h.descEn}
                     </p>
                   </div>

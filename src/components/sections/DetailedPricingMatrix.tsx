@@ -46,18 +46,18 @@ export const DetailedPricingMatrix: React.FC<DetailedPricingMatrixProps> = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto space-y-4 mb-12">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-mist-gray text-ink text-xs font-bold">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-mist-gray text-ink text-xs font-medium">
             <Sparkles className="w-3.5 h-3.5 text-dusty-blue" />
             <span>{isAr ? 'مقارنة دقيقة وشاملة' : 'Detailed Plan Breakdown'}</span>
           </div>
 
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-ink tracking-tight">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-ink tracking-tight leading-tight">
             {isAr
               ? 'جدول مقارنة المميزات والخصائص بالتفصيل'
               : 'Comprehensive Features Comparison Matrix'}
           </h2>
 
-          <p className="text-sm sm:text-base text-ink-muted leading-relaxed">
+          <p className="text-xs sm:text-sm font-normal text-ink-muted leading-relaxed">
             {isAr
               ? 'استعرض كافة الفوارق بين الباقات (الأساسية، الاحترافية، والمؤسسات) لاختيار الباقة التي تغطي متطلبات صالونك بدقة.'
               : 'Review detailed feature availability across all tiers (Basic, Professional, and Enterprise).'}
@@ -70,10 +70,10 @@ export const DetailedPricingMatrix: React.FC<DetailedPricingMatrixProps> = ({
             {/* Sticky Table Header */}
             <thead>
               <tr className="border-b border-mist-gray bg-[#FAFBFB]">
-                <th className="py-5 px-6 text-start font-bold text-ink w-[40%]">
+                <th className="py-5 px-6 text-start font-semibold text-ink w-[40%]">
                   {isAr ? 'الخاصية / النظام' : 'Feature / System'}
                 </th>
-                <th className="py-5 px-4 text-center font-bold text-ink w-[20%]">
+                <th className="py-5 px-4 text-center font-semibold text-ink w-[20%]">
                   <div>{isAr ? 'الباقة الأساسية' : 'Basic Plan'}</div>
                   <div className="text-[10px] text-ink-muted font-normal">
                     {isAr ? 'فرع واحد • 5 موظفين' : '1 branch • 5 staff'}
@@ -110,7 +110,7 @@ export const DetailedPricingMatrix: React.FC<DetailedPricingMatrixProps> = ({
                     <tr className="bg-mist-gray/40">
                       <td
                         colSpan={4}
-                        className="py-3 px-6 text-xs font-black text-ink uppercase tracking-wider"
+                        className="py-3 px-6 text-xs font-semibold text-ink uppercase tracking-wider"
                       >
                         {cat}
                       </td>

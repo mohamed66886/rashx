@@ -65,7 +65,7 @@ export const StatCard = React.forwardRef<HTMLDivElement, StatCardProps>(
 
         {/* Main Value */}
         <div className="flex items-baseline gap-2 mb-3">
-          <span className="text-2xl sm:text-3xl font-extrabold text-black tracking-tight font-mono">
+          <span className="text-2xl sm:text-3xl font-semibold text-black tracking-tight font-mono">
             {value}
           </span>
           {isCurrency && (
@@ -78,7 +78,7 @@ export const StatCard = React.forwardRef<HTMLDivElement, StatCardProps>(
           <div className="flex items-center gap-2 text-xs pt-3 border-t border-[#E5E9E8]/70">
             {trend !== undefined && (
               <span
-                className={`inline-flex items-center gap-0.5 font-bold px-2 py-0.5 rounded-full text-[11px] ${
+                className={`inline-flex items-center gap-0.5 font-medium px-2 py-0.5 rounded-full text-[11px] ${
                   trendDirection === 'up'
                     ? 'bg-emerald-100 text-emerald-800'
                     : trendDirection === 'down'

@@ -1,10 +1,16 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ChevronDown, HelpCircle } from 'lucide-react';
+import { Plus, HelpCircle } from 'lucide-react';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { getFAQPageSchema } from '@/lib/seo';
 import { Locale, DEFAULT_LOCALE } from '@/i18n/config';
+
+/**
+ * RASHX FAQ — simplified.
+ * Brand colors only: dusty-blue, warm-peach, mist-gray, ink, ink-muted.
+ * Questions and answers are unchanged: they also feed the FAQPage schema.
+ */
 
 interface FAQProps {
   locale?: Locale;
@@ -71,59 +77,82 @@ export const FAQ: React.FC<FAQProps> = ({ locale = DEFAULT_LOCALE }) => {
   }));
 
   return (
-    <section className="py-16 md:py-24 bg-white" id="faq">
-      {/* Inject FAQPage Schema */}
+    <section dir={isAr ? 'rtl' : 'ltr'} id="faq" className="bg-white py-16 md:py-24">
+      {/* FAQPage schema */}
       <JsonLd data={getFAQPageSchema(jsonLdFaqs)} id="faq-schema" />
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center space-y-4 mb-12">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-mist-gray text-ink text-xs font-bold">
-            <HelpCircle className="w-3.5 h-3.5 text-dusty-blue" />
+      <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-12 lg:gap-16 lg:px-8">
+        {/* Intro: centered on small screens, sticky side column on desktop */}
+        <div className="space-y-4 text-center lg:sticky lg:top-24 lg:col-span-5 lg:self-start lg:text-start">
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-mist-gray/60 px-3 py-1 text-xs font-medium text-ink">
+            <HelpCircle className="h-3.5 w-3.5 text-dusty-blue" aria-hidden="true" />
             <span>{isAr ? 'الأسئلة الشائعة' : 'FAQ'}</span>
           </div>
 
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-ink tracking-tight">
-            {isAr
-              ? 'كل ما يهمك معرفته عن منصة راش إكس'
-              : 'Everything You Need to Know About RashX'}
+          <h2 className="text-balance text-2xl font-semibold leading-tight text-ink sm:text-3xl md:text-4xl">
+            {isAr ? 'كل ما يهمك معرفته عن منصة راش إكس' : 'Everything you need to know about RashX'}
           </h2>
 
-          <p className="text-sm text-ink-muted">
+          <p className="text-xs font-normal leading-relaxed text-ink-muted sm:text-sm md:text-base">
             {isAr
-              ? 'إجابات مباشرة وشفافة حول الفوترة، التسعير، الأمان، والتوافق النظامي.'
-              : 'Clear answers regarding invoicing, subscriptions, security, and compliance.'}
+              ? 'إجابات مباشرة وشفافة حول الفوترة والتسعير والأمان والتوافق النظامي.'
+              : 'Clear answers on invoicing, pricing, security and compliance.'}
           </p>
         </div>
 
         {/* Accordion */}
-        <div className="space-y-3">
+        <div className="space-y-3 lg:col-span-7">
           {faqs.map((faq, idx) => {
             const isOpen = openIndex === idx;
+            const panelId = `faq-panel-${idx}`;
+            const buttonId = `faq-button-${idx}`;
 
             return (
               <div
                 key={idx}
-                className="rounded-2xl border border-mist-gray bg-[#FAFBFB] overflow-hidden transition-all"
+                className={`overflow-hidden rounded-2xl border transition-colors ${
+                  isOpen ? 'border-ink bg-white' : 'border-mist-gray bg-white hover:border-ink/40'
+                }`}
               >
-                <button
-                  type="button"
-                  onClick={() => setOpenIndex(isOpen ? null : idx)}
-                  className="w-full py-4 px-6 text-start flex items-center justify-between gap-4 font-bold text-ink text-sm sm:text-base hover:text-dusty-blue transition-colors"
-                  aria-expanded={isOpen}
-                >
-                  <span>{isAr ? faq.qAr : faq.qEn}</span>
-                  <ChevronDown
-                    className={`w-5 h-5 shrink-0 text-ink-muted transition-transform duration-200 ${
-                      isOpen ? 'rotate-180 text-dusty-blue' : ''
-                    }`}
-                  />
-                </button>
+                <h3>
+                  <button
+                    type="button"
+                    id={buttonId}
+                    onClick={() => setOpenIndex(isOpen ? null : idx)}
+                    aria-expanded={isOpen}
+                    aria-controls={panelId}
+                    className="flex w-full items-center justify-between gap-4 px-5 py-4 text-start text-xs font-semibold text-ink sm:px-6 sm:text-sm md:text-base"
+                  >
+                    <span>{isAr ? faq.qAr : faq.qEn}</span>
+                    <span
+                      aria-hidden="true"
+                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-ink transition-colors ${
+                        isOpen ? 'bg-warm-peach' : 'bg-dusty-blue/30'
+                      }`}
+                    >
+                      <Plus
+                        className={`h-4 w-4 transition-transform duration-200 ${isOpen ? 'rotate-45' : ''}`}
+                        strokeWidth={2.5}
+                      />
+                    </span>
+                  </button>
+                </h3>
 
-                {isOpen && (
-                  <div className="px-6 pb-5 pt-1 text-xs sm:text-sm text-ink-muted leading-relaxed border-t border-mist-gray/40 animate-in fade-in duration-200">
-                    {isAr ? faq.aAr : faq.aEn}
+                {/* Grid-rows trick: smooth open/close without measuring height */}
+                <div
+                  id={panelId}
+                  role="region"
+                  aria-labelledby={buttonId}
+                  className={`grid transition-[grid-template-rows] duration-300 ease-out ${
+                    isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
+                  }`}
+                >
+                  <div className="overflow-hidden">
+                    <p className="px-5 pb-5 text-xs font-normal leading-relaxed text-ink-muted sm:px-6 sm:text-sm">
+                      {isAr ? faq.aAr : faq.aEn}
+                    </p>
                   </div>
-                )}
+                </div>
               </div>
             );
           })}
@@ -134,4 +163,3 @@ export const FAQ: React.FC<FAQProps> = ({ locale = DEFAULT_LOCALE }) => {
 };
 
 export default FAQ;
-

@@ -101,13 +101,13 @@ export default async function BlogIndexPage({ params }: BlogIndexProps) {
             </span>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-ink tracking-tight leading-tight">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-ink tracking-tight leading-tight">
             {isAr
               ? 'أدلة ورؤى تشغيلية لرواد قطاع التجميل في المملكة'
               : 'Actionable Insights for Saudi Beauty Leaders & Salon Owners'}
           </h1>
 
-          <p className="text-base sm:text-lg text-ink-muted leading-relaxed">
+          <p className="text-base sm:text-lg text-ink-muted leading-relaxed font-normal">
             {isAr
               ? 'شروحات عملية موثوقة تغطي كيفية اختيار أنظمة الصالونات، متطلبات هيئة الزكاة والضريبة والجمارك (ZATCA)، استراتيجيات مضاعفة ولاء العملاء، والامتثال الصارم لنظام حماية البيانات الشخصية (PDPL).'
               : 'Practical, in-depth blueprints covering salon management selection, ZATCA Phase 2 compliance, client loyalty strategies, and Saudi PDPL data protection.'}
@@ -120,18 +120,18 @@ export default async function BlogIndexPage({ params }: BlogIndexProps) {
         {/* Closing CTA */}
         <div className="rounded-3xl bg-ink text-white p-8 sm:p-12 text-center space-y-6 relative overflow-hidden shadow-xl">
           <div className="max-w-2xl mx-auto space-y-3 relative z-10">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-white text-xs font-semibold backdrop-blur-xs">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-white text-xs font-medium backdrop-blur-xs">
               <Sparkles className="w-3.5 h-3.5 text-dusty-blue" />
               <span>{isAr ? 'تطبيق عملي فوري' : 'Turn Knowledge into Action'}</span>
             </div>
 
-            <h2 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight">
+            <h2 className="text-2xl sm:text-4xl font-semibold tracking-tight leading-tight">
               {isAr
                 ? 'جاهز لتطبيق هذه المعايير على صالونك باحترافية؟'
                 : 'Ready to Implement These Standards in Your Salon?'}
             </h2>
 
-            <p className="text-xs sm:text-sm text-mist-gray/80 leading-relaxed max-w-xl mx-auto">
+            <p className="text-xs sm:text-sm text-mist-gray/80 leading-relaxed max-w-xl mx-auto font-normal">
               {isAr
                 ? 'احجز جلسة عرض تجريبي مدتها 20 دقيقة لنشرح لك كيف توفر راش إكس الفوترة الإلكترونية، أمان البيانات، وإدارة العمولات آلياً لصالونك، مع تجربة مجانية لمدة 14 يومًا.'
                 : 'Book a 20-minute tailored walkthrough and see how RashX automates e-invoicing, staff commissions, and PDPL compliance. Includes a 14-day free trial.'}

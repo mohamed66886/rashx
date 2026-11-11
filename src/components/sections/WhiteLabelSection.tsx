@@ -67,16 +67,16 @@ export const WhiteLabelSection: React.FC<WhiteLabelSectionProps> = ({
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mx-auto mb-10 max-w-3xl space-y-4 text-center md:mb-14">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-mist-gray/60 px-3 py-1 text-xs font-bold text-ink">
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-mist-gray/60 px-3 py-1 text-xs font-medium text-ink">
             <Palette className="h-3.5 w-3.5 text-dusty-blue" aria-hidden="true" />
             <span>{isAr ? 'علامة بيضاء (White Label)' : 'White Label'}</span>
           </div>
 
-          <h2 className="text-balance text-2xl font-extrabold text-ink sm:text-3xl md:text-4xl">
+          <h2 className="text-balance text-2xl font-semibold leading-tight text-ink sm:text-3xl md:text-4xl">
             {isAr ? 'هويتك أولاً: الشعار والألوان والنطاق' : 'Your brand first: logo, colors & subdomain'}
           </h2>
 
-          <p className="text-sm leading-relaxed text-ink-muted sm:text-base">
+          <p className="text-xs font-normal leading-relaxed text-ink-muted sm:text-sm md:text-base">
             {isAr
               ? 'صالونك هو النجم. راش إكس تعمل بهدوء في الخلفية، وتظهر واجهات الحجز والتطبيقات والفواتير بشعارك وألوانك.'
               : 'Your salon is the hero. RashX works quietly in the background while booking pages, apps and receipts show your logo and colors.'}
@@ -96,9 +96,9 @@ export const WhiteLabelSection: React.FC<WhiteLabelSectionProps> = ({
                       <Icon className="h-4.5 w-4.5" aria-hidden="true" />
                     </span>
                     <div>
-                      <div className="text-sm font-bold text-ink">{isAr ? f.titleAr : f.titleEn}</div>
+                      <div className="text-xs font-semibold text-ink sm:text-sm">{isAr ? f.titleAr : f.titleEn}</div>
                       <div
-                        className="text-xs leading-relaxed text-ink-muted sm:text-sm"
+                        className="text-xs font-normal leading-relaxed text-ink-muted sm:text-sm"
                         dir={f.titleEn === 'Your own subdomain' ? 'ltr' : undefined}
                       >
                         {isAr ? f.descAr : f.descEn}
@@ -111,10 +111,10 @@ export const WhiteLabelSection: React.FC<WhiteLabelSectionProps> = ({
 
             <div className="space-y-3 border-t border-mist-gray pt-5">
               <div className="flex items-center justify-between gap-3 text-xs">
-                <span className="font-bold text-ink">
+                <span className="font-medium text-ink">
                   {isAr ? 'جرّب هوية مختلفة:' : 'Try a different brand:'}
                 </span>
-                <span className="font-semibold text-ink-muted">{isAr ? theme.nameAr : theme.nameEn}</span>
+                <span className="font-normal text-ink-muted">{isAr ? theme.nameAr : theme.nameEn}</span>
               </div>
 
               <div className="flex items-center gap-3">
@@ -146,7 +146,7 @@ export const WhiteLabelSection: React.FC<WhiteLabelSectionProps> = ({
             >
               <div className="space-y-2 border-b pb-3 text-center" style={{ borderColor: `${theme.primary}40` }}>
                 <div
-                  className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl text-xs font-extrabold transition-colors duration-300"
+                  className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl text-xs font-semibold transition-colors duration-300"
                   style={{ backgroundColor: theme.primary, color: theme.onPrimary }}
                 >
                   LOGO

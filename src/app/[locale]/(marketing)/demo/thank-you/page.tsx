@@ -90,18 +90,18 @@ export default async function DemoThankYouPage({ params }: ThankYouPageProps) {
           </div>
 
           <div className="space-y-3 max-w-2xl mx-auto">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-bold border border-emerald-200">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-medium border border-emerald-200">
               <Sparkles className="w-3.5 h-3.5" />
               <span>{isAr ? 'تم استلام طلبك بنجاح' : 'Submission Received Successfully'}</span>
             </div>
 
-            <h1 className="text-2xl sm:text-4xl font-black text-ink tracking-tight">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-ink tracking-tight">
               {isAr
                 ? 'شكرًا لك! سنجهز عرضك التجريبي خلال وقت قياسي'
                 : 'Thank You! Your Demo Session is Being Prepared'}
             </h1>
 
-            <p className="text-sm sm:text-base text-ink-muted leading-relaxed">
+            <p className="text-sm sm:text-base text-ink-muted leading-relaxed font-normal">
               {isAr
                 ? 'سعداء باهتمامك بمنظومة راش إكس لإدارة الصالونات ومراكز التجميل والسبا. تم تسجيل بيانات منشأتك وسيتواصل معك مستشارنا المعتمد خلال أقل من ساعتي عمل.'
                 : 'We are thrilled by your interest in RashX. Your facility data has been received and our Saudi specialist will reach out within two business hours.'}
@@ -155,16 +155,16 @@ export default async function DemoThankYouPage({ params }: ThankYouPageProps) {
                       <div className="w-9 h-9 rounded-xl bg-white border border-mist-gray flex items-center justify-center text-ink group-hover:bg-dusty-blue group-hover:text-black transition-colors shadow-2xs">
                         <Icon className="w-4 h-4" />
                       </div>
-                      <span className="text-xs font-black text-ink-muted/50 font-mono">
+                      <span className="text-xs font-semibold text-ink-muted/50 font-mono">
                         0{stepItem.step}
                       </span>
                     </div>
 
-                    <h3 className="text-xs font-bold text-ink leading-snug">
+                    <h3 className="text-xs font-semibold text-ink leading-snug">
                       {stepItem.title}
                     </h3>
 
-                    <p className="text-[11px] text-ink-muted leading-relaxed">
+                    <p className="text-[11px] text-ink-muted leading-relaxed font-normal">
                       {stepItem.desc}
                     </p>
                   </div>

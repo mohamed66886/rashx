@@ -46,17 +46,17 @@ export function FAQAccordionClient({ locale }: FAQAccordionClientProps) {
     <div className="space-y-12">
       {/* Hero Header */}
       <div className="text-center max-w-3xl mx-auto space-y-4">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-mist-gray border border-mist-gray text-xs font-bold text-ink">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-mist-gray border border-mist-gray text-xs font-medium text-ink">
           <HelpCircle className="w-4 h-4 text-dusty-blue" />
           <span>{isAr ? 'مركز الإجابات الموثوقة' : 'Knowledge & Answers Hub'}</span>
         </div>
 
         {/* Mandatory Exact H1 */}
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-ink tracking-tight">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold text-ink tracking-tight leading-tight">
           {isAr ? 'الأسئلة الشائعة عن RashX' : 'Frequently Asked Questions about RashX'}
         </h1>
 
-        <p className="text-sm sm:text-base text-ink-muted leading-relaxed max-w-2xl mx-auto">
+        <p className="text-xs sm:text-sm font-normal text-ink-muted leading-relaxed max-w-2xl mx-auto">
           {isAr
             ? 'إجابات دقيقة ومختصرة حول منظومة راش إكس السحابية لإدارة الصالونات ومراكز التجميل في السعودية: الأسعار، الفوترة الإلكترونية ZATCA، أمان البيانات، التفعيل، وتخصيص White Label.'
             : 'Concise, transparent answers regarding RashX cloud salon management in Saudi Arabia: pricing, ZATCA e-invoicing Phase 2, security, onboarding, and White Label custom subdomains.'}
@@ -195,10 +195,10 @@ export function FAQAccordionClient({ locale }: FAQAccordionClientProps) {
 
       {/* Section: Unanswered Inquiries Callout */}
       <div className="rounded-3xl bg-white border-2 border-mist-gray p-8 sm:p-10 text-center space-y-4">
-        <h2 className="text-xl sm:text-2xl font-black text-ink">
+        <h2 className="text-xl sm:text-2xl font-semibold text-ink leading-tight">
           {isAr ? 'هل لديك سؤال آخر لم تجد إجابته هنا؟' : 'Have another question not answered here?'}
         </h2>
-        <p className="text-xs sm:text-sm text-ink-muted max-w-lg mx-auto">
+        <p className="text-xs sm:text-sm font-normal text-ink-muted max-w-lg mx-auto leading-relaxed">
           {isAr
             ? 'فريق الدعم الفني والاستشاري متواجد للإجابة على كافة تساؤلاتك ومساعدتك في تهيئة حساب صالونك بتوقيت الرياض.'
             : 'Our technical and consulting team is ready to answer questions during Saudi business hours (AST).'}
@@ -213,7 +213,7 @@ export function FAQAccordionClient({ locale }: FAQAccordionClientProps) {
             )}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-ink text-white hover:bg-ink/90 text-xs font-bold transition-all"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-ink text-white hover:bg-ink/90 text-xs font-semibold transition-all"
           >
             <PhoneCall className="w-4 h-4 text-[#25D366]" />
             <span>{isAr ? 'تحدث معنا عبر واتساب' : 'Chat on WhatsApp'}</span>

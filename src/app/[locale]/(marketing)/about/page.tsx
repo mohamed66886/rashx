@@ -271,7 +271,7 @@ export default async function AboutPage({ params }: AboutPageProps) {
             </span>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-ink tracking-tight leading-tight">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-ink tracking-tight leading-tight">
             {isAr ? 'نرقمن قطاع التجميل في المملكة' : 'Digitizing the Beauty Industry in Saudi Arabia'}
           </h1>
 
@@ -378,7 +378,7 @@ export default async function AboutPage({ params }: AboutPageProps) {
               <Target className="w-3.5 h-3.5 text-dusty-blue" />
               <span>{isAr ? 'أهدافنا الاستراتيجية الثمانية' : 'Our 8 Strategic Objectives'}</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-ink">
+            <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
               {isAr ? 'أهداف راش إكس لتطوير القطاع' : 'RashX Strategic Objectives'}
             </h2>
             <p className="text-xs sm:text-sm text-ink-muted">
@@ -401,7 +401,7 @@ export default async function AboutPage({ params }: AboutPageProps) {
                       <div className="w-11 h-11 rounded-2xl bg-mist-gray/70 flex items-center justify-center text-ink group-hover:bg-dusty-blue group-hover:text-black transition-colors">
                         <Icon className="w-5 h-5" />
                       </div>
-                      <span className="text-xs font-black font-mono text-ink-muted/50">
+                      <span className="text-xs font-semibold font-mono text-ink-muted/50">
                         0{obj.id}
                       </span>
                     </div>
@@ -427,7 +427,7 @@ export default async function AboutPage({ params }: AboutPageProps) {
               <Compass className="w-3.5 h-3.5 text-dusty-blue" />
               <span>{isAr ? 'مبادئنا الثابتة' : 'Our Guiding Principles'}</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-ink">
+            <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
               {isAr ? 'قيم راش إكس' : 'Core Values of RashX'}
             </h2>
             <p className="text-xs sm:text-sm text-ink-muted">
@@ -467,7 +467,7 @@ export default async function AboutPage({ params }: AboutPageProps) {
               <Calendar className="w-3.5 h-3.5 text-dusty-blue" />
               <span>{isAr ? 'مسيرة التطور والتوسع' : 'Milestones & Roadmap'}</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-ink">
+            <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
               {isAr ? 'محطات راش إكس' : 'RashX Milestones'}
             </h2>
             <p className="text-xs text-ink-muted">
@@ -491,7 +491,7 @@ export default async function AboutPage({ params }: AboutPageProps) {
 
                 <div className="p-6 rounded-2xl bg-[#FAFBFB] border border-mist-gray space-y-2.5 hover:border-dusty-blue transition-colors">
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <span className="font-mono text-xs font-black text-ink px-2.5 py-1 rounded-lg bg-white border border-mist-gray">
+                    <span className="font-mono text-xs font-semibold text-ink px-2.5 py-1 rounded-lg bg-white border border-mist-gray">
                       {milestone.year}
                     </span>
                     <span
@@ -532,7 +532,7 @@ export default async function AboutPage({ params }: AboutPageProps) {
             <div className="lg:col-span-3 flex justify-center">
               <div className="relative">
                 <div className="w-32 h-32 sm:w-36 sm:h-36 rounded-3xl bg-mist-gray border-2 border-white shadow-lg flex flex-col items-center justify-center text-ink text-center p-4">
-                  <span className="text-3xl font-black font-mono text-black">RX</span>
+                  <span className="text-3xl font-semibold font-mono text-black">RX</span>
                   <span className="text-[10px] font-bold text-ink-muted mt-1 uppercase tracking-wider">
                     Founder
                   </span>
@@ -549,7 +549,7 @@ export default async function AboutPage({ params }: AboutPageProps) {
                 <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-mist-gray text-[11px] font-semibold text-ink-muted">
                   <span>{isAr ? 'قيادة المنتج والتطوير' : 'Product Leadership'}</span>
                 </div>
-                <h2 className="text-xl sm:text-2xl font-black text-ink">
+                <h2 className="text-xl sm:text-2xl font-semibold text-ink">
                   {isAr ? SITE_CONFIG.founder.nameAr : SITE_CONFIG.founder.nameEn}
                 </h2>
                 <p className="text-xs sm:text-sm font-semibold text-dusty-blue">
@@ -650,12 +650,12 @@ export default async function AboutPage({ params }: AboutPageProps) {
         {/* Section 9: Closing CTA Banner */}
         <div className="rounded-3xl bg-ink text-white p-8 sm:p-12 text-center space-y-6 relative overflow-hidden shadow-xl">
           <div className="max-w-2xl mx-auto space-y-3 relative z-10">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-white text-xs font-semibold backdrop-blur-xs">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-white text-xs font-medium backdrop-blur-xs">
               <Sparkles className="w-3.5 h-3.5 text-dusty-blue" />
               <span>{isAr ? 'ابدأ تجربة التحول الرقمي لمنشأتك' : 'Begin Your Facility Transformation'}</span>
             </div>
 
-            <h2 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight">
+            <h2 className="text-2xl sm:text-4xl font-semibold tracking-tight leading-tight">
               {isAr
                 ? 'جاهز لنقل صالونك إلى معايير الإدارة الذكية؟'
                 : 'Ready to Upgrade Your Salon to Smart Management?'}

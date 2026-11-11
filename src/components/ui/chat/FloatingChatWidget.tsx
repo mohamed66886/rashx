@@ -87,7 +87,7 @@ export const FloatingChatWidget: React.FC<FloatingChatWidgetProps> = ({
 
           {/* Unread Counter Badge */}
           {unread > 0 && (
-            <span className="absolute -top-1 -right-1 px-1.5 py-0.5 min-w-[20px] h-5 rounded-full bg-red-600 text-white font-extrabold text-[10px] flex items-center justify-center shadow-xs border-2 border-white animate-bounce">
+            <span className="absolute -top-1 -right-1 px-1.5 py-0.5 min-w-[20px] h-5 rounded-full bg-red-600 text-white font-semibold text-[10px] flex items-center justify-center shadow-xs border-2 border-white animate-bounce">
               {unread}
             </span>
           )}

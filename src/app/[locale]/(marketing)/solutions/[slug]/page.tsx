@@ -1093,7 +1093,7 @@ export default async function SolutionSlugPage({ params }: SolutionPageProps) {
               </span>
             </div>
 
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-ink tracking-tight leading-tight">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-ink tracking-tight leading-tight">
               {isAr
                 ? 'موقع وتطبيق بهوية صالونك، جاهزان للانطلاق'
                 : 'Your Branded Website & Booking App, Ready to Launch'}
@@ -1151,7 +1151,7 @@ export default async function SolutionSlugPage({ params }: SolutionPageProps) {
               <span className="text-xs font-bold text-dusty-blue uppercase tracking-wider">
                 {isAr ? 'الهندسة البرمجية لمنظومتك' : 'Core System Architecture'}
               </span>
-              <h2 className="text-2xl sm:text-3xl font-black text-ink">
+              <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
                 {isAr
                   ? 'منظومة واحدة.. 4 بوابات رقمية متزامنة في الوقت الفعلي'
                   : 'One System, 4 Synchronized Portals in Real Time'}
@@ -1248,7 +1248,7 @@ export default async function SolutionSlugPage({ params }: SolutionPageProps) {
               <span className="text-xs font-bold text-dusty-blue uppercase tracking-wider">
                 {isAr ? 'مقارنة التحول الرقمي' : 'Transformation Comparison'}
               </span>
-              <h2 className="text-2xl sm:text-3xl font-black text-ink">
+              <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
                 {isAr
                   ? 'الفارق الجذري: الإدارة بالطريقة التقليدية مقابل منظومة راش إكس'
                   : 'The Definitive Shift: Traditional Headaches vs. RashX Clarity'}
@@ -1359,7 +1359,7 @@ export default async function SolutionSlugPage({ params }: SolutionPageProps) {
               <span className="text-xs font-bold text-dusty-blue uppercase tracking-wider">
                 {isAr ? 'محاكاة حية للتخصيص' : 'Live Brand Customizer Mockup'}
               </span>
-              <h2 className="text-2xl sm:text-3xl font-black text-ink">
+              <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
                 {isAr
                   ? 'خصص موقعك وتطبيقك في 3 خطوات بسيطة'
                   : 'Customize Your Website & Portals in 3 Simple Steps'}
@@ -1491,7 +1491,7 @@ export default async function SolutionSlugPage({ params }: SolutionPageProps) {
               <span className="text-xs font-bold text-dusty-blue uppercase tracking-wider">
                 {isAr ? 'الميزات والركائز' : 'Core Capabilities'}
               </span>
-              <h2 className="text-2xl sm:text-3xl font-black text-ink">
+              <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
                 {isAr
                   ? '7 ركائز تمنح صالونك حضوراً رقمياً لا يُضاهى'
                   : '7 Pillars Powering Your Salon’s Digital Supremacy'}
@@ -1532,7 +1532,7 @@ export default async function SolutionSlugPage({ params }: SolutionPageProps) {
               <span className="text-xs font-bold text-dusty-blue uppercase tracking-wider">
                 {isAr ? 'الأسئلة الشائعة' : 'Frequently Asked Questions'}
               </span>
-              <h2 className="text-2xl sm:text-3xl font-black text-ink">
+              <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
                 {isAr
                   ? 'أسئلة شائعة عن موقع الصالون والنطاق الفرعي'
                   : 'Frequently Asked Questions about Salon Websites & Subdomains'}
@@ -1565,7 +1565,7 @@ export default async function SolutionSlugPage({ params }: SolutionPageProps) {
                 <span>{isAr ? 'هوية رقمية جاهزة للانطلاق' : 'Ready-to-Launch Branded Identity'}</span>
               </div>
 
-              <h2 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight">
+              <h2 className="text-2xl sm:text-4xl font-semibold tracking-tight leading-tight">
                 {isAr
                   ? 'جاهز لإطلاق موقع وتطبيق صالونك المستقل خلال 20 دقيقة؟'
                   : 'Ready to Launch Your Salon’s Branded Website & App in 20 Minutes?'}
@@ -1642,7 +1642,7 @@ export default async function SolutionSlugPage({ params }: SolutionPageProps) {
               </span>
             </div>
 
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-ink tracking-tight leading-tight">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-ink tracking-tight leading-tight">
               {isAr
                 ? 'حوّل زوارك إلى عملاء دائمين'
                 : 'Turn First-Time Visitors into Lifelong Brand Champions'}
@@ -1700,7 +1700,7 @@ export default async function SolutionSlugPage({ params }: SolutionPageProps) {
               <span className="text-xs font-bold text-dusty-blue uppercase tracking-wider">
                 {isAr ? 'تجربة تفاعلية متكاملة' : 'Interactive Loyalty Experience'}
               </span>
-              <h2 className="text-2xl sm:text-3xl font-black text-ink">
+              <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
                 {isAr
                   ? 'محفظة مكافآت ذكية في جوال العميل.. وتحكم كامل للإدارة'
                   : 'Digital Rewards Wallet for Clients & Absolute Admin Control'}
@@ -1925,7 +1925,7 @@ export default async function SolutionSlugPage({ params }: SolutionPageProps) {
               <span className="text-xs font-bold text-dusty-blue uppercase tracking-wider">
                 {isAr ? 'منظومة الولاء والمكافآت' : 'Loyalty Architecture'}
               </span>
-              <h2 className="text-2xl sm:text-3xl font-black text-ink">
+              <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
                 {isAr
                   ? '7 ركائز لبناء ولاء حقيقي ومضاعفة معدل عودة العميلات'
                   : '7 Pillars to Foster Genuine Brand Loyalty & Repeat Bookings'}
@@ -1972,7 +1972,7 @@ export default async function SolutionSlugPage({ params }: SolutionPageProps) {
                 </span>
               </div>
 
-              <h2 className="text-2xl sm:text-3xl font-black text-ink leading-tight">
+              <h2 className="text-2xl sm:text-3xl font-semibold text-ink leading-tight">
                 {isAr
                   ? 'محفظة ولاء رقمية بين يدي كل عميل.. فوراً عبر متصفح الجوال'
                   : 'A Digital Loyalty Wallet in Every Client’s Hand—Zero App Store Downloads'}
@@ -2008,7 +2008,7 @@ export default async function SolutionSlugPage({ params }: SolutionPageProps) {
               <span className="text-xs font-bold text-dusty-blue uppercase tracking-wider">
                 {isAr ? 'الأسئلة الشائعة' : 'Frequently Asked Questions'}
               </span>
-              <h2 className="text-2xl sm:text-3xl font-black text-ink">
+              <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
                 {isAr
                   ? 'أسئلة شائعة عن نقاط وبرامج ولاء الصالونات'
                   : 'Frequently Asked Questions about Salon Loyalty'}
@@ -2041,7 +2041,7 @@ export default async function SolutionSlugPage({ params }: SolutionPageProps) {
                 <span>{isAr ? 'ولاء دائم وعائد استثماري أعلى' : 'Enduring Loyalty & Maximum LTV'}</span>
               </div>
 
-              <h2 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight">
+              <h2 className="text-2xl sm:text-4xl font-semibold tracking-tight leading-tight">
                 {isAr
                   ? 'جاهز لتحويل زوار صالونك إلى عملاء دائمين لا يستغنون عنك؟'
                   : 'Ready to Turn First-Time Visitors into Devoted Brand Champions?'}
@@ -2118,7 +2118,7 @@ export default async function SolutionSlugPage({ params }: SolutionPageProps) {
               </span>
             </div>
 
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-ink tracking-tight leading-tight">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-ink tracking-tight leading-tight">
               {isAr
                 ? 'اعرف عميلك وابنِ علاقة طويلة الأمد'
                 : 'Know Your Client & Build Enduring Relationships'}
@@ -2183,7 +2183,7 @@ export default async function SolutionSlugPage({ params }: SolutionPageProps) {
               <span className="text-xs font-bold text-dusty-blue uppercase tracking-wider">
                 {isAr ? 'تجربة تفاعلية متطورة' : 'Interactive Interface'}
               </span>
-              <h2 className="text-2xl sm:text-3xl font-black text-ink">
+              <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
                 {isAr
                   ? 'ملف شخصي شامل ومحرك تواصل يعيد العميلات لصالونك'
                   : 'Comprehensive Profiles & Automated Client Win-Back'}
@@ -2452,7 +2452,7 @@ export default async function SolutionSlugPage({ params }: SolutionPageProps) {
               <span className="text-xs font-bold text-dusty-blue uppercase tracking-wider">
                 {isAr ? 'منظومة إدارة العملاء' : 'CRM Architecture'}
               </span>
-              <h2 className="text-2xl sm:text-3xl font-black text-ink">
+              <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
                 {isAr
                   ? '7 ركائز لبناء تجربة عميل استثنائية وزيادة ولاء الصالون'
                   : '7 Pillars for Unrivaled Client Care & Maximum Retention'}
@@ -2499,7 +2499,7 @@ export default async function SolutionSlugPage({ params }: SolutionPageProps) {
                 </span>
               </div>
 
-              <h2 className="text-2xl sm:text-3xl font-black text-ink leading-tight">
+              <h2 className="text-2xl sm:text-3xl font-semibold text-ink leading-tight">
                 {isAr
                   ? 'حماية وسرية بيانات عملائك.. التزام قانوني وأمان مطلق'
                   : 'Client Data Privacy & Security: Absolute Integrity by Design'}
@@ -2533,7 +2533,7 @@ export default async function SolutionSlugPage({ params }: SolutionPageProps) {
               <span className="text-xs font-bold text-dusty-blue uppercase tracking-wider">
                 {isAr ? 'الأسئلة الشائعة' : 'Frequently Asked Questions'}
               </span>
-              <h2 className="text-2xl sm:text-3xl font-black text-ink">
+              <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
                 {isAr
                   ? 'أسئلة شائعة عن CRM وإدارة عملاء الصالونات'
                   : 'Frequently Asked Questions about Salon CRM'}
@@ -2566,7 +2566,7 @@ export default async function SolutionSlugPage({ params }: SolutionPageProps) {
                 <span>{isAr ? 'علاقات عملاء مستدامة' : 'Lasting Client Relationships'}</span>
               </div>
 
-              <h2 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight">
+              <h2 className="text-2xl sm:text-4xl font-semibold tracking-tight leading-tight">
                 {isAr
                   ? 'جاهز لمضاعفة ولاء عملاء صالونك وزيادة تكرار زياراتهم؟'
                   : 'Ready to Double Customer Retention & Visit Frequency?'}
@@ -2643,7 +2643,7 @@ export default async function SolutionSlugPage({ params }: SolutionPageProps) {
               </span>
             </div>
 
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-ink tracking-tight leading-tight">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-ink tracking-tight leading-tight">
               {isAr
                 ? 'مخزون تحت السيطرة دون هدر'
                 : 'Salon Inventory Under Control Without Waste'}
@@ -2706,7 +2706,7 @@ export default async function SolutionSlugPage({ params }: SolutionPageProps) {
                 <Sparkles className="w-3.5 h-3.5 text-dusty-blue" />
                 <span>{isAr ? 'شاشات مراقبة المخزون والتوريد' : 'Live Inventory & Vendor Mockup'}</span>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-black text-ink">
+              <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
                 {isAr ? 'رؤية لحظية لكل عبوة ومستحضر داخل الصالون' : 'Real-Time Visibility Over Every Formula & Bottle'}
               </h2>
               <p className="text-xs sm:text-sm text-ink-muted">
@@ -2926,7 +2926,7 @@ export default async function SolutionSlugPage({ params }: SolutionPageProps) {
                 <Layers className="w-3.5 h-3.5 text-dusty-blue" />
                 <span>{isAr ? 'الركائز السبع للمنظومة' : '7 Core Inventory Pillars'}</span>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-black text-ink">
+              <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
                 {isAr ? 'منظومة مخزون شاملة لإيقاف الهدر وزيادة الأرباح' : 'Comprehensive Inventory Control Ending Waste'}
               </h2>
               <p className="text-xs sm:text-sm text-ink-muted">
@@ -2966,7 +2966,7 @@ export default async function SolutionSlugPage({ params }: SolutionPageProps) {
                 <HelpCircle className="w-3.5 h-3.5 text-dusty-blue" />
                 <span>{isAr ? 'إجابات مباشرة' : 'Direct Answers'}</span>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-black text-ink">
+              <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
                 {isAr ? 'الأسئلة الشائعة حول إدارة مخزون الصالونات' : 'Frequently Asked Questions'}
               </h2>
               <p className="text-xs sm:text-sm text-ink-muted">
@@ -3002,7 +3002,7 @@ export default async function SolutionSlugPage({ params }: SolutionPageProps) {
                 <span>{isAr ? 'صفر هدر ومخزون منضبط' : 'Zero Waste & Total Stock Auditing'}</span>
               </div>
 
-              <h2 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight">
+              <h2 className="text-2xl sm:text-4xl font-semibold tracking-tight leading-tight">
                 {isAr
                   ? 'جاهز لضبط مخزون صالونك والقضاء على الهدر المالي؟'
                   : 'Ready to Bring Your Salon Inventory Under Complete Control?'}
@@ -3077,7 +3077,7 @@ export default async function SolutionSlugPage({ params }: SolutionPageProps) {
               </span>
             </div>
 
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-ink tracking-tight leading-tight">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-ink tracking-tight leading-tight">
               {isAr
                 ? 'إدارة الموظفين والعمولات بدقة وشفافية'
                 : 'Salon Staff & Commission Management with Precision & Transparency'}
@@ -3139,7 +3139,7 @@ export default async function SolutionSlugPage({ params }: SolutionPageProps) {
                 <Sparkles className="w-3.5 h-3.5 text-dusty-blue" />
                 <span>{isAr ? 'معاينة شاشات الموظفين والإدارة' : 'Staff & Admin Interface Preview'}</span>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-black text-ink">
+              <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
                 {isAr ? 'شفافية للموظفة وتحكم كامل للإدارة' : 'Transparency for Specialists, Full Control for Management'}
               </h2>
               <p className="text-xs sm:text-sm text-ink-muted">
@@ -3361,7 +3361,7 @@ export default async function SolutionSlugPage({ params }: SolutionPageProps) {
                 <Layers className="w-3.5 h-3.5 text-dusty-blue" />
                 <span>{isAr ? 'الركائز السبع للمنظومة' : '7 Core Pillars'}</span>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-black text-ink">
+              <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
                 {isAr ? 'كل ما تحتاجه لإدارة فريق صالونك باحترافية' : 'Everything Needed for Professional Staff Management'}
               </h2>
               <p className="text-xs sm:text-sm text-ink-muted">
@@ -3401,7 +3401,7 @@ export default async function SolutionSlugPage({ params }: SolutionPageProps) {
                 <HelpCircle className="w-3.5 h-3.5 text-dusty-blue" />
                 <span>{isAr ? 'إجابات مباشرة' : 'Direct Answers'}</span>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-black text-ink">
+              <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
                 {isAr ? 'الأسئلة الشائعة حول إدارة الموظفين والعمولات' : 'Frequently Asked Questions'}
               </h2>
               <p className="text-xs sm:text-sm text-ink-muted">
@@ -3437,7 +3437,7 @@ export default async function SolutionSlugPage({ params }: SolutionPageProps) {
                 <span>{isAr ? 'شفافية كاملة وتحفيز للإنتاجية' : 'Absolute Transparency & Morale Boost'}</span>
               </div>
 
-              <h2 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight">
+              <h2 className="text-2xl sm:text-4xl font-semibold tracking-tight leading-tight">
                 {isAr
                   ? 'جاهز لضبط عمولات موظفيك وإنهاء الخلافات الحسابية؟'
                   : 'Ready to Automate Staff Commissions & Eliminate Disputes?'}
@@ -3512,7 +3512,7 @@ export default async function SolutionSlugPage({ params }: SolutionPageProps) {
               </span>
             </div>
 
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-ink tracking-tight leading-tight">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-ink tracking-tight leading-tight">
               {isAr
                 ? 'كاشير ومبيعات مصمم لتفاصيل الصالونات'
                 : 'Salon POS & Cashier Engineered for Beauty Facilities'}
@@ -3574,7 +3574,7 @@ export default async function SolutionSlugPage({ params }: SolutionPageProps) {
                 <Sparkles className="w-3.5 h-3.5 text-dusty-blue" />
                 <span>{isAr ? 'شاشة الكاشير السريعة' : 'Interactive POS Mockup'}</span>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-black text-ink">
+              <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
                 {isAr ? 'واجهة نقطة بيع مصممة لسرعة الاستقبال' : 'Fast Touch POS Designed for Salon Front Desks'}
               </h2>
               <p className="text-xs sm:text-sm text-ink-muted">
@@ -3755,7 +3755,7 @@ export default async function SolutionSlugPage({ params }: SolutionPageProps) {
                 <Layers className="w-3.5 h-3.5 text-dusty-blue" />
                 <span>{isAr ? 'قدرات نقاط البيع والكاشير' : 'POS Capabilities'}</span>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-black text-ink">
+              <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
                 {isAr ? 'كل ما تحتاجه لإدارة عمليات البيع المالي' : 'Complete Financial Sales Operations'}
               </h2>
               <p className="text-xs sm:text-sm text-ink-muted">
@@ -3888,7 +3888,7 @@ export default async function SolutionSlugPage({ params }: SolutionPageProps) {
                 <HelpCircle className="w-3.5 h-3.5 text-dusty-blue" />
                 <span>{isAr ? 'إجابات مباشرة' : 'Direct Answers'}</span>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-black text-ink">
+              <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
                 {isAr ? 'الأسئلة الشائعة حول الكاشير ونقاط البيع' : 'Frequently Asked Questions'}
               </h2>
               <p className="text-xs sm:text-sm text-ink-muted">
@@ -3924,7 +3924,7 @@ export default async function SolutionSlugPage({ params }: SolutionPageProps) {
                 <span>{isAr ? 'كاشير سريع ومبيعات منضبطة' : 'Fast POS & Accurate Audits'}</span>
               </div>
 
-              <h2 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight">
+              <h2 className="text-2xl sm:text-4xl font-semibold tracking-tight leading-tight">
                 {isAr
                   ? 'جاهز لتسريع كاشير صالونك وضبط إيراداتك وعمولاتك؟'
                   : 'Ready to Accelerate Your Checkout & Reconcile Revenue?'}
@@ -3998,7 +3998,7 @@ export default async function SolutionSlugPage({ params }: SolutionPageProps) {
             </span>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-ink tracking-tight leading-tight">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-ink tracking-tight leading-tight">
             {isAr
               ? 'نظام حجوزات يملأ جدول صالونك ويقلل التعارض'
               : 'Booking System That Fills Your Salon Calendar & Eliminates Clashes'}
@@ -4056,7 +4056,7 @@ export default async function SolutionSlugPage({ params }: SolutionPageProps) {
               <Sparkles className="w-3.5 h-3.5 text-dusty-blue" />
               <span>{isAr ? 'معاينة حية للمنظومة' : 'Interactive System Preview'}</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-ink">
+            <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
               {isAr ? 'كيف تبدو تجربة الحجز لك ولعميلك؟' : 'How the Booking Flow Works'}
             </h2>
             <p className="text-xs sm:text-sm text-ink-muted">
@@ -4297,7 +4297,7 @@ export default async function SolutionSlugPage({ params }: SolutionPageProps) {
               <Layers className="w-3.5 h-3.5 text-dusty-blue" />
               <span>{isAr ? 'المميزات الوظيفية المتكاملة' : 'Core Booking Capabilities'}</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-ink">
+            <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
               {isAr ? 'كل ما تحتاجه لإدارة حجوزات صالونك باحترافية' : 'Everything You Need for Seamless Scheduling'}
             </h2>
             <p className="text-xs sm:text-sm text-ink-muted">
@@ -4337,7 +4337,7 @@ export default async function SolutionSlugPage({ params }: SolutionPageProps) {
               <HelpCircle className="w-3.5 h-3.5 text-dusty-blue" />
               <span>{isAr ? 'إجابات مباشرة' : 'Direct Answers'}</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-ink">
+            <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
               {isAr ? 'الأسئلة الشائعة حول نظام الحجوزات' : 'Frequently Asked Questions'}
             </h2>
             <p className="text-xs sm:text-sm text-ink-muted">
@@ -4373,7 +4373,7 @@ export default async function SolutionSlugPage({ params }: SolutionPageProps) {
               <span>{isAr ? 'أوقف فوضى المواعيد اليوم' : 'Stop Appointment Chaos Today'}</span>
             </div>
 
-            <h2 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight">
+            <h2 className="text-2xl sm:text-4xl font-semibold tracking-tight leading-tight">
               {isAr
                 ? 'جاهز لتنظيم جدول صالونك وملء مقاعده بحجوزات مؤكدة؟'
                 : 'Ready to Fill Your Salon Chairs with Confirmed Bookings?'}

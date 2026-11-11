@@ -41,22 +41,22 @@ export const PricingTable: React.FC<PricingTableProps> = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-4 mb-10">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-mist-gray text-ink text-xs font-bold">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-mist-gray text-ink text-xs font-medium">
             <Sparkles className="w-3.5 h-3.5 text-dusty-blue" />
             <span>{isAr ? 'خطط اشتراك شفافة بالريال السعودي' : 'Transparent Subscriptions in SAR'}</span>
           </div>
 
           {isH1 ? (
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-ink tracking-tight leading-[1.18]">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold text-ink tracking-tight leading-tight">
               {headingText}
             </h1>
           ) : (
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-ink tracking-tight">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-ink tracking-tight leading-tight">
               {headingText}
             </h2>
           )}
 
-          <p className="text-sm sm:text-base text-ink-muted">
+          <p className="text-xs font-normal leading-relaxed text-ink-muted sm:text-sm md:text-base">
             {subtitleText}
           </p>
 
@@ -65,14 +65,14 @@ export const PricingTable: React.FC<PricingTableProps> = ({
             <button
               type="button"
               onClick={() => setBillingCycle('annual')}
-              className={`px-4 py-2 text-xs font-bold rounded-xl transition-all ${
+              className={`px-4 py-2 text-xs font-medium rounded-xl transition-all ${
                 billingCycle === 'annual'
                   ? 'bg-white text-ink shadow-xs'
                   : 'text-ink-muted hover:text-ink'
               }`}
             >
               <span>{isAr ? 'الدفع السنوي' : 'Annual Billing'}</span>
-              <span className="ms-1.5 px-1.5 py-0.5 rounded-full text-[10px] bg-dusty-blue/30 text-ink">
+              <span className="ms-1.5 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-dusty-blue/30 text-ink">
                 {isAr ? 'وفر إضافي [TODO]' : 'Save [TODO]'}
               </span>
             </button>
@@ -80,7 +80,7 @@ export const PricingTable: React.FC<PricingTableProps> = ({
             <button
               type="button"
               onClick={() => setBillingCycle('monthly')}
-              className={`px-4 py-2 text-xs font-bold rounded-xl transition-all ${
+              className={`px-4 py-2 text-xs font-medium rounded-xl transition-all ${
                 billingCycle === 'monthly'
                   ? 'bg-white text-ink shadow-xs'
                   : 'text-ink-muted hover:text-ink'
@@ -114,7 +114,7 @@ export const PricingTable: React.FC<PricingTableProps> = ({
               >
                 {/* Popular Badge */}
                 {plan.badgeAr && (
-                  <div className="absolute -top-3.5 start-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-dusty-blue text-black text-xs font-black shadow-xs">
+                  <div className="absolute -top-3.5 start-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-dusty-blue text-black text-xs font-medium shadow-xs">
                     {isAr ? plan.badgeAr : plan.badgeEn}
                   </div>
                 )}
@@ -122,13 +122,13 @@ export const PricingTable: React.FC<PricingTableProps> = ({
                 <div className="space-y-6">
                   {/* Title & Tagline */}
                   <div>
-                    <h3 className="text-xl font-bold text-ink">
+                    <h3 className="text-lg sm:text-xl font-semibold text-ink">
                       {isAr ? plan.nameAr : plan.nameEn}
                     </h3>
-                    <p className="text-xs text-ink-muted mt-1 leading-relaxed">
+                    <p className="text-xs font-normal text-ink-muted mt-1 leading-relaxed">
                       {isAr ? plan.taglineAr : plan.taglineEn}
                     </p>
-                    <div className="mt-3 inline-block px-2.5 py-1 rounded-lg bg-mist-gray/50 text-[11px] font-semibold text-ink">
+                    <div className="mt-3 inline-block px-2.5 py-1 rounded-lg bg-mist-gray/50 text-[11px] font-medium text-ink">
                       {isAr ? plan.targetFacilityAr : plan.targetFacilityEn}
                     </div>
                   </div>
@@ -136,23 +136,23 @@ export const PricingTable: React.FC<PricingTableProps> = ({
                   {/* Price Section */}
                   <div className="border-y border-mist-gray/60 py-4 space-y-1">
                     <div className="flex items-baseline gap-2">
-                      <span className="text-3xl sm:text-4xl font-extrabold text-ink font-mono">
+                      <span className="text-2xl sm:text-3xl md:text-4xl font-semibold text-ink font-mono">
                         {price}
                       </span>
-                      <span className="text-xs font-bold text-ink-muted">
+                      <span className="text-xs font-normal text-ink-muted">
                         {isAr ? PRICING_CONFIG.currencySymbolAr : PRICING_CONFIG.currencySymbolEn}
                         {' / '}
                         {isAr ? 'شهرياً' : 'month'}
                       </span>
                     </div>
-                    <p className="text-[11px] text-ink-muted">
+                    <p className="text-[11px] font-normal text-ink-muted">
                       {isAr ? plan.billingNoteAr : plan.billingNoteEn}
                     </p>
                   </div>
 
                   {/* Features List */}
                   <div className="space-y-3">
-                    <div className="text-xs font-bold text-ink uppercase tracking-wider">
+                    <div className="text-xs font-medium text-ink uppercase tracking-wider">
                       {isAr ? 'المميزات والأنظمة المشمولة:' : 'Included Features & Systems:'}
                     </div>
                     <ul className="space-y-2.5">
@@ -168,7 +168,7 @@ export const PricingTable: React.FC<PricingTableProps> = ({
                           ) : (
                             <X className="w-4 h-4 text-ink-muted/40 shrink-0 mt-0.5" />
                           )}
-                          <span className={feat.highlight ? 'font-bold text-ink' : ''}>
+                          <span className={feat.highlight ? 'font-semibold text-ink' : ''}>
                             {isAr ? feat.textAr : feat.textEn}
                           </span>
                         </li>
@@ -181,7 +181,7 @@ export const PricingTable: React.FC<PricingTableProps> = ({
                 <div className="pt-8 mt-6 border-t border-mist-gray/60">
                   <Link
                     href={`/${locale}${plan.ctaHref}`}
-                    className={`w-full inline-flex items-center justify-center px-5 py-3 text-sm font-bold rounded-2xl transition-all shadow-xs ${
+                    className={`w-full inline-flex items-center justify-center px-5 py-3 text-xs sm:text-sm font-semibold rounded-2xl transition-all shadow-xs ${
                       plan.isPopular
                         ? 'bg-dusty-blue hover:bg-dusty-blue/90 text-black shadow-md'
                         : 'bg-white hover:bg-mist-gray/50 text-ink border border-mist-gray'

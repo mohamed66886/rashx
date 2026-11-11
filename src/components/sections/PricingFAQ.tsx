@@ -58,18 +58,18 @@ export const PricingFAQ: React.FC<PricingFAQProps> = ({ locale = DEFAULT_LOCALE 
 
         {/* Section Title */}
         <div className="text-center space-y-4 mb-10">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-mist-gray text-ink text-xs font-bold">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-mist-gray text-ink text-xs font-medium">
             <HelpCircle className="w-3.5 h-3.5 text-dusty-blue" />
             <span>{isAr ? 'الأسئلة الشائعة حول الأسعار والدفع' : 'Pricing & Billing FAQ'}</span>
           </div>
 
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-ink tracking-tight">
+          <h2 className="text-2xl sm:text-3xl font-semibold text-ink tracking-tight leading-tight">
             {isAr
               ? 'إجابات واضحة حول الفواتير والاشتراكات وطرق الدفع'
               : 'Common Questions About Subscriptions & Payments'}
           </h2>
 
-          <p className="text-xs sm:text-sm text-ink-muted">
+          <p className="text-xs sm:text-sm font-normal leading-relaxed text-ink-muted">
             {isAr
               ? 'كل ما تحتاج لمعرفته حول خيارات الدفع المحلية في السعودية وسياسات الترقية والإلغاء.'
               : 'Everything you need to know about KSA payment channels, VAT, and upgrades.'}
@@ -89,7 +89,7 @@ export const PricingFAQ: React.FC<PricingFAQProps> = ({ locale = DEFAULT_LOCALE 
                 <button
                   type="button"
                   onClick={() => setOpenIdx(isOpen ? null : idx)}
-                  className="w-full py-4 px-6 text-start flex items-center justify-between gap-4 font-bold text-ink text-xs sm:text-sm hover:text-dusty-blue transition-colors"
+                  className="w-full py-4 px-6 text-start flex items-center justify-between gap-4 font-semibold text-ink text-xs sm:text-sm hover:text-dusty-blue transition-colors"
                   aria-expanded={isOpen}
                 >
                   <span>{isAr ? faq.questionAr : faq.questionEn}</span>
@@ -101,7 +101,7 @@ export const PricingFAQ: React.FC<PricingFAQProps> = ({ locale = DEFAULT_LOCALE 
                 </button>
 
                 {isOpen && (
-                  <div className="px-6 pb-5 pt-1 text-xs text-ink-muted leading-relaxed border-t border-mist-gray/40 animate-in fade-in duration-200">
+                  <div className="px-6 pb-5 pt-1 text-xs sm:text-sm font-normal text-ink-muted leading-relaxed border-t border-mist-gray/40 animate-in fade-in duration-200">
                     {isAr ? faq.answerAr : faq.answerEn}
                   </div>
                 )}

@@ -254,13 +254,13 @@ export default async function ZatcaPage({ params }: ZatcaPageProps) {
             </span>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-ink tracking-tight leading-tight">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-ink tracking-tight leading-tight">
             {isAr
               ? 'فوترة إلكترونية لصالونك متوافقة مع متطلبات ZATCA'
               : 'Salon E-Invoicing Fully Aligned with ZATCA Requirements'}
           </h1>
 
-          <p className="text-base sm:text-lg text-ink-muted leading-relaxed">
+          <p className="text-base sm:text-lg text-ink-muted leading-relaxed font-normal">
             {isAr
               ? 'دليل عملي شامل لأصحاب المشاغل، صالونات التجميل، مراكز الحلاقة، والسبا في المملكة العربية السعودية. تعرف على متطلبات المرحلة الثانية (الربط والتكامل)، وكيف تدعم منصة راش إكس إصدار الفواتير الضريبية المبسطة المزودة برمز QR المشفر وفق ضوابط هيئة الزكاة والضريبة والجمارك.'
               : 'A comprehensive operational guide for beauty salons, styling studios, barbershops, and spas in Saudi Arabia. Discover Phase 2 (Integration & Linking) criteria and how RashX supports compliant simplified tax invoices with cryptographic QR codes.'}
@@ -269,7 +269,7 @@ export default async function ZatcaPage({ params }: ZatcaPageProps) {
           <div className="pt-2 flex flex-wrap items-center gap-4">
             <Link
               href={`/${locale}/demo`}
-              className="px-6 py-3.5 text-sm font-bold text-black bg-dusty-blue hover:bg-dusty-blue/90 rounded-2xl shadow-md transition-all active:scale-[0.98]"
+              className="px-6 py-3.5 text-sm font-semibold text-black bg-dusty-blue hover:bg-dusty-blue/90 rounded-2xl shadow-md transition-all active:scale-[0.98]"
             >
               {isAr ? 'احجز عرضًا تجريبيًا وافحص جاهزيتك' : 'Book a Demo & Verify Readiness'}
             </Link>
@@ -323,14 +323,14 @@ export default async function ZatcaPage({ params }: ZatcaPageProps) {
         {/* Section 2: What is E-Invoicing? (المرحلتان بشرح مبسط) */}
         <div className="rounded-3xl bg-white p-8 sm:p-12 border border-mist-gray shadow-xs mb-16 space-y-8">
           <div className="max-w-2xl space-y-2">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-mist-gray text-ink-muted text-xs font-semibold">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-mist-gray text-ink-muted text-xs font-medium">
               <BookOpen className="w-3.5 h-3.5 text-dusty-blue" />
               <span>{isAr ? 'مفهوم الفوترة الإلكترونية (فاتورة)' : 'The Fatoora Project Explained'}</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-ink">
+            <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
               {isAr ? 'ما هي الفوترة الإلكترونية وما هما مرحلتاها؟' : 'What is E-Invoicing & Its Two Phases?'}
             </h2>
-            <p className="text-xs sm:text-sm text-ink-muted">
+            <p className="text-xs sm:text-sm text-ink-muted font-normal">
               {isAr
                 ? 'إجراء يهدف إلى تحويل إصدار الفواتير والإشعارات الورقية إلى منظومة إلكترونية منظمة تضمن الدقة ومنع التلاعب'
                 : 'A nationwide initiative replacing manual handwritten bills with an auditable, encrypted electronic invoicing lifecycle'}
@@ -435,14 +435,14 @@ export default async function ZatcaPage({ params }: ZatcaPageProps) {
         {/* Section 4: How RashX Supports Integration (كيف تدعم RashX الربط والتفعيل؟) */}
         <div className="rounded-3xl bg-white p-8 sm:p-12 border border-mist-gray shadow-xs mb-16 space-y-8">
           <div className="max-w-2xl space-y-2">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-mist-gray text-ink-muted text-xs font-semibold">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-mist-gray text-ink-muted text-xs font-medium">
               <Laptop2 className="w-3.5 h-3.5 text-dusty-blue" />
               <span>{isAr ? 'الحل البرمجي السحابي' : 'Cloud Architecture'}</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-ink">
+            <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
               {isAr ? 'كيف تدعم راش إكس الربط والتفعيل لمنشأتك؟' : 'How RashX Supports Your ZATCA Integration'}
             </h2>
-            <p className="text-xs sm:text-sm text-ink-muted">
+            <p className="text-xs sm:text-sm text-ink-muted font-normal">
               {isAr
                 ? 'بنية برمجية مهيأة للتعامل مع متطلبات المرحلة الثانية وفق حالة كل منشأة ومتطلبات الهيئة'
                 : 'Engineered architecture tailored to handle Phase 2 requirements per facility readiness'}
@@ -454,8 +454,8 @@ export default async function ZatcaPage({ params }: ZatcaPageProps) {
               <div className="w-10 h-10 rounded-xl bg-dusty-blue/20 text-black flex items-center justify-center font-bold">
                 <QrCode className="w-5 h-5" />
               </div>
-              <h3 className="text-sm font-bold text-ink">تشفير رمز QR المشفر تلقائيًا</h3>
-              <p className="text-ink-muted leading-relaxed">
+              <h3 className="text-sm font-semibold text-ink">تشفير رمز QR المشفر تلقائيًا</h3>
+              <p className="text-ink-muted leading-relaxed font-normal">
                 توليد رمز الاستجابة السريعة المشفر على كل إيصال صالون لحظيًا، ليتيح للعميل ومفتشي الهيئة التحقق من سلامة الفاتورة ومطابقتها.
               </p>
             </div>
@@ -464,8 +464,8 @@ export default async function ZatcaPage({ params }: ZatcaPageProps) {
               <div className="w-10 h-10 rounded-xl bg-dusty-blue/20 text-black flex items-center justify-center font-bold">
                 <FileCheck2 className="w-5 h-5" />
               </div>
-              <h3 className="text-sm font-bold text-ink">صيغ الفواتير المعيارية (XML / PDF/A-3)</h3>
-              <p className="text-ink-muted leading-relaxed">
+              <h3 className="text-sm font-semibold text-ink">صيغ الفواتير المعيارية (XML / PDF/A-3)</h3>
+              <p className="text-ink-muted leading-relaxed font-normal">
                 إنشاء الفواتير وفق مواصفات UBL 2.1 XML المعيارية المطلوبة من قِبل ZATCA وحفظ النسخ الرقمية المشفرة وفق الأطر النظامية.
               </p>
             </div>
@@ -474,8 +474,8 @@ export default async function ZatcaPage({ params }: ZatcaPageProps) {
               <div className="w-10 h-10 rounded-xl bg-dusty-blue/20 text-black flex items-center justify-center font-bold">
                 <ShieldCheck className="w-5 h-5" />
               </div>
-              <h3 className="text-sm font-bold text-ink">سجل تدقيق آمن يمنع التلاعب (Tamper-evident)</h3>
-              <p className="text-ink-muted leading-relaxed">
+              <h3 className="text-sm font-semibold text-ink">سجل تدقيق آمن يمنع التلاعب (Tamper-evident)</h3>
+              <p className="text-ink-muted leading-relaxed font-normal">
                 حفظ متسلسل وغير قابل للتعديل لكافة الفواتير الصادرة، مع أرشفة سحابية محمية تضمن الامتثال الكامل عند الفحص الضريبي.
               </p>
             </div>
@@ -485,14 +485,14 @@ export default async function ZatcaPage({ params }: ZatcaPageProps) {
         {/* Section 5: The 3 General Activation Steps (خطوات التفعيل بصيغة عامة) */}
         <div className="rounded-3xl bg-white p-8 sm:p-12 border border-mist-gray shadow-xs mb-16 space-y-8">
           <div className="max-w-2xl space-y-2">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-mist-gray text-ink-muted text-xs font-semibold">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-mist-gray text-ink-muted text-xs font-medium">
               <CheckCircle2 className="w-3.5 h-3.5 text-dusty-blue" />
               <span>{isAr ? 'مسار التفعيل الميسر' : 'General Activation Roadmap'}</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-ink">
+            <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
               {isAr ? 'خطوات التفعيل والربط بصيغة عامة' : '3 High-Level Activation Steps'}
             </h2>
-            <p className="text-xs sm:text-sm text-ink-muted">
+            <p className="text-xs sm:text-sm text-ink-muted font-normal">
               {isAr
                 ? 'خطوات واضحة ومباشرة لتجهيز منشأتك وربط نقطة البيع دون تعقيد'
                 : 'A clear 3-step workflow to prepare your salon and integrate POS devices'}
@@ -505,13 +505,13 @@ export default async function ZatcaPage({ params }: ZatcaPageProps) {
                 key={st.step}
                 className="p-6 sm:p-7 rounded-2xl bg-[#FAFBFB] border border-mist-gray space-y-3 relative"
               >
-                <div className="text-2xl font-black font-mono text-dusty-blue">
+                <div className="text-2xl font-semibold font-mono text-dusty-blue">
                   {st.step}
                 </div>
-                <h3 className="text-sm font-bold text-ink">
+                <h3 className="text-sm font-semibold text-ink">
                   {isAr ? st.titleAr : st.titleEn}
                 </h3>
-                <p className="text-xs text-ink-muted leading-relaxed">
+                <p className="text-xs text-ink-muted leading-relaxed font-normal">
                   {isAr ? st.descAr : st.descEn}
                 </p>
               </div>
@@ -564,14 +564,14 @@ export default async function ZatcaPage({ params }: ZatcaPageProps) {
         {/* Section 7: FAQ (8 أسئلة وإجابات دقيقة) */}
         <div className="rounded-3xl bg-white p-8 sm:p-12 border border-mist-gray shadow-xs mb-16 space-y-6">
           <div className="text-center max-w-xl mx-auto space-y-2">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-mist-gray text-ink-muted text-xs font-semibold">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-mist-gray text-ink-muted text-xs font-medium">
               <HelpCircle className="w-3.5 h-3.5 text-dusty-blue" />
               <span>{isAr ? 'إجابات شفافة ونظامية' : 'Transparent Answers'}</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-ink">
+            <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
               {isAr ? 'الأسئلة الشائعة حول فوترة الصالونات وZATCA' : 'ZATCA E-Invoicing Frequently Asked Questions'}
             </h2>
-            <p className="text-xs sm:text-sm text-ink-muted">
+            <p className="text-xs sm:text-sm text-ink-muted font-normal">
               {isAr
                 ? 'إجابات صريحة ودقيقة دون ادعاءات اعتماد غير مصرح بها'
                 : 'Direct facts regarding compliance and integration criteria'}
@@ -584,11 +584,11 @@ export default async function ZatcaPage({ params }: ZatcaPageProps) {
                 key={idx}
                 className="group rounded-2xl bg-[#FAFBFB] border border-mist-gray p-5 transition-colors open:bg-white open:border-dusty-blue"
               >
-                <summary className="flex items-center justify-between font-bold text-sm text-ink cursor-pointer list-none">
+                <summary className="flex items-center justify-between font-semibold text-sm text-ink cursor-pointer list-none">
                   <span>{faq.question}</span>
                   <ChevronDown className="w-4 h-4 text-ink-muted transition-transform group-open:rotate-180" />
                 </summary>
-                <p className="text-xs text-ink-muted leading-relaxed mt-3 pt-3 border-t border-mist-gray">
+                <p className="text-xs sm:text-sm text-ink-muted leading-relaxed mt-3 pt-3 border-t border-mist-gray font-normal">
                   {faq.answer}
                 </p>
               </details>
@@ -600,17 +600,17 @@ export default async function ZatcaPage({ params }: ZatcaPageProps) {
         <div className="mb-16 space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-xl sm:text-2xl font-bold text-ink">
+              <h2 className="text-xl sm:text-2xl font-semibold text-ink">
                 {isAr ? 'مقالات وأدلة توعوية من مدونة راش إكس' : 'Educational Guides from RashX Blog'}
               </h2>
-              <p className="text-xs text-ink-muted">
+              <p className="text-xs sm:text-sm text-ink-muted font-normal">
                 {isAr ? 'مقالات إرشادية تساعدك على فهم الجوانب الضريبية والتشغيلية لمنشأتك' : 'In-depth articles covering tax compliance and salon operations'}
               </p>
             </div>
 
             <Link
               href={`/${locale}/blog`}
-              className="text-xs font-bold text-dusty-blue hover:underline hidden sm:flex items-center gap-1"
+              className="text-xs font-semibold text-dusty-blue hover:underline hidden sm:flex items-center gap-1"
             >
               <span>{isAr ? 'عرض كافة المقالات' : 'View all articles'}</span>
               {isAr ? <ArrowLeft className="w-3.5 h-3.5" /> : <ArrowRight className="w-3.5 h-3.5" />}
@@ -627,19 +627,19 @@ export default async function ZatcaPage({ params }: ZatcaPageProps) {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between text-[11px] text-ink-muted">
                     <span className="font-semibold text-dusty-blue">{art.readTime}</span>
-                    <span className="text-[10px] px-2 py-0.5 rounded bg-mist-gray">توعية ضريبية</span>
+                    <span className="text-[10px] px-2 py-0.5 rounded bg-mist-gray font-medium">توعية ضريبية</span>
                   </div>
 
-                  <h3 className="text-sm font-bold text-ink group-hover:text-dusty-blue transition-colors leading-snug">
+                  <h3 className="text-sm font-semibold text-ink group-hover:text-dusty-blue transition-colors leading-snug">
                     {art.titleAr}
                   </h3>
 
-                  <p className="text-xs text-ink-muted leading-relaxed">
+                  <p className="text-xs sm:text-sm text-ink-muted leading-relaxed font-normal">
                     {art.descAr}
                   </p>
                 </div>
 
-                <div className="pt-4 mt-4 border-t border-mist-gray flex items-center justify-between text-xs font-bold text-ink group-hover:text-dusty-blue transition-colors">
+                <div className="pt-4 mt-4 border-t border-mist-gray flex items-center justify-between text-xs font-semibold text-ink group-hover:text-dusty-blue transition-colors">
                   <span>{isAr ? 'اقرأ المقال الكامل' : 'Read Article'}</span>
                   {isAr ? <ArrowLeft className="w-3.5 h-3.5" /> : <ArrowRight className="w-3.5 h-3.5" />}
                 </div>
@@ -651,18 +651,18 @@ export default async function ZatcaPage({ params }: ZatcaPageProps) {
         {/* Section 9: Closing CTA */}
         <div className="rounded-3xl bg-ink text-white p-8 sm:p-12 text-center space-y-6 relative overflow-hidden shadow-xl">
           <div className="max-w-2xl mx-auto space-y-3 relative z-10">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-white text-xs font-semibold backdrop-blur-xs">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-white text-xs font-medium backdrop-blur-xs">
               <Sparkles className="w-3.5 h-3.5 text-dusty-blue" />
               <span>{isAr ? 'امتثال هادئ وفواتير منضبطة' : 'Peace of Mind Compliance'}</span>
             </div>
 
-            <h2 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight">
+            <h2 className="text-2xl sm:text-4xl font-semibold tracking-tight leading-tight">
               {isAr
                 ? 'جاهز لضمان توافق فواتير صالونك مع متطلبات ZATCA؟'
                 : 'Ready to Ensure Your Salon Invoices Align with ZATCA?'}
             </h2>
 
-            <p className="text-xs sm:text-sm text-mist-gray/80 leading-relaxed max-w-xl mx-auto">
+            <p className="text-xs sm:text-sm text-mist-gray/80 leading-relaxed max-w-xl mx-auto font-normal">
               {isAr
                 ? 'احجز جلسة عرض تجريبي مباشر لمدة 20 دقيقة، واكتشف كيف تدعم راش إكس إصدار فواتيرك الضريبية بنطاق فرعي مخصص وبأعلى معايير الأمان، مع تجربة مجانية لمدة 14 يومًا بدون بطاقة بنكية.'
                 : 'Book a 20-minute tailored walkthrough. Discover how RashX supports compliant invoicing on your private subdomain with a 14-day free trial.'}

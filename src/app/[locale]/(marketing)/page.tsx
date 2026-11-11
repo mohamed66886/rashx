@@ -65,7 +65,7 @@ export default async function MarketingHomePage({ params }: PageProps) {
       <JsonLd data={getOrganizationSchema()} id="org-schema-home" />
       <JsonLd data={getWebSiteSchema(locale)} id="website-schema-home" />
 
-      {/* 1) Hero: H1 + وصف من سطرين + زرّين + mockup للوحة التحكم + شريط ثقة */}
+      {/* 1) Hero: عنوان "راش إكس يقدم:" + جملة متغيرة + زرّين + أجهزة (MacBook / Duo / iPhone) تعرض المنتج */}
       <Hero locale={locale} />
 
       {/* 2) المشكلة والحل: 3 مشاكل شائعة وكيف تحلها RashX */}
@@ -74,7 +74,7 @@ export default async function MarketingHomePage({ params }: PageProps) {
       {/* 3) "منظومة كاملة لكل منشأة": 4 بطاقات مع شرح النطاق الفرعي */}
       <FourPillarsSubdomain locale={locale} />
 
-      {/* 4) الأنظمة العشرة في FeatureGrid مع روابط لكل صفحة */}
+      {/* 4) الأنظمة العشرة: سلايدر مع روابط لكل صفحة */}
       <FeatureGrid locale={locale} />
 
       {/* 5) قسم الفوترة الإلكترونية ZATCA المرحلة الثانية مع زر لصفحتها */}
@@ -92,25 +92,29 @@ export default async function MarketingHomePage({ params }: PageProps) {
       {/* 9) أمان البيانات (مختصر) */}
       <SecuritySnapshot locale={locale} />
 
-      {/* 10) آراء العملاء (placeholder [TODO]) */}
+      {/* 10) آراء العملاء: سلايدر (placeholder [TODO] لحين وصول آراء حقيقية) */}
       <Testimonials locale={locale} />
 
       {/* 11) FAQ من 6 أسئلة مع FAQPage schema */}
       <FAQ locale={locale} />
 
       {/* 12) CTA ختامي + الفورم */}
-      <section className="py-16 md:py-24 bg-white" id="demo-form">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+      <section
+        dir={isAr ? 'rtl' : 'ltr'}
+        id="demo-form"
+        className="scroll-mt-20 border-t border-mist-gray bg-neutral/40 py-16 md:py-24"
+      >
+        <div className="mx-auto max-w-7xl space-y-12 px-4 sm:px-6 lg:px-8">
           <CTABanner locale={locale} />
 
           <div className="pt-4">
-            <div className="text-center max-w-2xl mx-auto mb-8 space-y-2">
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-ink tracking-tight">
+            <div className="mx-auto mb-8 max-w-2xl space-y-2 text-center">
+              <h2 className="text-balance text-xl sm:text-2xl md:text-3xl font-semibold text-ink">
                 {isAr
                   ? 'احجز جلستك الاستشارية والعرض التجريبي الآن'
                   : 'Book Your Free Consultation & Live Walkthrough'}
               </h2>
-              <p className="text-xs sm:text-sm text-ink-muted">
+              <p className="text-xs sm:text-sm text-ink-muted font-normal">
                 {isAr
                   ? 'املأ بيانات منشأتك وسيتواصل معك مستشار سعودي متخصص لتجهيز بيئتك السحابية.'
                   : 'Provide your facility details and a specialist will contact you to set up your sandbox.'}

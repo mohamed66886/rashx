@@ -351,7 +351,7 @@ export const Breadcrumb = React.forwardRef<HTMLDivElement, BreadcrumbProps>(
                 <div
                   key={index}
                   className={cn(
-                    'flex items-center shrink-0 text-black font-extrabold text-xs sm:text-sm whitespace-nowrap',
+                    'flex items-center shrink-0 text-black font-semibold text-xs sm:text-sm whitespace-nowrap',
                     isAr ? 'pr-3 pl-4' : 'pl-3 pr-4'
                   )}
                   style={{ zIndex }}

@@ -51,19 +51,19 @@ export const ZatcaSection: React.FC<ZatcaSectionProps> = ({ locale = DEFAULT_LOC
           <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-12 lg:gap-12">
             {/* Content */}
             <div className="space-y-6 lg:col-span-7">
-              <div className="inline-flex items-center gap-2 rounded-full bg-white px-3.5 py-1.5 text-xs font-bold text-ink">
+              <div className="inline-flex items-center gap-2 rounded-full bg-white px-3.5 py-1.5 text-xs font-medium text-ink">
                 <ShieldCheck className="h-4 w-4 text-dusty-blue" aria-hidden="true" />
                 <span>{isAr ? 'الامتثال للفوترة الإلكترونية السعودية' : 'Saudi E-Invoicing Compliance'}</span>
               </div>
 
-              <h2 className="text-balance text-2xl font-extrabold leading-tight text-ink sm:text-3xl lg:text-4xl">
+              <h2 className="text-balance text-2xl font-semibold leading-tight text-ink sm:text-3xl lg:text-4xl">
                 {isAr
                   ? 'دعم متطلبات الفوترة الإلكترونية (المرحلة الثانية) لصالونك'
                   : 'ZATCA Phase 2 E-Invoicing Support for Your Salon'}
               </h2>
 
               {/* Compliance notice — wording comes from SITE_CONFIG */}
-              <p className="text-sm font-medium leading-relaxed text-ink-muted sm:text-base">
+              <p className="text-xs font-normal leading-relaxed text-ink-muted sm:text-sm md:text-base">
                 {isAr ? SITE_CONFIG.zatca.noticeAr : SITE_CONFIG.zatca.noticeEn}
               </p>
 
@@ -74,8 +74,8 @@ export const ZatcaSection: React.FC<ZatcaSectionProps> = ({ locale = DEFAULT_LOC
                       <Check className="h-4 w-4" strokeWidth={2.5} aria-hidden="true" />
                     </span>
                     <div>
-                      <h3 className="text-sm font-bold text-ink">{isAr ? pt.titleAr : pt.titleEn}</h3>
-                      <p className="text-xs leading-relaxed text-ink-muted sm:text-sm">
+                      <h3 className="text-xs font-semibold text-ink sm:text-sm">{isAr ? pt.titleAr : pt.titleEn}</h3>
+                      <p className="text-xs font-normal leading-relaxed text-ink-muted sm:text-sm">
                         {isAr ? pt.descAr : pt.descEn}
                       </p>
                     </div>
@@ -86,7 +86,7 @@ export const ZatcaSection: React.FC<ZatcaSectionProps> = ({ locale = DEFAULT_LOC
               <div className="flex flex-wrap items-center gap-4 pt-2">
                 <Link
                   href={`/${locale}/zatca`}
-                  className="inline-flex items-center gap-2 rounded-2xl bg-warm-peach px-6 py-3 text-sm font-bold text-ink transition-colors hover:bg-warm-peach/80"
+                  className="inline-flex items-center gap-2 rounded-2xl bg-warm-peach px-6 py-3 text-xs font-semibold text-ink transition-colors hover:bg-warm-peach/80 sm:text-sm"
                 >
                   <span>{isAr ? 'تفاصيل متطلبات الفوترة الإلكترونية' : 'E-Invoicing Requirements Details'}</span>
                   <ArrowIcon className="h-4 w-4" />
@@ -137,7 +137,7 @@ export const ZatcaSection: React.FC<ZatcaSectionProps> = ({ locale = DEFAULT_LOC
                       <span>{isAr ? 'ضريبة القيمة المضافة (15%)' : 'VAT (15%)'}</span>
                       <span>52.50</span>
                     </div>
-                    <div className="mt-2 flex items-center justify-between rounded-xl bg-warm-peach/30 px-3 py-2 text-sm font-extrabold text-ink">
+                    <div className="mt-2 flex items-center justify-between rounded-xl bg-warm-peach/30 px-3 py-2 text-sm font-semibold text-ink">
                       <span>{isAr ? 'الإجمالي' : 'Total'}</span>
                       <span>402.50 {isAr ? 'ر.س' : 'SAR'}</span>
                     </div>

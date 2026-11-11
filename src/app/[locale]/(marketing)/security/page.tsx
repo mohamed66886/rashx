@@ -233,11 +233,11 @@ export default async function SecurityPage({ params }: SecurityPageProps) {
           </div>
 
           {/* Mandatory Exact H1 */}
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-ink tracking-tight leading-tight">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-ink tracking-tight leading-tight">
             {isAr ? 'أمان بياناتك وبيانات عملائك أولويتنا' : 'Securing Your Data and Your Clients’ Data Is Our Priority'}
           </h1>
 
-          <p className="text-base sm:text-lg text-ink-muted leading-relaxed">
+          <p className="text-base sm:text-lg text-ink-muted leading-relaxed font-normal">
             {isAr
               ? 'تلتزم راش إكس بأعلى معايير حماية البيانات وسرية المعلومات؛ بنينا المنظومة السحابية على مبادئ تنظيم الوصول بالصلاحيات، إدارة الأدوار والمستخدمين، الفصل المنطقي التام بين بيانات المنشآت، وبيئة تشغيل موثوقة تضمن استمرارية أعمالك ونمو أرباحك بأمان تام.'
               : 'At RashX, data protection is paramount. Our private cloud architecture is built upon granular role permissions, strict logical tenant isolation, confidential data handling, and high-availability operational resilience.'}
@@ -246,7 +246,7 @@ export default async function SecurityPage({ params }: SecurityPageProps) {
           <div className="pt-2 flex flex-wrap items-center gap-4">
             <Link
               href={`/${locale}/demo`}
-              className="px-6 py-3.5 text-sm font-bold text-black bg-dusty-blue hover:bg-dusty-blue/90 rounded-2xl shadow-md transition-all active:scale-[0.98]"
+              className="px-6 py-3.5 text-sm font-semibold text-black bg-dusty-blue hover:bg-dusty-blue/90 rounded-2xl shadow-md transition-all active:scale-[0.98]"
             >
               {isAr ? 'احجز استشارة أمان وبيانات (20 دقيقة)' : 'Schedule Security Walkthrough'}
             </Link>
@@ -292,18 +292,18 @@ export default async function SecurityPage({ params }: SecurityPageProps) {
            =================================================================== */}
         <div className="rounded-3xl bg-white border-2 border-mist-gray p-8 sm:p-12 shadow-sm space-y-8">
           <div className="max-w-3xl space-y-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-mist-gray text-xs font-bold text-ink">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-mist-gray text-xs font-medium text-ink">
               <Workflow className="w-3.5 h-3.5 text-dusty-blue" />
               <span>{isAr ? 'رسم تخطيطي معماري' : 'Architectural Diagram'}</span>
             </div>
 
-            <h2 className="text-2xl sm:text-3xl font-black text-ink leading-tight">
+            <h2 className="text-2xl sm:text-3xl font-semibold text-ink leading-tight">
               {isAr
                 ? 'مخطط الفصل المنطقي بين بيانات المنشآت (Multi-Tenant Logical Isolation)'
                 : 'Logical Tenant Isolation Architecture Diagram'}
             </h2>
 
-            <p className="text-xs sm:text-sm text-ink-muted leading-relaxed">
+            <p className="text-xs sm:text-sm text-ink-muted leading-relaxed font-normal">
               {isAr
                 ? 'يوضح هذا المخطط كيف تفصل راش إكس بين المنشآت المختلفة؛ حيث يحصل كل صالون أو سبا على مسار نطاق فرعي مخصص وقناة معالجة معزولة منطقياً تمنع وصول أي منشأة أو موظف خارجي لقاعدة بياناتك وعملائك.'
                 : 'This schematic illustrates how RashX enforces multi-tenant segregation. Each facility is routed through isolated subdomain contexts and strict tenant-locked logic preventing any cross-tenant data leakage.'}
@@ -321,19 +321,19 @@ export default async function SecurityPage({ params }: SecurityPageProps) {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="p-4 rounded-2xl bg-white border-2 border-dusty-blue/40 shadow-xs space-y-1.5 text-center">
                   <div className="text-[10px] font-bold text-dusty-blue uppercase font-mono">المنشأة (أ) • صالون نسائي</div>
-                  <div className="text-xs font-black text-ink font-mono" dir="ltr">lumiere.rashx.org</div>
+                  <div className="text-xs font-semibold text-ink font-mono" dir="ltr">lumiere.rashx.org</div>
                   <div className="text-[11px] text-ink-muted">4 بوابات خاصة • هوية وشعار مستقل</div>
                 </div>
 
                 <div className="p-4 rounded-2xl bg-white border-2 border-[#10B981]/40 shadow-xs space-y-1.5 text-center">
                   <div className="text-[10px] font-bold text-[#10B981] uppercase font-mono">المنشأة (ب) • صالون رجالي</div>
-                  <div className="text-xs font-black text-ink font-mono" dir="ltr">elite-barber.rashx.org</div>
+                  <div className="text-xs font-semibold text-ink font-mono" dir="ltr">elite-barber.rashx.org</div>
                   <div className="text-[11px] text-ink-muted">4 بوابات خاصة • هوية وشعار مستقل</div>
                 </div>
 
                 <div className="p-4 rounded-2xl bg-white border-2 border-[#8B5CF6]/40 shadow-xs space-y-1.5 text-center">
                   <div className="text-[10px] font-bold text-[#8B5CF6] uppercase font-mono">المنشأة (ج) • مركز وسبا</div>
-                  <div className="text-xs font-black text-ink font-mono" dir="ltr">lavender-spa.rashx.org</div>
+                  <div className="text-xs font-semibold text-ink font-mono" dir="ltr">lavender-spa.rashx.org</div>
                   <div className="text-[11px] text-ink-muted">4 بوابات خاصة • هوية وشعار مستقل</div>
                 </div>
               </div>
@@ -449,15 +449,15 @@ export default async function SecurityPage({ params }: SecurityPageProps) {
            =================================================================== */}
         <div className="space-y-8">
           <div className="text-center max-w-2xl mx-auto space-y-2">
-            <span className="text-xs font-bold text-dusty-blue uppercase tracking-wider">
+            <span className="text-xs font-medium text-dusty-blue uppercase tracking-wider">
               {isAr ? 'منظومة الأمان المتكاملة' : 'Integrated Security Architecture'}
             </span>
-            <h2 className="text-2xl sm:text-3xl font-black text-ink">
+            <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
               {isAr
                 ? 'الأركان السبعة لحماية صالونك واستمرارية أعمالك'
                 : 'The 7 Security Pillars Safeguarding Your Salon'}
             </h2>
-            <p className="text-xs sm:text-sm text-ink-muted">
+            <p className="text-xs sm:text-sm text-ink-muted font-normal">
               {isAr
                 ? 'إجراءات تقنية وتنظيمية متكاملة تضمن سرية البيانات وسلامة العمليات التشغيلية.'
                 : 'Comprehensive technical and organizational controls guaranteeing data confidentiality and business continuity.'}
@@ -475,10 +475,10 @@ export default async function SecurityPage({ params }: SecurityPageProps) {
                   <div className="w-10 h-10 rounded-2xl bg-mist-gray/60 flex items-center justify-center text-ink">
                     <IconComponent className="w-5 h-5 text-dusty-blue" />
                   </div>
-                  <h3 className="text-base font-bold text-ink">
+                  <h3 className="text-base font-semibold text-ink">
                     {isAr ? pillar.titleAr : pillar.titleEn}
                   </h3>
-                  <p className="text-xs sm:text-sm text-ink-muted leading-relaxed">
+                  <p className="text-xs sm:text-sm text-ink-muted leading-relaxed font-normal">
                     {isAr ? pillar.descAr : pillar.descEn}
                   </p>
                 </div>
@@ -492,12 +492,12 @@ export default async function SecurityPage({ params }: SecurityPageProps) {
            =================================================================== */}
         <div className="rounded-3xl bg-white border-2 border-mist-gray p-8 sm:p-10 shadow-sm space-y-6">
           <div className="max-w-3xl space-y-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-mist-gray text-xs font-bold text-ink">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-mist-gray text-xs font-medium text-ink">
               <FileCheck2 className="w-3.5 h-3.5 text-[#10B981]" />
               <span>{isAr ? 'موقع الاستضافة والامتثال النظامي' : 'Hosting & Regulatory Framework'}</span>
             </div>
 
-            <h2 className="text-2xl sm:text-3xl font-black text-ink leading-tight">
+            <h2 className="text-2xl sm:text-3xl font-semibold text-ink leading-tight">
               {isAr
                 ? 'استضافة موثوقة والتزام تام بنظام حماية البيانات الشخصية السعودي (PDPL)'
                 : 'Reliable Hosting & Full Saudi PDPL Compliance'}
@@ -524,7 +524,7 @@ export default async function SecurityPage({ params }: SecurityPageProps) {
           <div className="pt-2 flex flex-wrap items-center gap-4">
             <Link
               href={`/${locale}/privacy`}
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-ink text-white hover:bg-ink/90 text-xs font-bold transition-all"
+              className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-ink text-white hover:bg-ink/90 text-xs font-semibold transition-all"
             >
               <FileText className="w-4 h-4 text-dusty-blue" />
               <span>{isAr ? 'اطلع على سياسة الخصوصية وحماية البيانات' : 'Read Full Privacy Policy'}</span>
@@ -552,10 +552,10 @@ export default async function SecurityPage({ params }: SecurityPageProps) {
            =================================================================== */}
         <div className="max-w-3xl mx-auto space-y-6">
           <div className="text-center space-y-2">
-            <span className="text-xs font-bold text-dusty-blue uppercase tracking-wider">
+            <span className="text-xs font-medium text-dusty-blue uppercase tracking-wider">
               {isAr ? 'الأسئلة الشائعة حول الأمان' : 'Security FAQ'}
             </span>
-            <h2 className="text-2xl sm:text-3xl font-black text-ink">
+            <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
               {isAr
                 ? 'أسئلة شائعة حول أمان وسرية بيانات الصالونات'
                 : 'Frequently Asked Questions about Salon Security & Isolation'}
@@ -568,11 +568,11 @@ export default async function SecurityPage({ params }: SecurityPageProps) {
                 key={idx}
                 className="p-5 rounded-2xl bg-white border border-mist-gray hover:border-dusty-blue/30 transition-colors space-y-2"
               >
-                <h3 className="text-sm font-bold text-ink flex items-start gap-2">
+                <h3 className="text-sm font-semibold text-ink flex items-start gap-2">
                   <HelpCircle className="w-4 h-4 text-dusty-blue shrink-0 mt-0.5" />
                   <span>{faq.question}</span>
                 </h3>
-                <p className="text-xs sm:text-sm text-ink-muted leading-relaxed pe-4 ps-6">
+                <p className="text-xs sm:text-sm text-ink-muted leading-relaxed pe-4 ps-6 font-normal">
                   {faq.answer}
                 </p>
               </div>
@@ -585,18 +585,18 @@ export default async function SecurityPage({ params }: SecurityPageProps) {
            =================================================================== */}
         <div className="rounded-3xl bg-ink text-white p-8 sm:p-12 text-center space-y-6 relative overflow-hidden shadow-xl">
           <div className="max-w-2xl mx-auto space-y-3 relative z-10">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-white text-xs font-semibold backdrop-blur-xs">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-white text-xs font-medium backdrop-blur-xs">
               <ShieldCheck className="w-3.5 h-3.5 text-dusty-blue" />
               <span>{isAr ? 'أمان بنكي وخصوصية تامة' : 'Bank-Grade Security & Privacy'}</span>
             </div>
 
-            <h2 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight">
+            <h2 className="text-2xl sm:text-4xl font-semibold tracking-tight leading-tight">
               {isAr
                 ? 'حافظ على سرية عميلاتك وأمان صالونك مع راش إكس'
                 : 'Protect Your Clients & Secure Your Salon with RashX'}
             </h2>
 
-            <p className="text-xs sm:text-sm text-mist-gray/80 leading-relaxed max-w-xl mx-auto">
+            <p className="text-xs sm:text-sm text-mist-gray/80 leading-relaxed max-w-xl mx-auto font-normal">
               {isAr
                 ? 'اكتشف كيف تحمي بنيتنا السحابية منشأتك من تسريب البيانات وتضمن امتثالك الكامل للأنظمة السعودية في عرض حي مدته 20 دقيقة، مع تجربة مجانية لمدة 14 يومًا.'
                 : 'See how our private cloud architecture safeguards your salon from data leaks and delivers full Saudi regulatory compliance in a 20-minute tailored walkthrough. Includes a 14-day free trial.'}

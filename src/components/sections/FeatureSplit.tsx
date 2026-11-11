@@ -45,23 +45,23 @@ export const FeatureSplit: React.FC<FeatureSplitProps> = ({
           {/* Content Column */}
           <div className={`space-y-6 ${reverse ? 'lg:col-start-2' : ''}`}>
             {badge && (
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-mist-gray text-ink text-xs font-semibold">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-mist-gray text-ink text-xs font-medium">
                 <Sparkles className="w-3.5 h-3.5 text-dusty-blue" />
                 <span>{badge}</span>
               </div>
             )}
 
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-ink tracking-tight leading-tight">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-ink tracking-tight leading-tight">
               {title}
             </h2>
 
-            <p className="text-sm sm:text-base text-ink-muted leading-relaxed">
+            <p className="text-xs sm:text-sm font-normal text-ink-muted leading-relaxed">
               {description}
             </p>
 
             <ul className="space-y-3 pt-2">
               {bullets.map((bullet, idx) => (
-                <li key={idx} className="flex items-start gap-3 text-sm text-ink font-medium">
+                <li key={idx} className="flex items-start gap-3 text-xs sm:text-sm text-ink font-medium">
                   <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
                   <span>{bullet}</span>
                 </li>
@@ -72,7 +72,7 @@ export const FeatureSplit: React.FC<FeatureSplitProps> = ({
               <div className="pt-4">
                 <Link
                   href={`/${locale}${ctaHref}`}
-                  className="inline-flex items-center gap-2 px-6 py-3 text-sm font-bold text-black bg-dusty-blue hover:bg-dusty-blue/90 rounded-xl shadow-xs transition-colors"
+                  className="inline-flex items-center gap-2 px-6 py-3 text-xs sm:text-sm font-semibold text-black bg-dusty-blue hover:bg-dusty-blue/90 rounded-xl shadow-xs transition-colors"
                 >
                   <span>{ctaLabel}</span>
                   <ArrowIcon className="w-4 h-4" />

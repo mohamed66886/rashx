@@ -184,7 +184,7 @@ export const AddInvoiceCard: React.FC<AddInvoiceCardProps> = ({
         </div>
         <div className="pt-2 border-t border-[#E5E9E8] flex items-center justify-between font-bold text-sm text-black">
           <span>إجمالي المبلغ المطلوب تحصيله:</span>
-          <span className="text-base font-extrabold text-[#29545c]">
+          <span className="text-base font-semibold text-[#29545c]">
             {totalAmount.toFixed(2)} ر.س
           </span>
         </div>
