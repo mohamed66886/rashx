@@ -1,6 +1,6 @@
 import 'server-only';
 
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { adminAuth } from '@/server/firebase-admin';
 
@@ -84,8 +84,11 @@ export async function createSession(idToken: string): Promise<AdminUser> {
 /**
  * Read the session cookie from request headers, verify it with Firebase Admin SDK,
  * and return the authenticated admin user or null.
+ *
+ * @param checkRevoked Whether to check token revocation against Firebase Auth API.
+ * Default false for fast page renders; true for Server Actions.
  */
-export async function getAdmin(): Promise<AdminUser | null> {
+export async function getAdmin(checkRevoked: boolean = false): Promise<AdminUser | null> {
   try {
     const cookieStore = await cookies();
     const sessionCookie = cookieStore.get(SESSION_COOKIE_NAME)?.value;
@@ -94,7 +97,7 @@ export async function getAdmin(): Promise<AdminUser | null> {
       return null;
     }
 
-    const decoded = await adminAuth.verifySessionCookie(sessionCookie, true);
+    const decoded = await adminAuth.verifySessionCookie(sessionCookie, checkRevoked);
     const role = decoded.role as PlatformRole | undefined;
 
     if (!role || !PLATFORM_ROLES.includes(role)) {
@@ -121,19 +124,46 @@ export async function getAdmin(): Promise<AdminUser | null> {
   }
 }
 
+export interface RequireAdminOptions {
+  checkRevoked?: boolean;
+  locale?: string;
+}
+
 /**
  * Enforce that the incoming request is by an authenticated admin with an allowed role.
- * Redirects to the dashboard login page if unauthorized.
+ * Redirects to /{locale}/dashboard/login if unauthorized.
+ * Uses checkRevoked: false for page renders, true for Server Actions.
  */
-export async function requireAdmin(allowedRoles?: PlatformRole[]): Promise<AdminUser> {
-  const admin = await getAdmin();
+export async function requireAdmin(
+  allowedRoles?: PlatformRole[],
+  options?: RequireAdminOptions
+): Promise<AdminUser> {
+  let isAction = false;
+  let detectedLocale = 'ar';
+
+  try {
+    const headersList = await headers();
+    isAction = headersList.has('next-action');
+    const pathname = headersList.get('x-pathname') || '';
+    const match = pathname.match(/^\/([a-zA-Z]{2})\b/);
+    if (match && ['ar', 'en'].includes(match[1])) {
+      detectedLocale = match[1];
+    }
+  } catch {
+    // headers() might not be available in non-request contexts
+  }
+
+  const locale = options?.locale || detectedLocale;
+  const checkRevoked = options?.checkRevoked ?? isAction;
+
+  const admin = await getAdmin(checkRevoked);
 
   if (!admin) {
-    redirect('/ar/dashboard/login');
+    redirect(`/${locale}/dashboard/login`);
   }
 
   if (allowedRoles && allowedRoles.length > 0 && !allowedRoles.includes(admin.role)) {
-    redirect('/ar/dashboard/login');
+    redirect(`/${locale}/dashboard/login`);
   }
 
   return admin;
@@ -147,7 +177,7 @@ export async function destroySession(): Promise<void> {
     const cookieStore = await cookies();
     const sessionCookie = cookieStore.get(SESSION_COOKIE_NAME)?.value;
     if (sessionCookie) {
-      const decoded = await adminAuth.verifySessionCookie(sessionCookie).catch(() => null);
+      const decoded = await adminAuth.verifySessionCookie(sessionCookie, false).catch(() => null);
       if (decoded?.sub) {
         await adminAuth.revokeRefreshTokens(decoded.sub).catch(() => {});
       }
@@ -158,4 +188,3 @@ export async function destroySession(): Promise<void> {
     cookieStore.delete(SESSION_COOKIE_NAME);
   }
 }
-

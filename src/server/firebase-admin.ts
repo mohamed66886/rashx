@@ -29,13 +29,23 @@ function getFirebaseAdminApp(): App {
     });
   }
 
-  return initializeApp({
-    projectId: projectId || 'aya2-a5057',
-  });
+  const isProduction = process.env.NODE_ENV === 'production';
+  const isBuildPhase = process.env.NEXT_PHASE === 'phase-production-build';
+
+  if (isProduction && !isBuildPhase) {
+    const missing: string[] = [];
+    if (!projectId) missing.push('FIREBASE_PROJECT_ID');
+    if (!clientEmail) missing.push('FIREBASE_CLIENT_EMAIL');
+    if (!privateKey) missing.push('FIREBASE_PRIVATE_KEY');
+    throw new Error(
+      `[Firebase Admin] Missing required credentials in production: ${missing.join(', ')}. Configure FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY in your environment.`
+    );
+  }
+
+  return initializeApp(projectId ? { projectId } : {});
 }
 
 const adminApp = getFirebaseAdminApp();
 export const adminAuth: Auth = getAuth(adminApp);
 export const adminDb: Firestore = getFirestore(adminApp);
 export { adminApp };
-

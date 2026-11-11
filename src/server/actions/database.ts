@@ -16,14 +16,14 @@ export async function checkDbHealthAction(): Promise<{
     return {
       success: true,
       latencyMs,
-      projectId: process.env.FIREBASE_PROJECT_ID || 'aya2-a5057',
+      projectId: process.env.FIREBASE_PROJECT_ID || '',
     };
   } catch {
     const latencyMs = Date.now() - start;
     return {
       success: false,
       latencyMs,
-      projectId: process.env.FIREBASE_PROJECT_ID || 'aya2-a5057',
+      projectId: process.env.FIREBASE_PROJECT_ID || '',
     };
   }
 }

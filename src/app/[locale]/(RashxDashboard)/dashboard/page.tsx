@@ -17,8 +17,8 @@ import {
 import { getTenantsPage } from '@/server/data/tenants';
 import { getLeadsPage } from '@/server/data/leads';
 import { getPlatformStats } from '@/server/data/stats';
-import { getAdmin } from '@/server/auth/session';
-import type { SalonTenant, PlatformLead } from '@/lib/types/platform';
+import { requireAdmin } from '@/server/auth/session';
+import type { SalonTenant } from '@/lib/types/platform';
 import {
   Button,
   Badge,
@@ -80,15 +80,15 @@ interface PlatformOverviewPageProps {
 }
 
 export default async function PlatformOverviewPage({ params }: PlatformOverviewPageProps) {
+  const admin = await requireAdmin();
   const { locale: rawLocale } = await params;
   const locale = rawLocale || 'ar';
   const isAr = locale === 'ar';
 
-  const [admin, stats, tenantsData, leadsData] = await Promise.all([
-    getAdmin(),
+  const [stats, tenantsData, leadsData] = await Promise.all([
     getPlatformStats(),
-    getTenantsPage({ limit: 5 }).catch(() => ({ items: [] as SalonTenant[], hasMore: false })),
-    getLeadsPage({ limit: 5 }).catch(() => ({ items: [] as PlatformLead[], hasMore: false })),
+    getTenantsPage({ limit: 5 }),
+    getLeadsPage({ limit: 5 }),
   ]);
 
   const tenants = tenantsData.items;
@@ -500,7 +500,7 @@ export default async function PlatformOverviewPage({ params }: PlatformOverviewP
             </div>
 
             <div className="font-mono text-sm font-bold text-ink break-all" dir="ltr">
-              aya2-a5057.firebaseapp.com
+              {process.env.FIREBASE_PROJECT_ID ? `${process.env.FIREBASE_PROJECT_ID}.firebaseapp.com` : 'Firestore Cloud Database'}
             </div>
             <p className="mt-1.5 text-[11px] text-ink-muted leading-relaxed">
               {isAr ? 'المسؤول الحالي: ' : 'Current session: '}

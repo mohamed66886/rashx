@@ -1,10 +1,19 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+function getPreferredLocale(request: NextRequest): string {
+  const cookieLocale = request.cookies.get('NEXT_LOCALE')?.value;
+  if (cookieLocale && ['ar', 'en'].includes(cookieLocale)) {
+    return cookieLocale;
+  }
+  return 'ar';
+}
+
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const hostname = request.headers.get('host') || '';
   const sessionCookie = request.cookies.get('__session')?.value;
+  const preferredLocale = getPreferredLocale(request);
 
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set('x-pathname', pathname);
@@ -13,10 +22,10 @@ export function proxy(request: NextRequest) {
   const isAdminSubdomain = hostname.startsWith('admin.');
 
   if (isAdminSubdomain) {
-    // If on admin subdomain login path, rewrite to Arabic platform dashboard login
+    // If on admin subdomain login path, rewrite to localized platform dashboard login
     if (pathname === '/login') {
-      requestHeaders.set('x-pathname', '/ar/dashboard/login');
-      return NextResponse.rewrite(new URL('/ar/dashboard/login', request.url), {
+      requestHeaders.set('x-pathname', `/${preferredLocale}/dashboard/login`);
+      return NextResponse.rewrite(new URL(`/${preferredLocale}/dashboard/login`, request.url), {
         request: { headers: requestHeaders },
       });
     }
@@ -24,10 +33,10 @@ export function proxy(request: NextRequest) {
     // If root of admin subdomain, redirect to login if session missing, otherwise rewrite to dashboard
     if (pathname === '/' || pathname === '') {
       if (!sessionCookie) {
-        return NextResponse.redirect(new URL('/ar/dashboard/login', request.url));
+        return NextResponse.redirect(new URL(`/${preferredLocale}/dashboard/login`, request.url));
       }
-      requestHeaders.set('x-pathname', '/ar/dashboard');
-      return NextResponse.rewrite(new URL('/ar/dashboard', request.url), {
+      requestHeaders.set('x-pathname', `/${preferredLocale}/dashboard`);
+      return NextResponse.rewrite(new URL(`/${preferredLocale}/dashboard`, request.url), {
         request: { headers: requestHeaders },
       });
     }
@@ -49,22 +58,24 @@ export function proxy(request: NextRequest) {
   if (pathname === '/dashboard' || pathname.startsWith('/dashboard/')) {
     const isLoginPage = pathname === '/dashboard/login';
     if (!isLoginPage && !sessionCookie) {
-      return NextResponse.redirect(new URL('/ar/dashboard/login', request.url));
+      return NextResponse.redirect(new URL(`/${preferredLocale}/dashboard/login`, request.url));
     }
   }
 
   // Root path redirect to default Arabic locale /ar for main domain
   if (pathname === '/') {
-    return NextResponse.redirect(new URL('/ar', request.url));
+    return NextResponse.redirect(new URL(`/${preferredLocale}`, request.url));
   }
 
-  // If user visits /admin or /ar/admin on main domain, rewrite/redirect to dashboard
-  if (pathname === '/admin' || pathname === '/ar/admin') {
+  // If user visits /admin or /:locale/admin on main domain, rewrite/redirect to dashboard
+  const adminMatch = pathname.match(/^\/([a-zA-Z]{2})\/admin$/);
+  if (pathname === '/admin' || adminMatch) {
+    const locale = adminMatch ? adminMatch[1] : preferredLocale;
     if (!sessionCookie) {
-      return NextResponse.redirect(new URL('/ar/dashboard/login', request.url));
+      return NextResponse.redirect(new URL(`/${locale}/dashboard/login`, request.url));
     }
-    requestHeaders.set('x-pathname', '/ar/dashboard');
-    return NextResponse.rewrite(new URL('/ar/dashboard', request.url), {
+    requestHeaders.set('x-pathname', `/${locale}/dashboard`);
+    return NextResponse.rewrite(new URL(`/${locale}/dashboard`, request.url), {
       request: { headers: requestHeaders },
     });
   }

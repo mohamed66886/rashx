@@ -4,10 +4,12 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import { getTenantsPage } from '@/server/data/tenants';
+import { requireAdmin } from '@/server/auth/session';
 
 export const instant = false;
 
 export default async function SubscriptionsPage() {
+  await requireAdmin(['super_admin', 'platform_engineer', 'sales_director']);
   const tenantsData = await getTenantsPage({ limit: 100 });
   const tenants = tenantsData.items;
 

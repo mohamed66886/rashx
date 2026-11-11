@@ -20,33 +20,28 @@ const DEFAULT_STATS: PlatformStats = {
 /**
  * Fetches the aggregated platform statistics document (stats/platform).
  * Cached with 'stats' tag and minutes lifetime.
+ * Throws on failure to prevent caching transient error states.
  */
 export async function getPlatformStats(): Promise<PlatformStats> {
   'use cache';
   cacheLife('minutes');
   cacheTag('stats');
 
-  try {
-    const doc = await adminDb.collection('stats').doc('platform').get();
-    if (!doc.exists) {
-      return DEFAULT_STATS;
-    }
-
-    const data = doc.data()!;
-    return {
-      tenantsTotal: Number(data.tenantsTotal) || 0,
-      tenantsActive: Number(data.tenantsActive) || 0,
-      tenantsTrial: Number(data.tenantsTrial) || 0,
-      tenantsSuspended: Number(data.tenantsSuspended) || 0,
-      mrrTotal: Number(data.mrrTotal) || 0,
-      leadsTotal: Number(data.leadsTotal) || 0,
-      leadsNew: Number(data.leadsNew) || 0,
-      leadsConverted: Number(data.leadsConverted) || 0,
-      updatedAt: toIsoString(data.updatedAt) || new Date().toISOString(),
-    };
-  } catch (err) {
-    console.warn('[getPlatformStats fallback]:', err);
+  const doc = await adminDb.collection('stats').doc('platform').get();
+  if (!doc.exists) {
     return DEFAULT_STATS;
   }
-}
 
+  const data = doc.data()!;
+  return {
+    tenantsTotal: Number(data.tenantsTotal) || 0,
+    tenantsActive: Number(data.tenantsActive) || 0,
+    tenantsTrial: Number(data.tenantsTrial) || 0,
+    tenantsSuspended: Number(data.tenantsSuspended) || 0,
+    mrrTotal: Number(data.mrrTotal) || 0,
+    leadsTotal: Number(data.leadsTotal) || 0,
+    leadsNew: Number(data.leadsNew) || 0,
+    leadsConverted: Number(data.leadsConverted) || 0,
+    updatedAt: toIsoString(data.updatedAt) || new Date().toISOString(),
+  };
+}

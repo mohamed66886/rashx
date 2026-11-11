@@ -1,6 +1,4 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "nextjs",
-  "regions": ["<FIRESTORE_REGION_CLOSEST_VERCEL_REGION>"]
+  "framework": "nextjs"
 }
-

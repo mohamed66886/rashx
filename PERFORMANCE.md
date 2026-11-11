@@ -55,27 +55,21 @@ Firestore requires composite indexes whenever a query combines `where` filters w
 
 ## 3. Serverless Function & Database Region Topology
 
-Serverless functions that communicate with Firestore should execute in the geographically closest Vercel data center to reduce network latency.
+Serverless functions that communicate with Firestore benefit from executing in the Vercel data center closest to your Firestore cluster to minimize network round-trip time.
 
-In `vercel.json`:
+By default, `vercel.json` omits the `regions` setting to use Vercel's default or dashboard-configured function region:
 ```json
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "nextjs",
-  "regions": ["<FIRESTORE_REGION_CLOSEST_VERCEL_REGION>"]
+  "framework": "nextjs"
 }
 ```
 
-### Optimal Region Selection:
-- **Middle East Cluster (Doha `me-central1` / Dammam `me-central2`)**:
-  - Closest Vercel Function region: **`fra1`** (Frankfurt) or **`cdg1`** (Paris).
-  - Round-trip ping to GCP Middle East: ~60–80ms.
-- **Europe Cluster (`europe-west3` Frankfurt / `europe-west1` Belgium)**:
-  - Closest Vercel Function region: **`fra1`** (Frankfurt) or **`lhr1`** (London).
-  - Round-trip latency: <5ms.
-- **US East Cluster (`us-central1` Iowa / `us-east1` South Carolina)**:
-  - Closest Vercel Function region: **`iad1`** (Washington, D.C.) or **`cle1`** (Cleveland).
-  - Round-trip latency: ~10–20ms.
+### Optional Region Alignment:
+Once the target Firestore database location is selected in Google Cloud, you may optionally set the closest Vercel Function region (in Vercel Project Settings > Functions, or via `regions` in `vercel.json`):
+- **Middle East GCP Clusters**: Select the closest available low-latency Vercel Function region or leave at default.
+- **Europe GCP Clusters**: Align with corresponding European function regions (e.g. Frankfurt, London).
+- **US GCP Clusters**: Align with corresponding US function regions (e.g. Washington D.C., Cleveland, San Francisco).
 
 ---
 

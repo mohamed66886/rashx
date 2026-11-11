@@ -55,9 +55,7 @@ function getAdminFirestore() {
         projectId,
       });
     } else {
-      initializeApp({
-        projectId: projectId || 'aya2-a5057',
-      });
+      initializeApp(projectId ? { projectId } : {});
     }
   }
   return getFirestore();

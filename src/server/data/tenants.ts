@@ -14,6 +14,7 @@ export interface GetTenantsPageParams {
 /**
  * Fetches a paginated slice of registered salon tenants ordered by creation time descending.
  * Cached with 'tenants' tag and minutes lifetime.
+ * Throws on failure to prevent caching transient error states.
  */
 export async function getTenantsPage({
   cursor,
@@ -24,78 +25,28 @@ export async function getTenantsPage({
   cacheLife('minutes');
   cacheTag('tenants');
 
-  try {
-    let query: FirebaseFirestore.Query = adminDb.collection('tenants');
+  let query: FirebaseFirestore.Query = adminDb.collection('tenants');
 
-    if (status) {
-      query = query.where('status', '==', status);
-    }
-
-    query = query.orderBy('createdAt', 'desc').limit(limit + 1);
-
-    if (cursor) {
-      const cursorSnap = await adminDb.collection('tenants').doc(cursor).get();
-      if (cursorSnap.exists) {
-        query = query.startAfter(cursorSnap);
-      }
-    }
-
-    const snapshot = await query.get();
-    const hasMore = snapshot.docs.length > limit;
-    const docs = hasMore ? snapshot.docs.slice(0, limit) : snapshot.docs;
-    const nextCursor = hasMore && docs.length > 0 ? docs[docs.length - 1].id : null;
-
-    const items: SalonTenant[] = docs.map((doc) => {
-      const data = doc.data();
-      return {
-        id: doc.id,
-        businessName: (data.businessName as string) || '',
-        subdomain: (data.subdomain as string) || '',
-        ownerName: (data.ownerName as string) || '',
-        phone: (data.phone as string) || '',
-        email: (data.email as string) || '',
-        city: (data.city as string) || '',
-        plan: (data.plan as SalonTenant['plan']) || 'Starter',
-        mrr: Number(data.mrr) || 0,
-        branchesCount: Number(data.branchesCount) || 1,
-        status: (data.status as SalonTenant['status']) || 'trial',
-        zatcaPhase: (data.zatcaPhase as SalonTenant['zatcaPhase']) || 'Exempt',
-        createdAt: toIsoString(data.createdAt),
-        updatedAt: toIsoString(data.updatedAt),
-      };
-    });
-
-    return {
-      items,
-      nextCursor,
-      hasMore,
-    };
-  } catch (err) {
-    console.warn('[getTenantsPage fallback]:', err);
-    return {
-      items: [],
-      nextCursor: null,
-      hasMore: false,
-    };
+  if (status) {
+    query = query.where('status', '==', status);
   }
-}
 
-/**
- * Fetches a single tenant document by ID.
- * Cached with 'tenants' tag and minutes lifetime.
- */
-export async function getTenant(id: string): Promise<SalonTenant | null> {
-  'use cache';
-  cacheLife('minutes');
-  cacheTag('tenants');
+  query = query.orderBy('createdAt', 'desc').limit(limit + 1);
 
-  try {
-    const doc = await adminDb.collection('tenants').doc(id).get();
-    if (!doc.exists) {
-      return null;
+  if (cursor) {
+    const cursorSnap = await adminDb.collection('tenants').doc(cursor).get();
+    if (cursorSnap.exists) {
+      query = query.startAfter(cursorSnap);
     }
+  }
 
-    const data = doc.data()!;
+  const snapshot = await query.get();
+  const hasMore = snapshot.docs.length > limit;
+  const docs = hasMore ? snapshot.docs.slice(0, limit) : snapshot.docs;
+  const nextCursor = hasMore && docs.length > 0 ? docs[docs.length - 1].id : null;
+
+  const items: SalonTenant[] = docs.map((doc) => {
+    const data = doc.data();
     return {
       id: doc.id,
       businessName: (data.businessName as string) || '',
@@ -112,8 +63,45 @@ export async function getTenant(id: string): Promise<SalonTenant | null> {
       createdAt: toIsoString(data.createdAt),
       updatedAt: toIsoString(data.updatedAt),
     };
-  } catch (err) {
-    console.warn('[getTenant fallback]:', err);
+  });
+
+  return {
+    items,
+    nextCursor,
+    hasMore,
+  };
+}
+
+/**
+ * Fetches a single tenant document by ID.
+ * Cached with 'tenants' tag and minutes lifetime.
+ * Throws on failure to prevent caching transient error states.
+ */
+export async function getTenant(id: string): Promise<SalonTenant | null> {
+  'use cache';
+  cacheLife('minutes');
+  cacheTag('tenants');
+
+  const doc = await adminDb.collection('tenants').doc(id).get();
+  if (!doc.exists) {
     return null;
   }
+
+  const data = doc.data()!;
+  return {
+    id: doc.id,
+    businessName: (data.businessName as string) || '',
+    subdomain: (data.subdomain as string) || '',
+    ownerName: (data.ownerName as string) || '',
+    phone: (data.phone as string) || '',
+    email: (data.email as string) || '',
+    city: (data.city as string) || '',
+    plan: (data.plan as SalonTenant['plan']) || 'Starter',
+    mrr: Number(data.mrr) || 0,
+    branchesCount: Number(data.branchesCount) || 1,
+    status: (data.status as SalonTenant['status']) || 'trial',
+    zatcaPhase: (data.zatcaPhase as SalonTenant['zatcaPhase']) || 'Exempt',
+    createdAt: toIsoString(data.createdAt),
+    updatedAt: toIsoString(data.updatedAt),
+  };
 }

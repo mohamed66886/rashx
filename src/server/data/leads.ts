@@ -14,6 +14,7 @@ export interface GetLeadsPageParams {
 /**
  * Fetches a paginated slice of inbound platform leads ordered by submission time descending.
  * Cached with 'leads' tag and minutes lifetime.
+ * Throws on failure to prevent caching transient error states.
  */
 export async function getLeadsPage({
   cursor,
@@ -24,53 +25,44 @@ export async function getLeadsPage({
   cacheLife('minutes');
   cacheTag('leads');
 
-  try {
-    let query: FirebaseFirestore.Query = adminDb.collection('leads');
+  let query: FirebaseFirestore.Query = adminDb.collection('leads');
 
-    if (status) {
-      query = query.where('status', '==', status);
-    }
-
-    query = query.orderBy('submittedAt', 'desc').limit(limit + 1);
-
-    if (cursor) {
-      const cursorSnap = await adminDb.collection('leads').doc(cursor).get();
-      if (cursorSnap.exists) {
-        query = query.startAfter(cursorSnap);
-      }
-    }
-
-    const snapshot = await query.get();
-    const hasMore = snapshot.docs.length > limit;
-    const docs = hasMore ? snapshot.docs.slice(0, limit) : snapshot.docs;
-    const nextCursor = hasMore && docs.length > 0 ? docs[docs.length - 1].id : null;
-
-    const items: PlatformLead[] = docs.map((doc) => {
-      const data = doc.data();
-      return {
-        id: doc.id,
-        salonName: (data.salonName as string) || '',
-        ownerName: (data.ownerName as string) || '',
-        phone: (data.phone as string) || '',
-        email: (data.email as string) || '',
-        city: (data.city as string) || '',
-        status: (data.status as LeadStatus) || 'new',
-        source: (data.source as string) || 'Website',
-        submittedAt: toIsoString(data.submittedAt),
-      };
-    });
-
-    return {
-      items,
-      nextCursor,
-      hasMore,
-    };
-  } catch (err) {
-    console.warn('[getLeadsPage fallback]:', err);
-    return {
-      items: [],
-      nextCursor: null,
-      hasMore: false,
-    };
+  if (status) {
+    query = query.where('status', '==', status);
   }
+
+  query = query.orderBy('submittedAt', 'desc').limit(limit + 1);
+
+  if (cursor) {
+    const cursorSnap = await adminDb.collection('leads').doc(cursor).get();
+    if (cursorSnap.exists) {
+      query = query.startAfter(cursorSnap);
+    }
+  }
+
+  const snapshot = await query.get();
+  const hasMore = snapshot.docs.length > limit;
+  const docs = hasMore ? snapshot.docs.slice(0, limit) : snapshot.docs;
+  const nextCursor = hasMore && docs.length > 0 ? docs[docs.length - 1].id : null;
+
+  const items: PlatformLead[] = docs.map((doc) => {
+    const data = doc.data();
+    return {
+      id: doc.id,
+      salonName: (data.salonName as string) || '',
+      ownerName: (data.ownerName as string) || '',
+      phone: (data.phone as string) || '',
+      email: (data.email as string) || '',
+      city: (data.city as string) || '',
+      status: (data.status as LeadStatus) || 'new',
+      source: (data.source as string) || 'Website',
+      submittedAt: toIsoString(data.submittedAt),
+    };
+  });
+
+  return {
+    items,
+    nextCursor,
+    hasMore,
+  };
 }

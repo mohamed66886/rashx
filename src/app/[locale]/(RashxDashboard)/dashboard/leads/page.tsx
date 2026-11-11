@@ -1,4 +1,5 @@
 import React from 'react';
+import { requireAdmin } from '@/server/auth/session';
 import { getLeadsPage } from '@/server/data/leads';
 import { LeadsClientView } from '@/components/dashboard/leads/LeadsClientView';
 
@@ -9,6 +10,7 @@ interface LeadsPipelinePageProps {
 }
 
 export default async function LeadsPipelinePage({ params }: LeadsPipelinePageProps) {
+  await requireAdmin(['super_admin', 'platform_engineer', 'support_lead', 'sales_director']);
   const { locale: rawLocale } = await params;
   const locale = rawLocale || 'ar';
   const data = await getLeadsPage({ limit: 25 });

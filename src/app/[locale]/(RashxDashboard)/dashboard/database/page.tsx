@@ -1,4 +1,5 @@
 import React from 'react';
+import { requireAdmin } from '@/server/auth/session';
 import { getAdmins } from '@/server/data/admins';
 import { getTenantsPage } from '@/server/data/tenants';
 import { getAuditLogsPage } from '@/server/data/audit';
@@ -8,11 +9,13 @@ import { DatabaseClientView } from '@/components/dashboard/database/DatabaseClie
 export const instant = false;
 
 export default async function PlatformDatabaseInspectorPage() {
+  await requireAdmin(['super_admin', 'platform_engineer']);
+
   const [sessions, tenantsData, admins, auditData] = await Promise.all([
     getAdminSessions(),
-    getTenantsPage({ limit: 50 }).catch(() => ({ items: [], hasMore: false })),
-    getAdmins().catch(() => []),
-    getAuditLogsPage({ limit: 50 }).catch(() => ({ items: [], hasMore: false })),
+    getTenantsPage({ limit: 50 }),
+    getAdmins(),
+    getAuditLogsPage({ limit: 50 }),
   ]);
 
   return (
@@ -21,7 +24,7 @@ export default async function PlatformDatabaseInspectorPage() {
       initialTenants={tenantsData.items}
       initialAdmins={admins}
       initialAuditLogs={auditData.items}
-      projectId={process.env.FIREBASE_PROJECT_ID || 'aya2-a5057'}
+      projectId={process.env.FIREBASE_PROJECT_ID || ''}
     />
   );
 }

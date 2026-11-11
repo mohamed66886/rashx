@@ -144,7 +144,7 @@ export function MobileSidebar({
                   مركز قاعدة بيانات فايربيز والجلسات
                 </div>
                 <div className="text-[10px] text-ink-muted truncate">
-                  مراقبة Firestore (aya2-a5057) وسجلات الدخول
+                  مراقبة Firestore وسجلات الدخول
                 </div>
               </div>
             </div>
@@ -298,7 +298,7 @@ export function MobileSidebar({
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               قاعدة بيانات Firebase
             </span>
-            <span className="font-mono text-ink font-bold">aya2-a5057</span>
+            <span className="font-mono text-ink font-bold">{process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'Connected'}</span>
           </div>
         </div>
       </section>

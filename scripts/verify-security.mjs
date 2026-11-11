@@ -34,7 +34,7 @@ for (const envFile of envFiles) {
 }
 
 const targetBaseUrl = (process.argv[2] || process.env.TEST_BASE_URL || 'http://localhost:3000').replace(/\/$/, '');
-const projectId = process.env.FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'aya2-a5057';
+const projectId = process.env.FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || '';
 
 const FORBIDDEN_TOKENS = [
   'passwordHash',

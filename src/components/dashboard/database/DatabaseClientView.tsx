@@ -414,7 +414,7 @@ export function DatabaseClientView({
                   firebaseAdmin: 'active',
                   projectId,
                   authDomain: `${projectId}.firebaseapp.com`,
-                  database: 'Google Cloud Firestore (aya2-a5057)',
+                  database: `Google Cloud Firestore (${projectId || 'active'})`,
                   accessModel: 'Server-Only Admin SDK (no client Firestore)',
                 },
                 null,

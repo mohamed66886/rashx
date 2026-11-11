@@ -118,7 +118,7 @@ export function DesktopSidebar({ onLogoutRequest }: DesktopSidebarProps) {
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
               <span className="truncate">{isAr ? 'قاعدة بيانات فايربيز' : 'Firebase Database'}</span>
             </span>
-            <span className="font-mono text-[10px] text-ink-muted shrink-0">aya2-a5057</span>
+            <span className="font-mono text-[10px] text-ink-muted shrink-0">{process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'Connected'}</span>
           </div>
           <div className="mt-0.5 text-[10px] text-ink-muted font-mono truncate" title={session?.id}>
             {isAr ? 'جلسة:' : 'Session:'} {session?.id?.substring(0, 14)}...

@@ -228,7 +228,7 @@ export function AvatarPickerModal() {
           <div className="hidden lg:flex flex-col items-stretch gap-3 w-full mt-auto">
             <div className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full bg-base border border-primary text-ink text-[11px] font-bold">
               <Database className="w-3.5 h-3.5 text-primary" />
-              <span>Firebase aya2-a5057</span>
+              <span>Firebase Cloud Auth</span>
             </div>
             {saveButton('w-full h-11')}
             {cancelButton('w-full h-11')}
