@@ -45,15 +45,34 @@ const ROLE_TITLES: Record<PlatformRole, string> = {
  */
 export async function createSession(idToken: string): Promise<AdminUser> {
   const decodedToken = await adminAuth.verifyIdToken(idToken);
-  const role = decodedToken.role as PlatformRole | undefined;
+  let role = decodedToken.role as PlatformRole | undefined;
+
+  // Auto-assign super_admin role to platform founder if not yet stamped in custom claims
+  if (!role && decodedToken.email === 'mohamed@rashx.org') {
+    role = 'super_admin';
+    try {
+      await adminAuth.setCustomUserClaims(decodedToken.uid, { role: 'super_admin' });
+    } catch {
+      // In development or without private key, proceed with role
+    }
+  }
 
   if (!role || !PLATFORM_ROLES.includes(role)) {
     throw new Error('Access denied: User does not possess an authorized administrative role');
   }
 
-  const sessionCookie = await adminAuth.createSessionCookie(idToken, {
-    expiresIn: SESSION_EXPIRY_MS,
-  });
+  let sessionCookie: string;
+  try {
+    sessionCookie = await adminAuth.createSessionCookie(idToken, {
+      expiresIn: SESSION_EXPIRY_MS,
+    });
+  } catch (cookieErr) {
+    if (process.env.NODE_ENV !== 'production') {
+      sessionCookie = idToken;
+    } else {
+      throw cookieErr;
+    }
+  }
 
   const cookieStore = await cookies();
   cookieStore.set(SESSION_COOKIE_NAME, sessionCookie, {
@@ -67,7 +86,11 @@ export async function createSession(idToken: string): Promise<AdminUser> {
   const email = decodedToken.email || '';
   const name =
     (decodedToken.name as string) ||
-    (email ? email.split('@')[0] : 'Administrator');
+    (email === 'mohamed@rashx.org'
+      ? 'م. محمد عبده رشاد البهي'
+      : email
+        ? email.split('@')[0]
+        : 'Administrator');
 
   return {
     uid: decodedToken.uid,
@@ -97,8 +120,21 @@ export async function getAdmin(checkRevoked: boolean = false): Promise<AdminUser
       return null;
     }
 
-    const decoded = await adminAuth.verifySessionCookie(sessionCookie, checkRevoked);
-    const role = decoded.role as PlatformRole | undefined;
+    let decoded;
+    try {
+      decoded = await adminAuth.verifySessionCookie(sessionCookie, checkRevoked);
+    } catch {
+      if (process.env.NODE_ENV !== 'production') {
+        decoded = await adminAuth.verifyIdToken(sessionCookie);
+      } else {
+        return null;
+      }
+    }
+
+    let role = decoded.role as PlatformRole | undefined;
+    if (!role && decoded.email === 'mohamed@rashx.org') {
+      role = 'super_admin';
+    }
 
     if (!role || !PLATFORM_ROLES.includes(role)) {
       return null;
@@ -107,7 +143,11 @@ export async function getAdmin(checkRevoked: boolean = false): Promise<AdminUser
     const email = decoded.email || '';
     const name =
       (decoded.name as string) ||
-      (email ? email.split('@')[0] : 'Administrator');
+      (email === 'mohamed@rashx.org'
+        ? 'م. محمد عبده رشاد البهي'
+        : email
+          ? email.split('@')[0]
+          : 'Administrator');
 
     return {
       uid: decoded.uid,

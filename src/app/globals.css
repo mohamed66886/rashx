@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
-/* RASHX Brand Font: Ping AR + LT */
+/* RASHX Brand Font: Ping AR + LT (uses local system font if installed, or falls back to IBM Plex Sans Arabic) */
 @font-face {
   font-family: "Ping AR + LT";
   font-weight: 400;
@@ -9,10 +9,7 @@
   font-display: swap;
   src: local("Ping AR + LT"),
        local("PingAR+LT"),
-       local("PingAR+LT-Regular"),
-       url("/fonts/PingAR+LT-Regular.woff2") format("woff2"),
-       url("/fonts/PingAR+LT-Regular.otf") format("opentype"),
-       url("/fonts/PingAR+LT-Regular.ttf") format("truetype");
+       local("PingAR+LT-Regular");
 }
 
 @font-face {
@@ -21,10 +18,7 @@
   font-style: normal;
   font-display: swap;
   src: local("Ping AR + LT Medium"),
-       local("PingAR+LT-Medium"),
-       url("/fonts/PingAR+LT-Medium.woff2") format("woff2"),
-       url("/fonts/PingAR+LT-Medium.otf") format("opentype"),
-       url("/fonts/PingAR+LT-Medium.ttf") format("truetype");
+       local("PingAR+LT-Medium");
 }
 
 @font-face {
@@ -33,10 +27,7 @@
   font-style: normal;
   font-display: swap;
   src: local("Ping AR + LT Bold"),
-       local("PingAR+LT-Bold"),
-       url("/fonts/PingAR+LT-Bold.woff2") format("woff2"),
-       url("/fonts/PingAR+LT-Bold.otf") format("opentype"),
-       url("/fonts/PingAR+LT-Bold.ttf") format("truetype");
+       local("PingAR+LT-Bold");
 }
 
 @font-face {
@@ -45,10 +36,7 @@
   font-style: normal;
   font-display: swap;
   src: local("Ping AR + LT ExtraBold"),
-       local("PingAR+LT-ExtraBold"),
-       url("/fonts/PingAR+LT-ExtraBold.woff2") format("woff2"),
-       url("/fonts/PingAR+LT-ExtraBold.otf") format("opentype"),
-       url("/fonts/PingAR+LT-ExtraBold.ttf") format("truetype");
+       local("PingAR+LT-ExtraBold");
 }
 
 :root {
