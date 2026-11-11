@@ -4,7 +4,7 @@ import React from 'react';
 import { ModalBase } from './ModalBase';
 import type { ModalBaseProps } from './types';
 
-export interface ModalProps extends ModalBaseProps {}
+export type ModalProps = ModalBaseProps;
 
 /**
  * Standard Modal Component with ultra-smooth enter & exit transitions.

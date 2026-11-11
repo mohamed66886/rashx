@@ -11,7 +11,9 @@ export const ModalPortal: React.FC<ModalPortalProps> = ({ children }) => {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    void Promise.resolve().then(() => {
+      setMounted(true);
+    });
     return () => setMounted(false);
   }, []);
 

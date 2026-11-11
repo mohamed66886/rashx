@@ -116,7 +116,7 @@ export const Avatar = React.forwardRef<HTMLDivElement, AvatarProps>(
     const [failedSrc, setFailedSrc] = useState<string | undefined>();
     const config = sizeClasses[size];
     const initials = getInitials(name);
-    const resolvedSrc = animojiId ? `/avatars/animoji-${animojiId}.png` : src;
+    const resolvedSrc = animojiId ? `/avatars/animoji-${animojiId}.webp` : src;
     const hasError = !!resolvedSrc && failedSrc === resolvedSrc;
 
     return (

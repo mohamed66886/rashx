@@ -20,8 +20,10 @@ export function usePresence(open: boolean, exitMs = 280) {
 
   useEffect(() => {
     if (open) {
-      setMounted(true);
-      setVisible(true);
+      void Promise.resolve().then(() => {
+        setMounted(true);
+        setVisible(true);
+      });
     } else {
       setVisible(false);
       const timer = setTimeout(() => setMounted(false), exitMs);

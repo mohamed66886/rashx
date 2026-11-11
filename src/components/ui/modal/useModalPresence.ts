@@ -27,7 +27,9 @@ export function useModalPresence({
         clearTimeout(timeoutRef.current);
         timeoutRef.current = null;
       }
-      setIsMounted(true);
+      void Promise.resolve().then(() => {
+        setIsMounted(true);
+      });
 
       // Double requestAnimationFrame ensures the DOM has painted with initial 'hidden' state
       // before transitioning smoothly to 'visible' state.

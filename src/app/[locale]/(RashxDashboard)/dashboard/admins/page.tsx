@@ -1,34 +1,16 @@
-'use client';
-
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
   Users,
   ShieldCheck,
-  Plus,
   Mail,
   Phone,
-  Clock,
-  Sparkles,
-  KeyRound,
-  CheckCircle2,
 } from 'lucide-react';
-import { listAllAdmins, RashxAdmin } from '@/lib/firebase/auth-db';
+import { getAdmins } from '@/server/data/admins';
 
-export default function AdminsManagementPage() {
-  const [admins, setAdmins] = useState<RashxAdmin[]>([]);
-  const [loading, setLoading] = useState(true);
+export const instant = false;
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const list = await listAllAdmins();
-        setAdmins(list);
-      } finally {
-        setLoading(false);
-      }
-    }
-    load();
-  }, []);
+export default async function AdminsManagementPage() {
+  const admins = await getAdmins();
 
   return (
     <div className="space-y-6 animate-fadeIn">
@@ -50,7 +32,7 @@ export default function AdminsManagementPage() {
 
         <div className="text-xs font-bold text-emerald-800 bg-emerald-50 px-3.5 py-2 rounded-2xl border border-emerald-200 flex items-center gap-2">
           <ShieldCheck className="w-4 h-4 text-emerald-600" />
-          <span>المصادقة تدار داخل Firestore (`platform_admins`)</span>
+          <span>المصادقة تدار عبر Firebase Admin Session</span>
         </div>
       </div>
 
@@ -98,7 +80,7 @@ export default function AdminsManagementPage() {
 
             <div className="mt-4 pt-3 border-t border-[#E5E9E8] flex justify-between text-[10px] text-[#5E6665]">
               <span>آخر دخول:</span>
-              <span>{new Date(adm.lastLoginAt).toLocaleString('ar-SA')}</span>
+              <span>{adm.lastLoginAt ? new Date(adm.lastLoginAt).toLocaleString('ar-SA') : '—'}</span>
             </div>
           </div>
         ))}
@@ -106,4 +88,3 @@ export default function AdminsManagementPage() {
     </div>
   );
 }
-

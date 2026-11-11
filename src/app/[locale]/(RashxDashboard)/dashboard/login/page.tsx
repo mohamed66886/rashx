@@ -3,34 +3,31 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter, useParams } from 'next/navigation';
 import {
   LogIn,
   Lock,
   Mail,
   Eye,
   EyeOff,
-  Sparkles,
   ShieldCheck,
-  Database,
-  Building2,
   CheckCircle2,
   AlertCircle,
   ArrowRight,
   ArrowLeft,
-  Server,
   Globe,
-  Radio,
 } from 'lucide-react';
-import { useDashboardAuth } from '@/context/DashboardAuthContext';
-import { useParams } from 'next/navigation';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '@/lib/firebase/client-auth';
+import { loginAction } from '@/server/actions/auth';
 
 export default function PlatformAdminLoginPage() {
-  const { login, isLoading, dbStatus } = useDashboardAuth();
+  const router = useRouter();
   const params = useParams();
   const locale = (params?.locale as string) || 'ar';
   const isAr = locale === 'ar';
 
-  const [loginEmail, setLoginEmail] = useState('mohamed@rashx.org');
+  const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
@@ -49,24 +46,67 @@ export default function PlatformAdminLoginPage() {
     setErrorMessage(null);
     setSuccessMessage(null);
 
-    if (!loginEmail || !loginPassword) {
-      setErrorMessage(isAr ? 'يرجى إدخال البريد الإلكتروني وكلمة المرور' : 'Please enter email and password');
+    const email = loginEmail.trim();
+    if (!email || !loginPassword) {
+      setErrorMessage(
+        isAr ? 'يرجى إدخال البريد الإلكتروني وكلمة المرور' : 'Please enter email and password'
+      );
       return;
     }
 
     try {
       setIsSubmitting(true);
-      const res = await login(loginEmail, loginPassword, rememberMe);
+
+      // 1. Authenticate with Firebase Client Auth ONLY to get ID Token
+      const userCredential = await signInWithEmailAndPassword(auth, email, loginPassword);
+      const idToken = await userCredential.user.getIdToken();
+
+      // 2. Transmit ID Token to Server Action for verification & session cookie generation
+      const res = await loginAction(idToken);
+
       if (!res.success) {
         setErrorMessage(
           res.error ||
             (isAr
-              ? 'فشل تسجيل الدخول. تأكد من أن الحساب مصرح له بالدخول لإدارة راش إكس.'
-              : 'Login failed. Check admin permissions.')
+              ? 'فشل تسجيل الدخول. تأكد من أن الحساب يمتلك صلاحيات إدارية معتمدة.'
+              : 'Login failed. Verify your administrator permissions.')
         );
+        return;
       }
-    } catch {
-      setErrorMessage(isAr ? 'حدث خطأ في الاتصال بقاعدة البيانات' : 'Database connection error');
+
+      setSuccessMessage(
+        isAr
+          ? 'تم التحقق من الجلسة بنجاح! جاري التوجيه إلى لوحة القيادة...'
+          : 'Authenticated successfully! Redirecting...'
+      );
+
+      // 3. Navigate into Platform HQ Dashboard
+      router.replace(`/${locale}/dashboard`);
+      router.refresh();
+    } catch (err: unknown) {
+      console.error('[Admin Login Error]:', err);
+      let msg = isAr
+        ? 'فشل تسجيل الدخول. تحقق من صحة البريد الإلكتروني وكلمة المرور.'
+        : 'Failed to sign in. Please verify your credentials.';
+
+      const authError = err as { code?: string; message?: string };
+      if (
+        authError.code === 'auth/invalid-credential' ||
+        authError.code === 'auth/wrong-password' ||
+        authError.code === 'auth/user-not-found'
+      ) {
+        msg = isAr
+          ? 'البريد الإلكتروني أو كلمة المرور غير صحيحة.'
+          : 'Invalid email or password.';
+      } else if (authError.code === 'auth/too-many-requests') {
+        msg = isAr
+          ? 'تم تعليق المحاولات مؤقتاً بسبب تكرار المحاولات غير الصحيحة. يرجى الانتظار والمحاولة لاحقاً.'
+          : 'Too many unsuccessful attempts. Please try again later.';
+      } else if (authError.message) {
+        msg = authError.message;
+      }
+
+      setErrorMessage(msg);
     } finally {
       setIsSubmitting(false);
     }
@@ -112,7 +152,7 @@ export default function PlatformAdminLoginPage() {
             </div>
           </Link>
 
-          {/* Subdomain & DB Live Pill */}
+          {/* Subdomain & Secure Session Pill */}
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 shadow-xs text-xs font-semibold text-[#E5E9E8] backdrop-blur-md">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
@@ -121,7 +161,7 @@ export default function PlatformAdminLoginPage() {
             <Globe className="w-3.5 h-3.5 text-[#91B8C0]" />
             <span className="font-mono text-[11px] text-[#91B8C0]">admin.rashx.org</span>
             <span className="text-white/30">•</span>
-            <span className="text-[11px] text-[#E5E9E8]/80">Firestore (aya2-a5057)</span>
+            <span className="text-[11px] text-[#E5E9E8]/80">Server Session Verified</span>
           </div>
         </div>
 
@@ -133,7 +173,7 @@ export default function PlatformAdminLoginPage() {
               <Lock className="w-3.5 h-3.5 text-[#91B8C0]" />
               <span>بوابة الدخول للمسؤولين المعتمدين فقط</span>
             </span>
-            <span className="text-[10px] text-emerald-400 font-mono font-bold">Encrypted DB Auth</span>
+            <span className="text-[10px] text-emerald-400 font-mono font-bold">Admin SDK Guard</span>
           </div>
 
           <div className="p-6 sm:p-8">
@@ -160,7 +200,7 @@ export default function PlatformAdminLoginPage() {
               <div className="text-xs">
                 <div className="font-bold text-white">تسجيل الدخول المركزي لإدارة راش إكس</div>
                 <div className="text-[11px] text-[#E5E9E8]/70">
-                  الحساب الرئيسي: <span className="font-mono text-[#91B8C0]">mohamed@rashx.org</span>
+                  لوحة تحكم المشرفين والمنصة المركزية
                 </div>
               </div>
             </div>
@@ -190,7 +230,7 @@ export default function PlatformAdminLoginPage() {
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <label className="text-xs font-bold text-[#E5E9E8]">كلمة المرور المشفرة</label>
-                  <span className="text-[10px] text-[#91B8C0]">SHA-256 Verified</span>
+                  <span className="text-[10px] text-[#91B8C0]">Server Cookie Session</span>
                 </div>
                 <div className="relative">
                   <div className="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-[#91B8C0]">
@@ -225,7 +265,7 @@ export default function PlatformAdminLoginPage() {
                     className="w-4 h-4 rounded-md border-white/20 bg-black/40 text-[#91B8C0] focus:ring-[#91B8C0] cursor-pointer"
                   />
                   <span className="text-xs font-medium text-[#E5E9E8]/70">
-                    تثبيت جلسة العمل الإدارية (30 يوماً)
+                    تثبيت جلسة العمل الإدارية (5 أيام)
                   </span>
                 </label>
               </div>
@@ -233,13 +273,13 @@ export default function PlatformAdminLoginPage() {
               {/* Submit Button */}
               <button
                 type="submit"
-                disabled={isSubmitting || isLoading}
+                disabled={isSubmitting}
                 className="w-full mt-2 py-3.5 px-4 rounded-2xl bg-gradient-to-r from-[#91B8C0] to-[#7EA8B0] hover:from-[#A2C7CE] hover:to-[#91B8C0] text-[#0D1514] font-black text-sm flex items-center justify-center gap-2 shadow-xl shadow-[#91B8C0]/10 transition-all hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
               >
                 {isSubmitting ? (
                   <span className="inline-flex items-center gap-2">
                     <span className="w-4 h-4 border-2 border-[#0D1514]/30 border-t-[#0D1514] rounded-full animate-spin" />
-                    <span>التحقق من صلاحيات الإدارة في Firestore...</span>
+                    <span>التحقق من جلسة الإدارة وتوثيق الرمز...</span>
                   </span>
                 ) : (
                   <>
@@ -254,8 +294,8 @@ export default function PlatformAdminLoginPage() {
           {/* Database & Architecture Notice Footer */}
           <div className="px-6 py-4 bg-white/5 border-t border-white/5 text-xs text-[#E5E9E8]/70 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Database className="w-3.5 h-3.5 text-[#91B8C0] shrink-0" />
-              <span>مربوط بفاير بيز مباشرة (`platform_admins` / `admin_sessions`)</span>
+              <ShieldCheck className="w-3.5 h-3.5 text-[#91B8C0] shrink-0" />
+              <span>مصادقة خادم آمنة عبر جلسات مشفرة (Firebase Admin SDK)</span>
             </div>
             <Link
               href={`/${locale}`}

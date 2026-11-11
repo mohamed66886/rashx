@@ -1,34 +1,15 @@
-'use client';
-
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
   CreditCard,
-  TrendingUp,
-  Building2,
-  DollarSign,
-  ArrowUpRight,
-  ShieldCheck,
-  Calendar,
   CheckCircle2,
-  Sparkles,
 } from 'lucide-react';
-import { listTenants, SalonTenant } from '@/lib/firebase/auth-db';
+import { getTenantsPage } from '@/server/data/tenants';
 
-export default function SubscriptionsPage() {
-  const [tenants, setTenants] = useState<SalonTenant[]>([]);
-  const [loading, setLoading] = useState(true);
+export const instant = false;
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const data = await listTenants();
-        setTenants(data);
-      } finally {
-        setLoading(false);
-      }
-    }
-    load();
-  }, []);
+export default async function SubscriptionsPage() {
+  const tenantsData = await getTenantsPage({ limit: 100 });
+  const tenants = tenantsData.items;
 
   const starterTenants = tenants.filter((t) => t.plan === 'Starter');
   const growthTenants = tenants.filter((t) => t.plan === 'Growth');

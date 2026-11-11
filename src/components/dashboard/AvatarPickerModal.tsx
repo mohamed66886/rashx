@@ -45,9 +45,11 @@ export function AvatarPickerModal() {
 
   // Sync selectedId with current admin avatar on open
   useEffect(() => {
-    setSelectedId(admin?.avatarId || 1);
-    setSaveSuccess(false);
-    setErrorMsg(null);
+    void Promise.resolve().then(() => {
+      setSelectedId(admin?.avatarId || 1);
+      setSaveSuccess(false);
+      setErrorMsg(null);
+    });
   }, [admin, isAvatarPickerOpen]);
 
   // ESC to close + lock body scroll while open
@@ -84,8 +86,9 @@ export function AvatarPickerModal() {
       } else {
         setErrorMsg(res.error || 'حدث خطأ أثناء الحفظ في قاعدة البيانات');
       }
-    } catch (e: any) {
-      setErrorMsg(e?.message || 'فشل الاتصال بقاعدة البيانات');
+    } catch (e: unknown) {
+      const err = e instanceof Error ? e.message : 'فشل الاتصال بقاعدة البيانات';
+      setErrorMsg(err);
     } finally {
       setIsSaving(false);
     }
@@ -189,13 +192,14 @@ export function AvatarPickerModal() {
           "
         >
           <div className="relative shrink-0">
-            <div className="w-24 h-24 sm:w-16 sm:h-16 lg:w-36 lg:h-36 rounded-3xl bg-warm-peach ring-4 ring-base shadow-md overflow-hidden">
+            <div className="w-24 h-24 sm:w-16 sm:h-16 lg:w-36 lg:h-36 rounded-3xl bg-warm-peach ring-4 ring-base shadow-md overflow-hidden relative">
               <Image
-                src={`/avatars/animoji-${selectedId}.png`}
+                src={`/avatars/animoji-${selectedId}.webp`}
                 alt="المعاينة الحية"
                 width={144}
                 height={144}
-                unoptimized
+                decoding="async"
+                priority
                 key={selectedId}
                 className="w-full h-full object-cover animate-rx-pop"
               />
@@ -240,52 +244,55 @@ export function AvatarPickerModal() {
             </span>
           </div>
 
-          <div className="grid grid-cols-4 min-[420px]:grid-cols-5 sm:grid-cols-6 gap-2 sm:gap-3">
-            {CURATED_ANIMOJIS.map((id, index) => {
-              const isSelected = selectedId === id;
+          {isAvatarPickerOpen && (
+            <div className="grid grid-cols-4 min-[420px]:grid-cols-5 sm:grid-cols-6 gap-2 sm:gap-3">
+              {CURATED_ANIMOJIS.map((id, index) => {
+                const isSelected = selectedId === id;
 
-              return (
-                <button
-                  key={id}
-                  type="button"
-                  onClick={() => setSelectedId(id)}
-                  aria-pressed={isSelected}
-                  title={`أفاتار رقم ${id}`}
-                  style={{ animationDelay: `${Math.min(index * 12, 240)}ms` }}
-                  className={`group relative flex flex-col items-center p-1.5 sm:p-2 rounded-2xl border-2 transition-all duration-200 ease-smooth active:scale-95 animate-rx-fade-up ${
-                    isSelected
-                      ? 'bg-base border-primary shadow-md'
-                      : 'bg-neutral/40 border-transparent hover:bg-base hover:border-neutral hover:shadow-sm'
-                  }`}
-                >
-                  <div className="w-full aspect-square rounded-xl overflow-hidden bg-warm-peach/50">
-                    <Image
-                      src={`/avatars/animoji-${id}.png`}
-                      alt={`Animoji ${id}`}
-                      width={56}
-                      height={56}
-                      unoptimized
-                      className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                    />
-                  </div>
-
-                  <span
-                    className={`text-[9px] sm:text-[10px] mt-1 font-mono ${
-                      isSelected ? 'font-bold text-ink' : 'text-ink-muted'
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => setSelectedId(id)}
+                    aria-pressed={isSelected}
+                    title={`أفاتار رقم ${id}`}
+                    style={{ animationDelay: `${Math.min(index * 12, 240)}ms` }}
+                    className={`group relative flex flex-col items-center p-1.5 sm:p-2 rounded-2xl border-2 transition-all duration-200 ease-smooth active:scale-95 animate-rx-fade-up ${
+                      isSelected
+                        ? 'bg-base border-primary shadow-md'
+                        : 'bg-neutral/40 border-transparent hover:bg-base hover:border-neutral hover:shadow-sm'
                     }`}
                   >
-                    #{id}
-                  </span>
+                    <div className="w-full aspect-square rounded-xl overflow-hidden bg-warm-peach/50 relative">
+                      <Image
+                        src={`/avatars/thumbs/animoji-${id}.webp`}
+                        alt={`Animoji ${id}`}
+                        width={64}
+                        height={64}
+                        loading="lazy"
+                        decoding="async"
+                        className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                      />
+                    </div>
 
-                  {isSelected && (
-                    <span className="absolute -top-1.5 -end-1.5 grid place-items-center w-5 h-5 rounded-full bg-primary text-ink ring-2 ring-base animate-rx-pop">
-                      <Check className="w-3 h-3" strokeWidth={3} />
+                    <span
+                      className={`text-[9px] sm:text-[10px] mt-1 font-mono ${
+                        isSelected ? 'font-bold text-ink' : 'text-ink-muted'
+                      }`}
+                    >
+                      #{id}
                     </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
+
+                    {isSelected && (
+                      <span className="absolute -top-1.5 -end-1.5 grid place-items-center w-5 h-5 rounded-full bg-primary text-ink ring-2 ring-base animate-rx-pop">
+                        <Check className="w-3 h-3" strokeWidth={3} />
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* ───────── Footer: feedback + actions (mobile & tablet) / feedback only (desktop) ───────── */}

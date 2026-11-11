@@ -1,8 +1,5 @@
-'use client';
-
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
 import {
   Building2,
   TrendingUp,
@@ -16,11 +13,12 @@ import {
   ChevronRight,
   ArrowLeft,
   Inbox,
-  RefreshCw,
 } from 'lucide-react';
-import { useDashboardAuth } from '@/context/DashboardAuthContext';
-import { listTenants, listLeads, SalonTenant, PlatformLead } from '@/lib/firebase/auth-db';
-import { FirestoreRulesAlert } from '@/components/dashboard/FirestoreRulesAlert';
+import { getTenantsPage } from '@/server/data/tenants';
+import { getLeadsPage } from '@/server/data/leads';
+import { getPlatformStats } from '@/server/data/stats';
+import { getAdmin } from '@/server/auth/session';
+import type { SalonTenant, PlatformLead } from '@/lib/types/platform';
 import {
   Button,
   Badge,
@@ -30,12 +28,10 @@ import {
   TableRow,
   TableHead,
   TableCell,
-  Skeleton,
 } from '@/components/ui';
+import { OverviewRefreshButton } from '@/components/dashboard/overview/OverviewRefreshButton';
 
-/* ------------------------------------------------------------------ */
-/* Small helpers                                                       */
-/* ------------------------------------------------------------------ */
+export const instant = false;
 
 const delay = (ms: number): React.CSSProperties => ({ animationDelay: `${ms}ms` });
 
@@ -49,7 +45,6 @@ interface MetricProps {
   delayMs: number;
 }
 
-/** Compact metric tile: 2x2 on mobile, 4-in-a-row from md, roomier on desktop. */
 function Metric({ icon, iconBg, title, value, hint, badge, delayMs }: MetricProps) {
   return (
     <div
@@ -80,37 +75,29 @@ function Metric({ icon, iconBg, title, value, hint, badge, delayMs }: MetricProp
   );
 }
 
-/* ------------------------------------------------------------------ */
-/* Page                                                                */
-/* ------------------------------------------------------------------ */
+interface PlatformOverviewPageProps {
+  params: Promise<{ locale: string }>;
+}
 
-export default function PlatformOverviewPage() {
-  const { admin } = useDashboardAuth();
-  const params = useParams();
-  const locale = (params?.locale as string) || 'ar';
+export default async function PlatformOverviewPage({ params }: PlatformOverviewPageProps) {
+  const { locale: rawLocale } = await params;
+  const locale = rawLocale || 'ar';
   const isAr = locale === 'ar';
 
-  const [tenants, setTenants] = useState<SalonTenant[]>([]);
-  const [leads, setLeads] = useState<PlatformLead[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [admin, stats, tenantsData, leadsData] = await Promise.all([
+    getAdmin(),
+    getPlatformStats(),
+    getTenantsPage({ limit: 5 }).catch(() => ({ items: [] as SalonTenant[], hasMore: false })),
+    getLeadsPage({ limit: 5 }).catch(() => ({ items: [] as PlatformLead[], hasMore: false })),
+  ]);
 
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const [t, l] = await Promise.all([listTenants(), listLeads()]);
-      setTenants(t);
-      setLeads(l);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const tenants = tenantsData.items;
+  const leads = leadsData.items;
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const totalMRR = tenants.reduce((acc, t) => acc + (Number(t.mrr) || 0), 0);
-  const activeTenantsCount = tenants.filter((t) => t.status === 'active').length;
+  const totalMRR = stats.mrrTotal;
+  const activeTenantsCount = stats.tenantsActive;
+  const totalTenantsCount = stats.tenantsTotal;
+  const totalLeadsCount = stats.leadsTotal;
 
   const subdomainLink = (t: SalonTenant) => (
     <a
@@ -140,14 +127,11 @@ export default function PlatformOverviewPage() {
     <div className="space-y-4 sm:space-y-6 lg:space-y-8">
       {/* ================================================================ */}
       {/* 1. WELCOME BANNER                                                 */}
-      {/*    mobile  : stacked, actions in a 1-2 col grid                   */}
-      {/*    tablet+ : text on the start side, actions on the end side      */}
       {/* ================================================================ */}
       <section
         style={delay(0)}
         className="animate-rx-fade-up relative overflow-hidden rounded-2xl sm:rounded-3xl bg-primary text-ink p-5 sm:p-6 lg:p-8"
       >
-        {/* Solid brand shapes */}
         <span
           aria-hidden="true"
           className="absolute -top-16 -end-16 w-32 h-32 sm:w-36 sm:h-36 rounded-full bg-warm-peach"
@@ -207,73 +191,56 @@ export default function PlatformOverviewPage() {
         </div>
       </section>
 
-      {/* Firestore Cloud Security Rules Status Alert */}
-      <FirestoreRulesAlert />
-
       {/* ================================================================ */}
-      {/* 2. METRICS  - 2x2 (mobile)  /  1x4 (md+)                         */}
+      {/* 2. METRICS                                                        */}
       {/* ================================================================ */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-        {loading ? (
-          <>
-            <Skeleton className="h-32 rounded-2xl" />
-            <Skeleton className="h-32 rounded-2xl" />
-            <Skeleton className="h-32 rounded-2xl" />
-            <Skeleton className="h-32 rounded-2xl" />
-          </>
-        ) : (
-          <>
-            <Metric
-              delayMs={60}
-              icon={<Building2 className="w-[18px] h-[18px]" />}
-              iconBg="bg-primary"
-              title={isAr ? 'المنشآت المسجلة' : 'Registered Salons'}
-              value={tenants.length}
-              hint={
-                isAr ? `${activeTenantsCount} نشط في الخدمة` : `${activeTenantsCount} active tenants`
-              }
-            />
-            <Metric
-              delayMs={110}
-              icon={<TrendingUp className="w-[18px] h-[18px]" />}
-              iconBg="bg-warm-peach"
-              title={isAr ? 'الإيراد الشهري (MRR)' : 'Monthly Revenue (MRR)'}
-              value={`${totalMRR.toLocaleString(isAr ? 'ar-SA' : 'en-US')} ${isAr ? 'ر.س' : 'SAR'}`}
-              hint={isAr ? 'اشتراكات الصالونات النشطة' : 'Active salon subscriptions'}
-            />
-            <Metric
-              delayMs={160}
-              icon={<Globe className="w-[18px] h-[18px]" />}
-              iconBg="bg-neutral"
-              title={isAr ? 'النطاقات الفرعية' : 'Custom Subdomains'}
-              value={tenants.length}
-              hint="*.rashx.org"
-            />
-            <Metric
-              delayMs={210}
-              icon={<ShieldCheck className="w-[18px] h-[18px]" />}
-              iconBg="bg-emerald-100"
-              title={isAr ? 'الفوترة المركزية (ZATCA)' : 'Central Invoicing (ZATCA)'}
-              value="Phase 2"
-              hint={isAr ? 'ربط وتشفير إلكتروني مركزي' : 'Central encrypted integration'}
-              badge={
-                <Badge variant="success" size="sm" dot>
-                  {isAr ? 'معتمد' : 'Certified'}
-                </Badge>
-              }
-            />
-          </>
-        )}
+        <Metric
+          delayMs={60}
+          icon={<Building2 className="w-[18px] h-[18px]" />}
+          iconBg="bg-primary"
+          title={isAr ? 'المنشآت المسجلة' : 'Registered Salons'}
+          value={totalTenantsCount}
+          hint={
+            isAr ? `${activeTenantsCount} نشط في الخدمة` : `${activeTenantsCount} active tenants`
+          }
+        />
+        <Metric
+          delayMs={110}
+          icon={<TrendingUp className="w-[18px] h-[18px]" />}
+          iconBg="bg-warm-peach"
+          title={isAr ? 'الإيراد الشهري (MRR)' : 'Monthly Revenue (MRR)'}
+          value={`${totalMRR.toLocaleString(isAr ? 'ar-SA' : 'en-US')} ${isAr ? 'ر.س' : 'SAR'}`}
+          hint={isAr ? 'اشتراكات الصالونات النشطة' : 'Active salon subscriptions'}
+        />
+        <Metric
+          delayMs={160}
+          icon={<Globe className="w-[18px] h-[18px]" />}
+          iconBg="bg-neutral"
+          title={isAr ? 'النطاقات الفرعية' : 'Custom Subdomains'}
+          value={totalTenantsCount}
+          hint="*.rashx.org"
+        />
+        <Metric
+          delayMs={210}
+          icon={<ShieldCheck className="w-[18px] h-[18px]" />}
+          iconBg="bg-emerald-100"
+          title={isAr ? 'الفوترة المركزية (ZATCA)' : 'Central Invoicing (ZATCA)'}
+          value="Phase 2"
+          hint={isAr ? 'ربط وتشفير إلكتروني مركزي' : 'Central encrypted integration'}
+          badge={
+            <Badge variant="success" size="sm" dot>
+              {isAr ? 'معتمد' : 'Certified'}
+            </Badge>
+          }
+        />
       </div>
 
       {/* ================================================================ */}
       {/* 3. LEADS / TENANTS / DB                                           */}
-      {/*    mobile  : leads (swipe row) -> tenants (cards) -> DB           */}
-      {/*    tablet  : leads (3 cols)    -> tenants (table) -> DB strip     */}
-      {/*    desktop : tenants (2 cols) | leads + DB (1 col)                */}
       {/* ================================================================ */}
       <div className="space-y-4 sm:space-y-6 lg:space-y-0 lg:grid lg:grid-cols-3 lg:grid-rows-[auto_1fr] lg:gap-6">
-        {/* ───────── Inbound leads ───────── */}
+        {/* Inbound leads */}
         <section
           style={delay(240)}
           className="animate-rx-fade-up rounded-2xl lg:rounded-3xl border border-neutral bg-base overflow-hidden lg:col-start-3 lg:row-start-1"
@@ -288,7 +255,7 @@ export default function PlatformOverviewPage() {
               </h2>
             </div>
             <Badge variant="primary" size="sm">
-              {leads.length} {isAr ? 'طلبات' : 'Leads'}
+              {totalLeadsCount} {isAr ? 'طلبات' : 'Leads'}
             </Badge>
           </div>
 
@@ -299,12 +266,7 @@ export default function PlatformOverviewPage() {
           </p>
 
           <div className="px-4 sm:px-5 lg:px-6 pb-4">
-            {loading ? (
-              <div className="flex gap-3 sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-1">
-                <Skeleton className="h-28 w-[78%] sm:w-full shrink-0 rounded-2xl" />
-                <Skeleton className="h-28 w-[78%] sm:w-full shrink-0 rounded-2xl" />
-              </div>
-            ) : leads.length === 0 ? (
+            {leads.length === 0 ? (
               <div className="text-center py-8 text-xs text-ink-muted">
                 <Inbox className="w-8 h-8 mx-auto mb-2 text-ink-muted" />
                 <span>{isAr ? 'لا توجد طلبات واردة جديدة حالياً' : 'No new leads found'}</span>
@@ -367,7 +329,7 @@ export default function PlatformOverviewPage() {
           </div>
         </section>
 
-        {/* ───────── Tenants ───────── */}
+        {/* Tenants */}
         <section
           style={delay(300)}
           className="animate-rx-fade-up rounded-2xl lg:rounded-3xl border border-neutral bg-base overflow-hidden lg:col-span-2 lg:col-start-1 lg:row-span-2 lg:row-start-1"
@@ -375,7 +337,7 @@ export default function PlatformOverviewPage() {
           <div className="flex items-center justify-between gap-3 p-4 sm:p-5 lg:p-6">
             <div className="min-w-0">
               <h2 className="text-sm sm:text-base lg:text-lg font-black text-ink leading-snug">
-                {isAr ? 'الصالونات المسجلة' : 'Registered Tenants'} ({tenants.length})
+                {isAr ? 'الصالونات المسجلة' : 'Registered Tenants'} ({totalTenantsCount})
               </h2>
               <p className="hidden sm:block mt-1 text-xs text-ink-muted">
                 {isAr ? 'البيانات الحية من مجموعة ' : 'Live data from collection '}
@@ -384,16 +346,7 @@ export default function PlatformOverviewPage() {
             </div>
 
             <div className="flex items-center gap-1.5 shrink-0">
-              <button
-                type="button"
-                onClick={fetchData}
-                disabled={loading}
-                aria-label={isAr ? 'تحديث البيانات' : 'Refresh data'}
-                title={isAr ? 'تحديث البيانات' : 'Refresh data'}
-                className="grid place-items-center w-9 h-9 rounded-xl border border-neutral text-ink-muted hover:text-ink hover:bg-primary/10 hover:border-primary/50 disabled:opacity-60 transition-colors"
-              >
-                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-              </button>
+              <OverviewRefreshButton isAr={isAr} />
 
               <Link href={`/${locale}/dashboard/tenants`}>
                 <Button
@@ -407,14 +360,7 @@ export default function PlatformOverviewPage() {
             </div>
           </div>
 
-          {loading ? (
-            <div className="p-4 sm:p-6 space-y-3">
-              <Skeleton className="h-10 w-full rounded-xl" />
-              <Skeleton className="h-12 w-full rounded-xl" />
-              <Skeleton className="h-12 w-full rounded-xl" />
-              <Skeleton className="h-12 w-full rounded-xl" />
-            </div>
-          ) : tenants.length === 0 ? (
+          {tenants.length === 0 ? (
             <div className="p-8 sm:p-12 text-center">
               <div className="grid place-items-center w-14 h-14 mx-auto mb-3 rounded-2xl bg-primary text-ink">
                 <Building2 className="w-7 h-7" />
@@ -480,7 +426,7 @@ export default function PlatformOverviewPage() {
                 ))}
               </ul>
 
-              {/* Tablet + desktop: table (city & action columns appear from lg) */}
+              {/* Tablet + desktop: table */}
               <div className="hidden md:block">
                 <Table bordered={false}>
                   <TableHeader>
@@ -535,7 +481,7 @@ export default function PlatformOverviewPage() {
           )}
         </section>
 
-        {/* ───────── Database session ───────── */}
+        {/* Database session */}
         <section
           style={delay(360)}
           className="animate-rx-fade-up rounded-2xl lg:rounded-3xl border border-neutral bg-base p-4 sm:p-5 lg:p-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between lg:flex-col lg:items-stretch lg:col-start-3 lg:row-start-2"

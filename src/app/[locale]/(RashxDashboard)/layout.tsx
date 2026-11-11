@@ -3,6 +3,13 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { LOCALES, Locale, isSupportedLocale, getDirection } from '@/i18n/config';
 import { DashboardAuthProvider } from '@/context/DashboardAuthContext';
+import { getAdmin } from '@/server/auth/session';
+
+export const instant = false;
+
+export async function generateStaticParams() {
+  return LOCALES.map((locale) => ({ locale }));
+}
 
 export const metadata: Metadata = {
   title: 'الإدارة العامة لمنصة راش إكس | RashX Platform HQ (admin.rashx.org)',
@@ -35,10 +42,6 @@ interface DashboardRootLayoutProps {
   params: Promise<{ locale: string }>;
 }
 
-export async function generateStaticParams() {
-  return LOCALES.map((locale) => ({ locale }));
-}
-
 export default async function DashboardRootLayout({
   children,
   params,
@@ -51,10 +54,11 @@ export default async function DashboardRootLayout({
 
   const locale = rawLocale as Locale;
   const dir = getDirection(locale);
+  const admin = await getAdmin();
 
   return (
     <div lang={locale} dir={dir} className="min-h-screen bg-[#F8FAFB] text-[#0D1514] font-sans antialiased selection:bg-[#91B8C0]/30 selection:text-black">
-      <DashboardAuthProvider>{children}</DashboardAuthProvider>
+      <DashboardAuthProvider initialAdmin={admin}>{children}</DashboardAuthProvider>
     </div>
   );
 }

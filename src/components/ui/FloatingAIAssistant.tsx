@@ -178,7 +178,7 @@ export const FloatingAIAssistant: React.FC<FloatingAIAssistantProps> = ({
 
   if (!isClient) return null;
 
-  const resolvedAvatarSrc = avatarSrc || `/avatars/animoji-${animojiId}.png`;
+  const resolvedAvatarSrc = avatarSrc || `/avatars/animoji-${animojiId}.webp`;
   const isRight = position.endsWith('right');
   const isBottom = position.startsWith('bottom');
   const isTyping = isBubbleOpen && displayedText.length < message.length;
