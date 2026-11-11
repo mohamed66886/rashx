@@ -135,3 +135,117 @@ textarea:disabled,
 .cursor-not-allowed {
   cursor: not-allowed !important;
 }
+
+/* ==========================================================================
+   RASHX Motion tokens - append to globals.css (after @import "tailwindcss")
+   Enter/exit use CSS keyframes (not transitions), so they always play on mount
+   and on close, with no dependence on frame timing.
+   ========================================================================== */
+
+/* Direction helper so side drawers slide from the correct edge in RTL / LTR */
+:root {
+  --rx-dir: 1;
+}
+[dir='rtl'] {
+  --rx-dir: -1;
+}
+
+@theme {
+  /* iOS-style curves */
+  --ease-smooth: cubic-bezier(0.32, 0.72, 0, 1); /* fast start, long soft landing */
+  --ease-exit: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1); /* slight overshoot */
+
+  /* Enter ~420ms, exit ~260ms (keep usePresence exitMs >= 260) */
+  --animate-rx-fade-in: rx-fade-in 300ms var(--ease-smooth) both;
+  --animate-rx-fade-out: rx-fade-out 260ms var(--ease-exit) both;
+
+  --animate-rx-sheet-in: rx-sheet-in 420ms var(--ease-smooth) both;
+  --animate-rx-sheet-out: rx-sheet-out 260ms var(--ease-exit) both;
+
+  --animate-rx-modal-in: rx-modal-in 360ms var(--ease-smooth) both;
+  --animate-rx-modal-out: rx-modal-out 220ms var(--ease-exit) both;
+
+  --animate-rx-drawer-in: rx-drawer-in 420ms var(--ease-smooth) both;
+  --animate-rx-drawer-out: rx-drawer-out 260ms var(--ease-exit) both;
+
+  --animate-rx-drop-in: rx-drop-in 240ms var(--ease-smooth) both;
+  --animate-rx-drop-out: rx-drop-out 180ms var(--ease-exit) both;
+
+  --animate-rx-pop: rx-pop 320ms var(--ease-spring) backwards;
+  --animate-rx-fade-up: rx-fade-up 340ms var(--ease-smooth) backwards;
+  --animate-rx-ring: rx-ring 700ms ease-in-out;
+
+  @keyframes rx-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes rx-fade-out {
+    from { opacity: 1; }
+    to { opacity: 0; }
+  }
+
+  @keyframes rx-sheet-in {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  @keyframes rx-sheet-out {
+    from { transform: translateY(0); }
+    to { transform: translateY(100%); }
+  }
+
+  @keyframes rx-modal-in {
+    from { opacity: 0; transform: translateY(14px) scale(0.96); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @keyframes rx-modal-out {
+    from { opacity: 1; transform: translateY(0) scale(1); }
+    to { opacity: 0; transform: translateY(8px) scale(0.97); }
+  }
+
+  @keyframes rx-drawer-in {
+    from { transform: translateX(calc(100% * var(--rx-dir, 1))); }
+    to { transform: translateX(0); }
+  }
+  @keyframes rx-drawer-out {
+    from { transform: translateX(0); }
+    to { transform: translateX(calc(100% * var(--rx-dir, 1))); }
+  }
+
+  @keyframes rx-drop-in {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes rx-drop-out {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(-8px); }
+  }
+
+  @keyframes rx-pop {
+    from { opacity: 0; transform: scale(0.6); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @keyframes rx-fade-up {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes rx-ring {
+    0%, 100% { transform: rotate(0); }
+    20% { transform: rotate(14deg); }
+    40% { transform: rotate(-12deg); }
+    60% { transform: rotate(8deg); }
+    80% { transform: rotate(-4deg); }
+  }
+}
+
+/* Respect users who ask for less motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

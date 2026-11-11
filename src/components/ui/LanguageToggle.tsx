@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 import { ChevronDown, Check } from 'lucide-react';
 
 export type LanguageCode = 'ar' | 'en' | string;
@@ -229,6 +230,9 @@ export const LanguageToggle: React.FC<LanguageToggleProps> = ({
   menuClassName = '',
   title,
 }) => {
+  const router = useRouter();
+  const pathname = usePathname();
+
   const [internalLang, setInternalLang] = useState<LanguageCode>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('rashx_locale');
@@ -242,7 +246,10 @@ export const LanguageToggle: React.FC<LanguageToggleProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const activeLangCode = controlledLang !== undefined ? controlledLang : internalLang;
+  // Auto-detect active language from Next.js URL if not explicitly controlled
+  const urlLang = pathname?.split('/')[1];
+  const detectedLang = urlLang === 'ar' || urlLang === 'en' ? urlLang : undefined;
+  const activeLangCode = controlledLang !== undefined ? controlledLang : (detectedLang || internalLang);
 
   const currentOption = useMemo(
     () =>
@@ -289,7 +296,7 @@ export const LanguageToggle: React.FC<LanguageToggleProps> = ({
     [autoApplyDirAndLang, persistPreference]
   );
 
-  // Selection handler
+  // Selection handler with Next.js locale routing
   const handleSelectLanguage = (option: LanguageOption) => {
     if (controlledLang === undefined) {
       setInternalLang(option.code);
@@ -297,6 +304,21 @@ export const LanguageToggle: React.FC<LanguageToggleProps> = ({
     applyLanguage(option);
     onLanguageChange?.(option.code, option);
     setIsOpen(false);
+
+    // Switch URL locale dynamically if within Next.js App Router
+    if (pathname && router) {
+      const segments = pathname.split('/');
+      if (segments[1] === 'ar' || segments[1] === 'en') {
+        if (segments[1] !== option.code) {
+          segments[1] = option.code;
+          const newPath = segments.join('/') || `/${option.code}`;
+          router.push(newPath);
+        }
+      } else {
+        const newPath = `/${option.code}${pathname.startsWith('/') ? pathname : `/${pathname}`}`;
+        router.push(newPath);
+      }
+    }
   };
 
   // Quick toggle (for 'button' and 'ghost')
