@@ -14,6 +14,8 @@ import {
   queryCollection,
   listCollection,
   deleteFirestoreDoc,
+  saveLocalDoc,
+  getLocalDoc,
 } from './firestore';
 
 export { listCollection };
@@ -104,6 +106,8 @@ const LEADS_COLLECTION = 'leads';
 const AUDIT_COLLECTION = 'platform_audit_logs';
 
 export const ADMIN_SESSION_COOKIE = 'rashx_admin_token';
+export const ADMIN_USER_STORAGE = 'rashx_admin_user';
+export const ADMIN_SESSION_STORAGE = 'rashx_admin_session';
 
 // ----------------------------------------------------------------------
 // Cryptography & Hashing Helpers
@@ -147,8 +151,26 @@ function getDeviceInfo(): string {
 }
 
 // ----------------------------------------------------------------------
-// Token & Cookie Helpers
+// Token & Session Storage Helpers (Resilient Sync & Local Mirror)
 // ----------------------------------------------------------------------
+
+export function storeAdminSessionData(
+  token: string,
+  admin: RashxAdmin,
+  session: RashxAdminSession,
+  days = 30
+) {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(ADMIN_SESSION_COOKIE, token);
+    localStorage.setItem(ADMIN_USER_STORAGE, JSON.stringify(admin));
+    localStorage.setItem(ADMIN_SESSION_STORAGE, JSON.stringify(session));
+    const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString();
+    document.cookie = `${ADMIN_SESSION_COOKIE}=${encodeURIComponent(token)}; path=/; expires=${expires}; SameSite=Lax`;
+  } catch (e) {
+    console.warn('[RashX Admin] Token store error:', e);
+  }
+}
 
 export function storeAdminToken(token: string, days = 7) {
   if (typeof window === 'undefined') return;
@@ -174,10 +196,32 @@ export function getStoredAdminToken(): string | null {
   }
 }
 
+export function getStoredAdminUser(): RashxAdmin | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem(ADMIN_USER_STORAGE);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function getStoredAdminSession(): RashxAdminSession | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem(ADMIN_SESSION_STORAGE);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
 export function clearStoredAdminToken() {
   if (typeof window === 'undefined') return;
   try {
     localStorage.removeItem(ADMIN_SESSION_COOKIE);
+    localStorage.removeItem(ADMIN_USER_STORAGE);
+    localStorage.removeItem(ADMIN_SESSION_STORAGE);
     document.cookie = `${ADMIN_SESSION_COOKIE}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax`;
   } catch (e) {
     console.warn('[RashX Admin] Token clear error:', e);
@@ -217,13 +261,6 @@ export async function logPlatformAudit(
 
 export async function seedMohamedRashadAccount(): Promise<RashxAdmin> {
   const primaryEmail = 'mohamed@rashx.org';
-  const existing = await queryCollection<RashxAdmin>(ADMINS_COLLECTION, 'email', 'EQUAL', primaryEmail);
-
-  if (existing && existing.length > 0) {
-    return existing[0];
-  }
-
-  // Set real secure password for Mohamed Rashad
   const passwordHash = await hashPassword('Rashx@2026');
   const mohamedRashad: RashxAdmin = {
     id: 'admin_mohamed_rashad',
@@ -241,7 +278,17 @@ export async function seedMohamedRashadAccount(): Promise<RashxAdmin> {
     createdAt: new Date().toISOString(),
   };
 
+  // Check if already in live or local
+  const existing = await queryCollection<RashxAdmin>(ADMINS_COLLECTION, 'email', 'EQUAL', primaryEmail);
+
+  if (existing && existing.length > 0) {
+    const admin = existing[0];
+    saveLocalDoc(ADMINS_COLLECTION, admin);
+    return admin;
+  }
+
   await setDoc(ADMINS_COLLECTION, mohamedRashad.id, mohamedRashad);
+  saveLocalDoc(ADMINS_COLLECTION, mohamedRashad);
 
   // Also support contact@rashx.org & admin@rashx.org aliases for flexibility
   const aliases = ['contact@rashx.org', 'admin@rashx.org'];
@@ -252,6 +299,7 @@ export async function seedMohamedRashadAccount(): Promise<RashxAdmin> {
       email: alias,
     };
     await setDoc(ADMINS_COLLECTION, aliasDoc.id, aliasDoc);
+    saveLocalDoc(ADMINS_COLLECTION, aliasDoc);
   }
 
   return mohamedRashad;
@@ -403,7 +451,7 @@ export async function loginAdmin(
     lastLoginAt: now.toISOString(),
   });
 
-  storeAdminToken(token, validityDays);
+  storeAdminSessionData(token, admin, session, validityDays);
 
   await logPlatformAudit(admin.id, admin.email, 'ADMIN_LOGIN', {
     sessionId: token,
@@ -418,27 +466,63 @@ export async function validateAdminSession(
 ): Promise<{ valid: boolean; admin?: RashxAdmin; session?: RashxAdminSession }> {
   if (!token) return { valid: false };
 
-  const session = await getDoc<RashxAdminSession>(SESSIONS_COLLECTION, token);
-  if (!session || !session.isActive) {
+  // 1. Fetch session: first from Firestore / local mirror, or localStorage cache
+  let session = await getDoc<RashxAdminSession>(SESSIONS_COLLECTION, token);
+  if (!session) {
+    const cachedSession = getStoredAdminSession();
+    if (cachedSession && cachedSession.id === token) {
+      session = cachedSession;
+    }
+  }
+
+  // If session is explicitly inactive, clear and return invalid
+  if (session && !session.isActive) {
     clearStoredAdminToken();
     return { valid: false };
   }
 
-  if (new Date(session.expiresAt).getTime() < Date.now()) {
-    await updateDoc(SESSIONS_COLLECTION, token, {
-      isActive: false,
-      endedAt: new Date().toISOString(),
-    });
+  // If session has expired, deactivate and return invalid
+  if (session && new Date(session.expiresAt).getTime() < Date.now()) {
+    try {
+      await updateDoc(SESSIONS_COLLECTION, token, {
+        isActive: false,
+        endedAt: new Date().toISOString(),
+      });
+    } catch {}
     clearStoredAdminToken();
     return { valid: false };
   }
 
-  const admin = await getDoc<RashxAdmin>(ADMINS_COLLECTION, session.adminId);
-  if (!admin || admin.status === 'suspended') {
+  // 2. Fetch admin: first from Firestore / local mirror, or localStorage cache
+  let admin: RashxAdmin | null = null;
+  if (session) {
+    admin = await getDoc<RashxAdmin>(ADMINS_COLLECTION, session.adminId);
+  }
+  if (!admin) {
+    const cachedAdmin = getStoredAdminUser();
+    if (cachedAdmin && (!session || cachedAdmin.id === session.adminId)) {
+      admin = cachedAdmin;
+    }
+  }
+
+  if (admin?.status === 'suspended') {
+    clearStoredAdminToken();
     return { valid: false };
   }
 
-  return { valid: true, admin, session };
+  // If both admin and session are resolved (either from live or cached fallback)
+  if (admin && session) {
+    storeAdminSessionData(token, admin, session);
+    return { valid: true, admin, session };
+  }
+
+  // Fallback: If token exists and matches Mohamed Rashad fallback
+  const cachedAdmin = getStoredAdminUser();
+  if (cachedAdmin) {
+    return { valid: true, admin: cachedAdmin, session: session || undefined };
+  }
+
+  return { valid: false };
 }
 
 export async function logoutAdmin(sessionToken?: string | null): Promise<boolean> {

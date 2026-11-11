@@ -16,6 +16,7 @@ import {
   CTABanner,
   LeadForm,
 } from '@/components/sections';
+import { LandingEntrance } from '@/components/layout/LandingEntrance';
 import { JsonLd } from '@/components/seo/JsonLd';
 import {
   generatePageMetadata,
@@ -65,66 +66,69 @@ export default async function MarketingHomePage({ params }: PageProps) {
       <JsonLd data={getOrganizationSchema()} id="org-schema-home" />
       <JsonLd data={getWebSiteSchema(locale)} id="website-schema-home" />
 
-      {/* 1) Hero: عنوان "راش إكس يقدم:" + جملة متغيرة + زرّين + أجهزة (MacBook / Duo / iPhone) تعرض المنتج */}
-      <Hero locale={locale} />
+      {/* Luxury Curtain Loader & Staggered Smooth Entrance */}
+      <LandingEntrance locale={locale}>
+        {/* 1) Hero: عنوان "راش إكس يقدم:" + جملة متغيرة + زرّين + أجهزة (MacBook / Duo / iPhone) تعرض المنتج */}
+        <Hero locale={locale} />
 
-      {/* 2) المشكلة والحل: 3 مشاكل شائعة وكيف تحلها RashX */}
-      <ProblemSolution locale={locale} />
+        {/* 2) المشكلة والحل: 3 مشاكل شائعة وكيف تحلها RashX */}
+        <ProblemSolution locale={locale} />
 
-      {/* 3) "منظومة كاملة لكل منشأة": 4 بطاقات مع شرح النطاق الفرعي */}
-      <FourPillarsSubdomain locale={locale} />
+        {/* 3) "منظومة كاملة لكل منشأة": 4 بطاقات مع شرح النطاق الفرعي */}
+        <FourPillarsSubdomain locale={locale} />
 
-      {/* 4) الأنظمة العشرة: سلايدر مع روابط لكل صفحة */}
-      <FeatureGrid locale={locale} />
+        {/* 4) الأنظمة العشرة: سلايدر مع روابط لكل صفحة */}
+        <FeatureGrid locale={locale} />
 
-      {/* 5) قسم الفوترة الإلكترونية ZATCA المرحلة الثانية مع زر لصفحتها */}
-      <ZatcaSection locale={locale} />
+        {/* 5) قسم الفوترة الإلكترونية ZATCA المرحلة الثانية مع زر لصفحتها */}
+        <ZatcaSection locale={locale} />
 
-      {/* 6) White Label: تخصيص وتغيير الشعار والألوان */}
-      <WhiteLabelSection locale={locale} />
+        {/* 6) White Label: تخصيص وتغيير الشعار والألوان */}
+        <WhiteLabelSection locale={locale} />
 
-      {/* 7) لمن نصلح: صالون نسائي، رجالي، مركز تجميل، سبا */}
-      <TargetFacilities locale={locale} />
+        {/* 7) لمن نصلح: صالون نسائي، رجالي، مركز تجميل، سبا */}
+        <TargetFacilities locale={locale} />
 
-      {/* 8) كيف نبدأ: 3 خطوات (اطلب عرضًا → نجهز منظومتك → ابدأ التشغيل) */}
-      <StepsTimeline locale={locale} />
+        {/* 8) كيف نبدأ: 3 خطوات (اطلب عرضًا → نجهز منظومتك → ابدأ التشغيل) */}
+        <StepsTimeline locale={locale} />
 
-      {/* 9) أمان البيانات (مختصر) */}
-      <SecuritySnapshot locale={locale} />
+        {/* 9) أمان البيانات (مختصر) */}
+        <SecuritySnapshot locale={locale} />
 
-      {/* 10) آراء العملاء: سلايدر (placeholder [TODO] لحين وصول آراء حقيقية) */}
-      <Testimonials locale={locale} />
+        {/* 10) آراء العملاء: سلايدر (placeholder [TODO] لحين وصول آراء حقيقية) */}
+        <Testimonials locale={locale} />
 
-      {/* 11) FAQ من 6 أسئلة مع FAQPage schema */}
-      <FAQ locale={locale} />
+        {/* 11) FAQ من 6 أسئلة مع FAQPage schema */}
+        <FAQ locale={locale} />
 
-      {/* 12) CTA ختامي + الفورم */}
-      <section
-        dir={isAr ? 'rtl' : 'ltr'}
-        id="demo-form"
-        className="scroll-mt-20 border-t border-mist-gray bg-neutral/40 py-16 md:py-24"
-      >
-        <div className="mx-auto max-w-7xl space-y-12 px-4 sm:px-6 lg:px-8">
-          <CTABanner locale={locale} />
+        {/* 12) CTA ختامي + الفورم */}
+        <section
+          dir={isAr ? 'rtl' : 'ltr'}
+          id="demo-form"
+          className="scroll-mt-20 border-t border-mist-gray bg-neutral/40 py-16 md:py-24"
+        >
+          <div className="mx-auto max-w-7xl space-y-12 px-4 sm:px-6 lg:px-8">
+            <CTABanner locale={locale} />
 
-          <div className="pt-4">
-            <div className="mx-auto mb-8 max-w-2xl space-y-2 text-center">
-              <h2 className="text-balance text-xl sm:text-2xl md:text-3xl font-semibold text-ink">
-                {isAr
-                  ? 'احجز جلستك الاستشارية والعرض التجريبي الآن'
-                  : 'Book Your Free Consultation & Live Walkthrough'}
-              </h2>
-              <p className="text-xs sm:text-sm text-ink-muted font-normal">
-                {isAr
-                  ? 'املأ بيانات منشأتك وسيتواصل معك مستشار سعودي متخصص لتجهيز بيئتك السحابية.'
-                  : 'Provide your facility details and a specialist will contact you to set up your sandbox.'}
-              </p>
+            <div className="pt-4">
+              <div className="mx-auto mb-8 max-w-2xl space-y-2 text-center">
+                <h2 className="text-balance text-xl sm:text-2xl md:text-3xl font-semibold text-ink">
+                  {isAr
+                    ? 'احجز جلستك الاستشارية والعرض التجريبي الآن'
+                    : 'Book Your Free Consultation & Live Walkthrough'}
+                </h2>
+                <p className="text-xs sm:text-sm text-ink-muted font-normal">
+                  {isAr
+                    ? 'املأ بيانات منشأتك وسيتواصل معك مستشار سعودي متخصص لتجهيز بيئتك السحابية.'
+                    : 'Provide your facility details and a specialist will contact you to set up your sandbox.'}
+                </p>
+              </div>
+
+              <LeadForm locale={locale} />
             </div>
-
-            <LeadForm locale={locale} />
           </div>
-        </div>
-      </section>
+        </section>
+      </LandingEntrance>
     </>
   );
 }

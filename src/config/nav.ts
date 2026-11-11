@@ -175,8 +175,7 @@ export const FOOTER_COLUMNS: FooterColumn[] = [
     titleAr: 'قطاعات المنشآت',
     titleEn: 'Target Facilities',
     links: [
-      { labelAr: 'الصالونات النسائية', labelEn: 'Women Beauty Salons', href: '/for/beauty-salons' },
-      { labelAr: 'المشاغل النسائية', labelEn: 'Styling Studios', href: '/for/beauty-salons' },
+      { labelAr: 'الصالونات والمشاغل النسائية', labelEn: 'Women Beauty Salons & Studios', href: '/for/beauty-salons' },
       { labelAr: 'صالونات الحلاقة الرجالية', labelEn: 'Barbershops', href: '/for/barbershops' },
       { labelAr: 'مراكز السبا والاستجمام', labelEn: 'Spa & Wellness', href: '/for/spas' },
       { labelAr: 'عيادات ومجمعات التجميل', labelEn: 'Beauty Clinics', href: '/for/clinics' },
@@ -203,7 +202,6 @@ export const FOOTER_COLUMNS: FooterColumn[] = [
       { labelAr: 'المدن والمناطق المغطاة', labelEn: 'Saudi Cities Covered', href: '/cities/riyadh' },
       { labelAr: 'المدونة ومقالات الإدارة', labelEn: 'Beauty Management Blog', href: '/blog' },
       { labelAr: 'سجل التحديثات والأخبار', labelEn: 'Changelog & News', href: '/changelog', badgeAr: 'جديد' },
-      { labelAr: 'الأسئلة الشائعة', labelEn: 'FAQ Hub', href: '/faq' },
       { labelAr: 'تواصل مع الدعم والمبيعات', labelEn: 'Contact Sales & Support', href: '/contact' },
     ],
   },

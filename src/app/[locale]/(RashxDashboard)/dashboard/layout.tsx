@@ -36,12 +36,12 @@ export default function PlatformAdminLayout({ children }: PlatformAdminLayoutPro
     return () => mq.removeEventListener('change', handleChange);
   }, []);
 
-  // If loading or on login page, render children without dashboard frame
-  if (isLoading || pathname?.includes('/dashboard/login')) {
+  // If on login page, render children without dashboard frame
+  if (pathname?.includes('/dashboard/login')) {
     return <>{children}</>;
   }
 
-  // If unauthenticated, gatekeeper will redirect, show a light, solid loader
+  // If unauthenticated or initial load before session check, show sleek central loader
   if (!admin) {
     return (
       <div

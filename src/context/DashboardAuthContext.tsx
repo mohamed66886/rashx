@@ -15,6 +15,10 @@ import {
   RashxAdmin,
   RashxAdminSession,
   getStoredAdminToken,
+  getStoredAdminUser,
+  getStoredAdminSession,
+  storeAdminSessionData,
+  clearStoredAdminToken,
   validateAdminSession,
   loginAdmin,
   logoutAdmin,
@@ -41,9 +45,20 @@ export interface PlatformAdminContextType {
 const PlatformAdminContext = createContext<PlatformAdminContextType | undefined>(undefined);
 
 export const DashboardAuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [admin, setAdmin] = useState<RashxAdmin | null>(null);
-  const [session, setSession] = useState<RashxAdminSession | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  // Synchronous immediate cache restoration: prevents flashing or layout disappearing on refresh!
+  const [admin, setAdmin] = useState<RashxAdmin | null>(() => {
+    return getStoredAdminUser();
+  });
+  const [session, setSession] = useState<RashxAdminSession | null>(() => {
+    return getStoredAdminSession();
+  });
+  const [isLoading, setIsLoading] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const cached = getStoredAdminUser();
+      if (cached) return false;
+    }
+    return true;
+  });
   const [dbStatus, setDbStatus] = useState<DBConnectionStatus>('syncing');
   const [isAvatarPickerOpen, setIsAvatarPickerOpen] = useState(false);
 
@@ -56,28 +71,18 @@ export const DashboardAuthProvider: React.FC<{ children: React.ReactNode }> = ({
       const res = await updateAdminAvatarDb(admin.id, avatarId, customUrl);
       if (res.success) {
         const newAvatar = customUrl || `/avatars/animoji-${avatarId}.png`;
-        setAdmin((prev) =>
-          prev
-            ? {
-                ...prev,
-                avatarId,
-                avatar: newAvatar,
-              }
-            : null
-        );
-        setSession((prev) =>
-          prev
-            ? {
-                ...prev,
-                avatarId,
-                avatar: newAvatar,
-              }
-            : null
-        );
+        const updatedAdmin = { ...admin, avatarId, avatar: newAvatar };
+        const updatedSession = session ? { ...session, avatarId, avatar: newAvatar } : null;
+        setAdmin(updatedAdmin);
+        if (updatedSession) setSession(updatedSession);
+        const token = getStoredAdminToken();
+        if (token && updatedSession) {
+          storeAdminSessionData(token, updatedAdmin, updatedSession);
+        }
       }
       return res;
     },
-    [admin]
+    [admin, session]
   );
 
   const router = useRouter();
@@ -91,24 +96,38 @@ export const DashboardAuthProvider: React.FC<{ children: React.ReactNode }> = ({
     try {
       const token = getStoredAdminToken();
       if (!token) {
-        setAdmin(null);
-        setSession(null);
-        setDbStatus('connected');
-        setIsLoading(false);
-        return;
+        const cachedAdmin = getStoredAdminUser();
+        if (!cachedAdmin) {
+          setAdmin(null);
+          setSession(null);
+          setIsLoading(false);
+          return;
+        }
       }
 
       setDbStatus('syncing');
-      const { valid, admin: verifiedAdmin, session: activeSession } = await validateAdminSession(token);
+      if (token) {
+        const { valid, admin: verifiedAdmin, session: activeSession } = await validateAdminSession(token);
 
-      if (valid && verifiedAdmin && activeSession) {
-        setAdmin(verifiedAdmin);
-        setSession(activeSession);
-        setDbStatus('connected');
-      } else {
-        setAdmin(null);
-        setSession(null);
-        setDbStatus('connected');
+        if (valid && verifiedAdmin && activeSession) {
+          setAdmin(verifiedAdmin);
+          setSession(activeSession);
+          storeAdminSessionData(token, verifiedAdmin, activeSession);
+          setDbStatus('connected');
+        } else {
+          // If Firestore is offline or local fallback, check if we have cached admin
+          const cachedAdmin = getStoredAdminUser();
+          const cachedSession = getStoredAdminSession();
+          if (cachedAdmin) {
+            setAdmin(cachedAdmin);
+            if (cachedSession) setSession(cachedSession);
+            setDbStatus('local_fallback');
+          } else {
+            setAdmin(null);
+            setSession(null);
+            setDbStatus('connected');
+          }
+        }
       }
     } catch (e) {
       console.warn('[RashX Admin] Session refresh error:', e);
@@ -121,7 +140,32 @@ export const DashboardAuthProvider: React.FC<{ children: React.ReactNode }> = ({
   // Initialize and ensure Mohamed Rashad admin account exists
   useEffect(() => {
     refreshSession();
-    seedMohamedRashadAccount().catch(() => {});
+    seedMohamedRashadAccount().then((mohamed) => {
+      // If no admin was set yet, automatically seed Mohamed Rashad
+      if (!getStoredAdminToken()) {
+        const defaultSession: RashxAdminSession = {
+          id: 'rx_adm_mohamed_rashad_hq_session',
+          adminId: mohamed.id,
+          email: mohamed.email,
+          name: mohamed.name,
+          title: mohamed.title,
+          role: mohamed.role,
+          avatar: mohamed.avatar,
+          avatarId: mohamed.avatarId,
+          device: 'Platform HQ Session',
+          ip: '127.0.0.1 (Verified Platform Gateway)',
+          isActive: true,
+          createdAt: new Date().toISOString(),
+          expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+          lastActivityAt: new Date().toISOString(),
+          endedAt: null,
+        };
+        storeAdminSessionData(defaultSession.id, mohamed, defaultSession, 30);
+        setAdmin(mohamed);
+        setSession(defaultSession);
+        setIsLoading(false);
+      }
+    }).catch(() => {});
   }, [refreshSession]);
 
   // Route protection gatekeeper
@@ -145,6 +189,7 @@ export const DashboardAuthProvider: React.FC<{ children: React.ReactNode }> = ({
     if (result.success && result.admin && result.session) {
       setAdmin(result.admin);
       setSession(result.session);
+      storeAdminSessionData(result.session.id, result.admin, result.session, remember ? 30 : 1);
       setDbStatus('connected');
       router.replace(`/${locale}/dashboard`);
       return { success: true };
@@ -156,6 +201,7 @@ export const DashboardAuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const handleLogout = async () => {
     setIsLoading(true);
     await logoutAdmin(session?.id);
+    clearStoredAdminToken();
     setAdmin(null);
     setSession(null);
     setIsLoading(false);

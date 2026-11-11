@@ -527,8 +527,8 @@ export const Footer: React.FC<FooterProps> = ({
                   {isAr ? col.titleAr : col.titleEn}
                 </h5>
                 <ul className={`space-y-3 text-xs font-normal sm:text-[13px] ${mutedTextClass}`}>
-                  {col.links.map((link) => (
-                    <li key={link.href}>
+                  {col.links.map((link, linkIdx) => (
+                    <li key={`${link.href}-${linkIdx}`}>
                       <Link
                         href={`/${locale}${link.href}`}
                         className={`inline-flex flex-wrap items-center gap-1.5 leading-relaxed transition-colors ${
