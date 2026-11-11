@@ -17,7 +17,7 @@ import {
 } from '@/lib/seo';
 import { LOCALES, Locale, isSupportedLocale } from '@/i18n/config';
 import { getDictionary } from '@/i18n/translations';
-import { Sparkles, ShieldCheck, CheckCircle2, ArrowDown } from 'lucide-react';
+import { Sparkles, Check } from 'lucide-react';
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -277,14 +277,14 @@ export default async function FeaturesPage({ params }: PageProps) {
         'إصدار بطاقات هدايا رقمية (Gift Cards) تشاركها العميلة عبر الواتساب مع صديقاتها.',
         'باقات واشتراكات دورية مسبقة الدفع (مثل باقات المساج أو تصفيف الشعر الأسبوعي).',
         'كوبونات ترويجية مخصصة لحملات المشاهير والسوشيال ميديا مع تتبع العائد المالي.',
-        'مضاعفة معدل تكرار الزيارة (Retention Rate) ومعدل إنفاق العميلة السنوي.',
+        'رفع معدل تكرار الزيارة (Retention Rate) ومعدل إنفاق العميلة السنوي.',
       ],
       bulletsEn: [
         'Automated cashback points accrual redeemable on future visits or free services.',
         'WhatsApp-shareable digital gift certificates driving new client referrals.',
         'Prepaid session bundles and weekly blow-dry membership passes.',
         'Influencer promo codes with attribution analytics and ROI tracking.',
-        'Substantially increases salon client retention rates and annual client lifetime value.',
+        'Helps increase client retention rates and annual client lifetime value.',
       ],
       slug: 'loyalty-rewards',
       reverse: true,
@@ -304,14 +304,14 @@ export default async function FeaturesPage({ params }: PageProps) {
       bulletsAr: [
         'رسائل واتساب رسمية وموثقة باسم صالونك تصل للعميلة فور تثبيت الحجز.',
         'أزرار تفاعلية داخل الواتساب تتيح للعميلة تأكيد الحضور بضغطة زر أو طلب التعديل.',
-        'تقليص نسبة عدم حضور العميلات بدون موعد مسبق (No-shows) بنسبة تتجاوز 40%.',
+        'المساعدة على تقليص نسبة عدم حضور العميلات بدون موعد مسبق (No-shows) عبر التذكيرات التلقائية.',
         'استطلاع تقييم الخدمة آليًا بعد إتمام الزيارة لرفع تقييم الصالون على خرائط جوجل.',
         'إشعارات فورية للإدارة عند العمليات الحساسة (حذف فاتورة، خصم خاص، فتح الصندوق).',
       ],
       bulletsEn: [
         'Official branded WhatsApp interactive messages sent upon booking creation.',
         'One-tap interactive confirmation or reschedule buttons directly in WhatsApp.',
-        'Slashes salon no-show and missed appointment rates by over 40% in Saudi salons.',
+        'Helps reduce no-shows and missed appointments through automated reminders.',
         'Automated post-service survey boosting Google Business reviews and local ranking.',
         'Real-time manager alerts for sensitive actions (voided invoices, special overrides).',
       ],
@@ -349,77 +349,75 @@ export default async function FeaturesPage({ params }: PageProps) {
     },
   ];
 
+  const highlights = [
+    isAr ? '10 أنظمة متكاملة' : '10 integrated systems',
+    isAr ? 'دعم متطلبات الفوترة الإلكترونية (ZATCA 2)' : 'ZATCA Phase 2 e-invoicing support',
+    isAr ? 'نطاق فرعي وهوية رقمية خاصة' : 'Private subdomain & brand identity',
+    isAr ? 'مبني وفق ضوابط نظام PDPL السعودي' : 'Built around Saudi PDPL guidelines',
+  ];
+
   return (
-    <>
+    <div dir={isAr ? 'rtl' : 'ltr'}>
       {/* Schemas: SoftwareApplication & BreadcrumbList */}
       <JsonLd data={getSoftwareApplicationSchema(locale)} id="software-app-schema-features" />
 
-      {/* Visual Breadcrumbs with BreadcrumbList Schema */}
-      <div className="bg-[#FAFBFB] border-b border-mist-gray">
+      {/* Breadcrumbs (with BreadcrumbList schema) */}
+      <div className="border-b border-mist-gray bg-neutral/40 pt-24 sm:pt-28">
         <Breadcrumbs locale={locale} items={breadcrumbsList} />
       </div>
 
-      {/* Hero & Intro Section */}
-      <section className="pt-10 pb-16 md:pt-16 md:pb-20 bg-radial from-mist-gray/40 via-white to-white border-b border-mist-gray">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-mist-gray border border-mist-gray text-ink text-xs font-semibold">
-            <Sparkles className="w-3.5 h-3.5 text-dusty-blue" />
-            <span>{isAr ? 'منظومة التشغيل الشاملة 2026' : 'Comprehensive Operating Platform 2026'}</span>
+      {/* Hero */}
+      <section className="border-b border-mist-gray bg-gradient-to-b from-dusty-blue/20 to-white pb-14 pt-10 md:pb-20 md:pt-16">
+        <div className="mx-auto max-w-7xl space-y-6 px-4 text-center sm:px-6 lg:px-8">
+          <div className="inline-flex items-center gap-2 rounded-full bg-white px-3.5 py-1.5 text-xs font-bold text-ink">
+            <Sparkles className="h-3.5 w-3.5 text-dusty-blue" aria-hidden="true" />
+            <span>{isAr ? 'منظومة التشغيل الشاملة 2026' : 'Comprehensive operating platform 2026'}</span>
           </div>
 
-          {/* Exact H1 requested by user */}
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-ink tracking-tight leading-[1.18]">
+          <h1 className="text-balance text-3xl font-extrabold leading-[1.3] text-ink sm:text-4xl md:text-5xl lg:text-6xl">
             {isAr ? (
               <>
                 كل ما يحتاجه صالونك{' '}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-ink via-dusty-blue to-black">
-                  في منظومة واحدة
-                </span>
+                <span className="box-decoration-clone rounded-2xl bg-dusty-blue/35 px-3">في منظومة واحدة</span>
               </>
             ) : (
               <>
-                Everything Your Salon Needs{' '}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-ink via-dusty-blue to-black">
-                  in One Integrated System
+                Everything your salon needs{' '}
+                <span className="box-decoration-clone rounded-2xl bg-dusty-blue/35 px-3">
+                  in one integrated system
                 </span>
               </>
             )}
           </h1>
 
-          {/* Short Introduction */}
-          <p className="text-base sm:text-lg text-ink-muted leading-relaxed max-w-3xl mx-auto">
+          <p className="mx-auto max-w-3xl text-base leading-relaxed text-ink-muted sm:text-lg">
             {isAr
-              ? 'صُممت منصة راش إكس لتلغي الحاجة للتعامل مع برامج متفرقة ودفاتر يدوية. هنا تجد 10 أنظمة تشغيلية ذكية صُممت خصيصًا لطبيعة الصالونات والمشاغل ومراكز التجميل في السعودية، تعمل جميعها بتناغم كامل تحت مظلة سحابية ونطاق فرعي مستقل لمنشأتك.'
-              : 'RashX eliminates the chaos of disjointed apps and paper registers. Discover 10 unified management systems tailored to salons, styling studios, and spas across Saudi Arabia, operating seamlessly under a private subdomain.'}
+              ? 'صُممت منصة راش إكس لتلغي الحاجة للتعامل مع برامج متفرقة ودفاتر يدوية. هنا تجد 10 أنظمة تشغيلية ذكية صُممت لطبيعة الصالونات والمشاغل ومراكز التجميل في السعودية، تعمل بتناغم تحت مظلة سحابية ونطاق فرعي مستقل لمنشأتك.'
+              : 'RashX replaces disjointed apps and paper registers with 10 unified management systems built for salons, styling studios and spas across Saudi Arabia, all running under a private subdomain.'}
           </p>
 
-          {/* Quick Pillar Highlights */}
-          <div className="flex flex-wrap items-center justify-center gap-3 pt-2 text-xs">
-            <span className="px-3 py-1 rounded-full bg-white border border-mist-gray font-semibold text-ink shadow-2xs">
-              ✓ 10 أنظمة متكاملة
-            </span>
-            <span className="px-3 py-1 rounded-full bg-white border border-mist-gray font-semibold text-ink shadow-2xs">
-              ✓ دعم متطلبات الفوترة الإلكترونية (ZATCA 2)
-            </span>
-            <span className="px-3 py-1 rounded-full bg-white border border-mist-gray font-semibold text-ink shadow-2xs">
-              ✓ نطاق فرعي وهوية رقمية خاصة
-            </span>
-            <span className="px-3 py-1 rounded-full bg-white border border-mist-gray font-semibold text-ink shadow-2xs">
-              ✓ امتثال كامل لنظام PDPL السعودي
-            </span>
-          </div>
+          <ul className="flex flex-wrap items-center justify-center gap-3 pt-2">
+            {highlights.map((text) => (
+              <li
+                key={text}
+                className="inline-flex items-center gap-1.5 rounded-full border border-mist-gray bg-white px-3.5 py-1.5 text-xs font-bold text-ink"
+              >
+                <Check className="h-3.5 w-3.5" strokeWidth={2.5} aria-hidden="true" />
+                {text}
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 
-      {/* Main Content Area: Sticky Side Navigation + 10 Alternating Systems */}
-      <section className="py-12 md:py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col xl:flex-row items-start gap-12 lg:gap-16">
-            {/* Sticky Side Navigation on Large Screens (xl+) */}
+      {/* Sticky index + the 10 systems */}
+      <section className="bg-white py-12 md:py-20">
+        <h2 className="sr-only">{isAr ? 'الأنظمة العشرة' : 'The 10 systems'}</h2>
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col items-start gap-12 lg:gap-16 xl:flex-row">
             <FeaturesStickyNav locale={locale} />
 
-            {/* 10 Alternating FeatureSplit Sections */}
-            <div className="flex-1 w-full space-y-2">
+            <div className="w-full flex-1">
               {systemsData.map((sys) => (
                 <SystemSplitCard key={sys.id} system={sys} locale={locale} />
               ))}
@@ -428,22 +426,25 @@ export default async function FeaturesPage({ params }: PageProps) {
         </div>
       </section>
 
-      {/* Comparison Table: Traditional vs RashX */}
+      {/* Traditional vs RashX */}
       <TraditionalVsRashXTable locale={locale} />
 
-      {/* Final Closing CTA Banner + Lead Form */}
-      <section className="py-16 md:py-24 bg-[#FAFBFB] border-t border-mist-gray" id="demo-form">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+      {/* Closing CTA + lead form */}
+      <section
+        id="demo-form"
+        className="scroll-mt-20 border-t border-mist-gray bg-neutral/40 py-16 md:py-24"
+      >
+        <div className="mx-auto max-w-7xl space-y-12 px-4 sm:px-6 lg:px-8">
           <CTABanner locale={locale} />
 
           <div className="pt-4">
-            <div className="text-center max-w-2xl mx-auto mb-8 space-y-2">
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-ink tracking-tight">
+            <div className="mx-auto mb-8 max-w-2xl space-y-2 text-center">
+              <h2 className="text-balance text-2xl font-extrabold text-ink sm:text-3xl">
                 {isAr
                   ? 'جاهز لاختبار هذه المميزات عمليًا في صالونك؟'
-                  : 'Ready to Test These Features in Your Salon?'}
+                  : 'Ready to test these features in your salon?'}
               </h2>
-              <p className="text-xs sm:text-sm text-ink-muted">
+              <p className="text-sm text-ink-muted">
                 {isAr
                   ? 'احجز عرضك التجريبي المجاني وسيقوم خبراؤنا بتهيئة بيئة الاختبار لصالونك خلال دقائق.'
                   : 'Book your free live walkthrough and test all 10 systems with our specialists.'}
@@ -454,7 +455,6 @@ export default async function FeaturesPage({ params }: PageProps) {
           </div>
         </div>
       </section>
-    </>
+    </div>
   );
 }
-

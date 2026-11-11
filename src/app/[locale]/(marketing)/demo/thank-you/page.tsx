@@ -77,7 +77,7 @@ export default async function DemoThankYouPage({ params }: ThankYouPageProps) {
   ];
 
   return (
-    <div className="w-full bg-[#FAFBFB] min-h-[85vh] py-12 sm:py-20">
+    <div className="w-full bg-[#FAFBFB] min-h-[85vh] pt-28 pb-12 sm:pt-36 sm:pb-20">
       {/* Conversion Event Tracker (fires GA4 generate_lead, Meta Lead, Snap SIGN_UP, TikTok SubmitForm) */}
       <ConversionTracker eventName="generate_lead" />
 

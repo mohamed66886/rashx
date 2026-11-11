@@ -71,7 +71,7 @@ export default async function CaseStudiesPage({ params }: CaseStudiesPageProps) 
     <div className="w-full bg-[#FAFBFB] min-h-screen">
       <JsonLd data={getBreadcrumbSchema(breadcrumbs)} id="case-studies-breadcrumb-schema" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16 space-y-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-8 sm:pt-32 sm:pb-12 lg:pt-36 lg:pb-16 space-y-16">
         {/* Breadcrumb Navigation */}
         <div className="flex items-center gap-2 text-xs text-ink-muted">
           <Link href={`/${locale}`} className="hover:text-ink transition-colors">

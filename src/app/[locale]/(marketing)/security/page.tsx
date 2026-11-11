@@ -11,20 +11,12 @@ import {
   Database,
   ArrowRight,
   PhoneCall,
-  CheckCircle2,
-  XCircle,
-  HelpCircle,
-  Sparkles,
+  Check,
+  Plus,
   RefreshCw,
-  Sliders,
-  BadgeCheck,
-  AlertTriangle,
   UserCheck,
   Cpu,
-  Layers,
-  HardDrive,
   FileText,
-  Activity,
   Workflow,
 } from 'lucide-react';
 import { SITE_CONFIG } from '@/config/site';
@@ -108,7 +100,7 @@ export default async function SecurityPage({ params }: SecurityPageProps) {
       titleAr: 'حماية الحسابات والبيانات',
       titleEn: 'Account & Data Protection',
       descAr:
-        'آليات أمان استباقية لحماية حسابات تسجيل الدخول، ومنع محاولات الدخول غير المصرح بها، وتشفير كافة البيانات المتداولة عبر بروتوكول TLS 1.3 المشفر بنكياً.',
+        'آليات أمان استباقية لحماية حسابات تسجيل الدخول، ومنع محاولات الدخول غير المصرح بها، وتشفير كافة البيانات المتداولة عبر بروتوكول TLS 1.3.',
       descEn:
         'Proactive safeguards securing login credentials, blocking brute-force attempts, and encrypting all active traffic using modern TLS 1.3 cryptographic protocols.',
     },
@@ -191,8 +183,8 @@ export default async function SecurityPage({ params }: SecurityPageProps) {
         ? 'كيف تضمن راش إكس استمرارية الأعمال وحماية البيانات من الفقدان؟'
         : 'How does RashX ensure business continuity and disaster recovery?',
       answer: isAr
-        ? 'تُجرى عمليات نسخ احتياطي يومية مشفرة وتُحفظ في بيئات تخزين متعددة، مع خطط استعادة فورية تضمن عودة النظام للعمل دون فقدان أي حركات أو فواتير في حال حدوث أي طارئ تقني.'
-        : 'Automated encrypted daily snapshots are retained in redundant storage partitions with automated recovery procedures ensuring zero data loss and uninterrupted billing continuity.',
+        ? 'تُجرى عمليات نسخ احتياطي يومية مشفرة وتُحفظ في بيئات تخزين متعددة، مع خطط استعادة تهدف إلى عودة النظام للعمل بأقل فقدان ممكن للبيانات في حال حدوث أي طارئ تقني.'
+        : 'Automated encrypted daily snapshots are retained in redundant storage partitions with recovery procedures designed to restore service with minimal data loss.',
     },
     {
       question: isAr
@@ -204,309 +196,297 @@ export default async function SecurityPage({ params }: SecurityPageProps) {
     },
   ];
 
+  const waText = (ar: string, en: string) =>
+    `${SITE_CONFIG.whatsappUrl}?text=${encodeURIComponent(isAr ? ar : en)}`;
+
+  const trust = [
+    { icon: Server, ar: 'فصل منطقي بين المنشآت', en: 'Logical tenant separation' },
+    { icon: KeyRound, ar: 'تنظيم الصلاحيات وإدارة الأدوار', en: 'Role-based access control' },
+    { icon: EyeOff, ar: 'حجب أرقام جوالات العميلات', en: 'Client phone masking' },
+    { icon: RefreshCw, ar: 'استمرارية أعمال ونسخ يومي', en: 'Continuity & daily backups' },
+  ];
+
+  const tenants: {
+    tone: string;
+    tag: [string, string];
+    url: string;
+    items: [string, string][];
+  }[] = [
+    {
+      tone: 'bg-dusty-blue/30',
+      tag: ['المنشأة (أ) • صالون نسائي', 'Facility A • Women salon'],
+      url: 'lumiere.rashx.org',
+      items: [
+        ['قاعدة عميلات وملاحظات الصالون', 'Client base & salon notes'],
+        ['فواتير ZATCA وسجلات الكاشير', 'ZATCA invoices & POS logs'],
+        ['عمولات مصففات الشعر ورواتبهن', 'Stylist commissions & payroll'],
+      ],
+    },
+    {
+      tone: 'bg-warm-peach/40',
+      tag: ['المنشأة (ب) • صالون رجالي', 'Facility B • Barbershop'],
+      url: 'elite-barber.rashx.org',
+      items: [
+        ['سجلات زبائن الحلاقة والاشتراكات', 'Client records & memberships'],
+        ['فواتير ZATCA وسجلات الكاشير', 'ZATCA invoices & POS logs'],
+        ['عمولات الحلاقين ومواعيد الكراسي', 'Barber commissions & chair bookings'],
+      ],
+    },
+    {
+      tone: 'bg-mist-gray/70',
+      tag: ['المنشأة (ج) • مركز وسبا', 'Facility C • Spa center'],
+      url: 'lavender-spa.rashx.org',
+      items: [
+        ['باقات جلسات السبا والتدليك', 'Spa & massage packages'],
+        ['فواتير ZATCA والمخزون الداخلي', 'ZATCA invoices & internal stock'],
+        ['سجلات المعالجين وتقارير الفروع', 'Therapist records & branch reports'],
+      ],
+    },
+  ];
+
+  const PILLAR_TONES = ['bg-dusty-blue/30', 'bg-warm-peach/40'] as const;
+
   return (
-    <div className="w-full bg-[#FAFBFB] min-h-screen">
-      <JsonLd data={getFAQPageSchema(securityFaqs)} id="security-faq-schema" />
+    <div dir={isAr ? 'rtl' : 'ltr'} className="w-full bg-white">
+      {/* The unanswered [TODO] hosting question stays on the page but is kept out of the schema */}
+      <JsonLd
+        data={getFAQPageSchema(securityFaqs.filter((f) => !f.answer.includes('[TODO')))}
+        id="security-faq-schema"
+      />
       <JsonLd data={getBreadcrumbSchema(breadcrumbs)} id="security-breadcrumb-schema" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16 space-y-16">
-        {/* Breadcrumb Navigation */}
-        <div className="flex items-center gap-2 text-xs text-ink-muted">
-          <Link href={`/${locale}`} className="hover:text-ink transition-colors">
-            {isAr ? 'الرئيسية' : 'Home'}
-          </Link>
-          <span>/</span>
-          <span className="text-ink font-semibold">
-            {isAr ? 'الأمان والخصوصية' : 'Security & Privacy'}
-          </span>
-        </div>
-
-        {/* Section 1: Hero Header */}
-        <div className="max-w-3xl space-y-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-mist-gray border border-mist-gray text-xs font-bold text-ink">
-            <ShieldCheck className="w-4 h-4 text-dusty-blue" />
-            <span>
-              {isAr
-                ? 'الأمان والسرية المؤسسية • حماية موثوقة لصالونك'
-                : 'Enterprise Security & Complete Data Privacy'}
-            </span>
-          </div>
-
-          {/* Mandatory Exact H1 */}
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-ink tracking-tight leading-tight">
-            {isAr ? 'أمان بياناتك وبيانات عملائك أولويتنا' : 'Securing Your Data and Your Clients’ Data Is Our Priority'}
-          </h1>
-
-          <p className="text-base sm:text-lg text-ink-muted leading-relaxed font-normal">
-            {isAr
-              ? 'تلتزم راش إكس بأعلى معايير حماية البيانات وسرية المعلومات؛ بنينا المنظومة السحابية على مبادئ تنظيم الوصول بالصلاحيات، إدارة الأدوار والمستخدمين، الفصل المنطقي التام بين بيانات المنشآت، وبيئة تشغيل موثوقة تضمن استمرارية أعمالك ونمو أرباحك بأمان تام.'
-              : 'At RashX, data protection is paramount. Our private cloud architecture is built upon granular role permissions, strict logical tenant isolation, confidential data handling, and high-availability operational resilience.'}
-          </p>
-
-          <div className="pt-2 flex flex-wrap items-center gap-4">
-            <Link
-              href={`/${locale}/demo`}
-              className="px-6 py-3.5 text-sm font-semibold text-black bg-dusty-blue hover:bg-dusty-blue/90 rounded-2xl shadow-md transition-all active:scale-[0.98]"
-            >
-              {isAr ? 'احجز استشارة أمان وبيانات (20 دقيقة)' : 'Schedule Security Walkthrough'}
+      {/* ============================ Hero ============================ */}
+      <section className="border-b border-mist-gray bg-gradient-to-b from-dusty-blue/20 to-white">
+        <div className="mx-auto max-w-7xl px-4 pb-14 pt-28 sm:px-6 sm:pb-20 sm:pt-32 lg:pt-36 lg:px-8">
+          {/* Breadcrumb */}
+          <nav
+            aria-label={isAr ? 'مسار التنقل' : 'Breadcrumb'}
+            className="mb-8 flex items-center gap-2 text-xs text-ink-muted"
+          >
+            <Link href={`/${locale}`} className="font-medium transition-colors hover:text-ink">
+              {isAr ? 'الرئيسية' : 'Home'}
             </Link>
+            <span aria-hidden="true">/</span>
+            <span className="font-bold text-ink" aria-current="page">
+              {isAr ? 'الأمان والخصوصية' : 'Security & Privacy'}
+            </span>
+          </nav>
 
-            <a
-              href={`${SITE_CONFIG.whatsappUrl}?text=${encodeURIComponent(
-                isAr
-                  ? 'مرحبًا راش إكس، أود الاستفسار عن معايير الأمان وحماية البيانات في المنصة.'
-                  : 'Hello RashX, I would like to inquire about data security and PDPL compliance.'
-              )}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-5 py-3.5 text-sm font-semibold text-ink bg-white border border-mist-gray hover:bg-mist-gray/40 rounded-2xl transition-colors"
-            >
-              <PhoneCall className="w-4 h-4 text-[#25D366]" />
-              <span>{isAr ? 'استفسار أمني مباشر عبر واتساب' : 'Security Consultation'}</span>
-            </a>
-          </div>
+          <div className="max-w-3xl space-y-5">
+            <div className="inline-flex items-center gap-2 rounded-full bg-white px-3.5 py-1.5 text-xs font-bold text-ink">
+              <ShieldCheck className="h-4 w-4 text-dusty-blue" aria-hidden="true" />
+              <span>{isAr ? 'الأمان والسرية • حماية موثوقة لصالونك' : 'Security & data privacy for your salon'}</span>
+            </div>
 
-          {/* Quick Trust Badges */}
-          <div className="pt-4 flex flex-wrap items-center gap-y-2 gap-x-6 text-xs text-ink-muted">
-            <div className="flex items-center gap-1.5 font-semibold text-ink">
-              <Server className="w-4 h-4 text-dusty-blue" />
-              <span>{isAr ? 'فصل منطقي تام بين المنشآت' : 'Strict Logical Tenant Separation'}</span>
+            {/* Required H1 */}
+            <h1 className="text-balance text-3xl font-extrabold leading-tight text-ink sm:text-4xl lg:text-5xl">
+              {isAr ? 'أمان بياناتك وبيانات عملائك أولويتنا' : 'Securing Your Data and Your Clients’ Data Is Our Priority'}
+            </h1>
+
+            <p className="text-base leading-relaxed text-ink-muted sm:text-lg">
+              {isAr
+                ? 'بنينا المنظومة السحابية على مبادئ تنظيم الوصول بالصلاحيات، وإدارة الأدوار والمستخدمين، والفصل المنطقي بين بيانات المنشآت، وبيئة تشغيل موثوقة تدعم استمرارية أعمالك.'
+                : 'RashX’s cloud architecture is built on granular role permissions, logical separation between facilities, confidential data handling and a reliable operating environment that supports your business continuity.'}
+            </p>
+
+            <div className="flex flex-wrap items-center gap-3 pt-2">
+              <Link
+                href={`/${locale}/demo`}
+                className="rounded-2xl bg-warm-peach px-6 py-3.5 text-sm font-bold text-ink transition-colors hover:bg-warm-peach/80"
+              >
+                {isAr ? 'احجز استشارة أمان وبيانات (20 دقيقة)' : 'Schedule a security walkthrough'}
+              </Link>
+
+              <a
+                href={waText(
+                  'مرحبًا راش إكس، أود الاستفسار عن معايير الأمان وحماية البيانات في المنصة.',
+                  'Hello RashX, I would like to inquire about data security and PDPL compliance.'
+                )}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-2xl border border-mist-gray bg-white px-5 py-3.5 text-sm font-bold text-ink transition-colors hover:border-ink"
+              >
+                <PhoneCall className="h-4 w-4" aria-hidden="true" />
+                <span>{isAr ? 'استفسار أمني عبر واتساب' : 'Security consultation'}</span>
+              </a>
             </div>
-            <div className="flex items-center gap-1.5 font-semibold text-ink">
-              <KeyRound className="w-4 h-4 text-[#10B981]" />
-              <span>{isAr ? 'تنظيم الصلاحيات وإدارة الأدوار' : 'Role-Based Access Control (RBAC)'}</span>
-            </div>
-            <div className="flex items-center gap-1.5 font-semibold text-ink">
-              <EyeOff className="w-4 h-4 text-[#8B5CF6]" />
-              <span>{isAr ? 'حجب أرقام الجوالات (PDPL)' : 'Client Mobile Number Masking'}</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <RefreshCw className="w-4 h-4 text-[#F59E0B]" />
-              <span>{isAr ? 'استمرارية أعمال ونسخ يومي' : 'Business Continuity & Daily Backups'}</span>
-            </div>
+
+            <ul className="flex flex-wrap items-center gap-x-6 gap-y-2 pt-3 text-xs font-bold text-ink">
+              {trust.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <li key={item.en} className="flex items-center gap-1.5">
+                    <Icon className="h-4 w-4 text-dusty-blue" aria-hidden="true" />
+                    <span>{isAr ? item.ar : item.en}</span>
+                  </li>
+                );
+              })}
+            </ul>
           </div>
         </div>
+      </section>
 
-        {/* ===================================================================
-           Section 2: Visual Diagram (رسم يوضح الفصل المنطقي بين المنشآت)
-           =================================================================== */}
-        <div className="rounded-3xl bg-white border-2 border-mist-gray p-8 sm:p-12 shadow-sm space-y-8">
+      <div className="mx-auto max-w-7xl space-y-16 px-4 py-14 sm:px-6 md:space-y-24 md:py-20 lg:px-8">
+        {/* ====================== Isolation diagram ====================== */}
+        <section className="space-y-8">
           <div className="max-w-3xl space-y-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-mist-gray text-xs font-medium text-ink">
-              <Workflow className="w-3.5 h-3.5 text-dusty-blue" />
-              <span>{isAr ? 'رسم تخطيطي معماري' : 'Architectural Diagram'}</span>
+            <div className="inline-flex items-center gap-2 rounded-full bg-mist-gray/60 px-3 py-1 text-xs font-bold text-ink">
+              <Workflow className="h-3.5 w-3.5 text-dusty-blue" aria-hidden="true" />
+              <span>{isAr ? 'رسم تخطيطي معماري' : 'Architecture diagram'}</span>
             </div>
 
-            <h2 className="text-2xl sm:text-3xl font-semibold text-ink leading-tight">
+            <h2 className="text-balance text-2xl font-extrabold leading-tight text-ink sm:text-3xl">
               {isAr
-                ? 'مخطط الفصل المنطقي بين بيانات المنشآت (Multi-Tenant Logical Isolation)'
-                : 'Logical Tenant Isolation Architecture Diagram'}
+                ? 'مخطط الفصل المنطقي بين بيانات المنشآت (Multi-Tenant Isolation)'
+                : 'Logical tenant isolation diagram'}
             </h2>
 
-            <p className="text-xs sm:text-sm text-ink-muted leading-relaxed font-normal">
+            <p className="text-sm leading-relaxed text-ink-muted">
               {isAr
-                ? 'يوضح هذا المخطط كيف تفصل راش إكس بين المنشآت المختلفة؛ حيث يحصل كل صالون أو سبا على مسار نطاق فرعي مخصص وقناة معالجة معزولة منطقياً تمنع وصول أي منشأة أو موظف خارجي لقاعدة بياناتك وعملائك.'
-                : 'This schematic illustrates how RashX enforces multi-tenant segregation. Each facility is routed through isolated subdomain contexts and strict tenant-locked logic preventing any cross-tenant data leakage.'}
+                ? 'يوضح المخطط كيف تفصل راش إكس بين المنشآت: كل صالون أو سبا يحصل على نطاق فرعي خاص وقناة معالجة معزولة منطقياً، تمنع وصول أي منشأة أو موظف خارجي إلى قاعدة بياناتك وعملائك.'
+                : 'Each facility is routed through its own subdomain and a logically isolated processing context, so no other facility or outside user can reach your database or client records.'}
             </p>
           </div>
 
-          {/* Interactive Responsive SVG / Card Diagram */}
-          <div className="p-6 sm:p-8 rounded-3xl bg-[#FAFBFB] border border-mist-gray space-y-8">
-            {/* Top Tier: External Users & Subdomains */}
+          <div className="space-y-6 rounded-3xl bg-neutral/40 p-5 sm:p-8">
+            {/* Tier 1 */}
             <div className="space-y-3">
-              <div className="text-center text-xs font-bold text-ink-muted uppercase tracking-wider">
-                {isAr ? 'الطبقة 1: بوابات النطاق الفرعي المستقل لكل منشأة' : 'Tier 1: Dedicated Sovereign Subdomains'}
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="p-4 rounded-2xl bg-white border-2 border-dusty-blue/40 shadow-xs space-y-1.5 text-center">
-                  <div className="text-[10px] font-bold text-dusty-blue uppercase font-mono">المنشأة (أ) • صالون نسائي</div>
-                  <div className="text-xs font-semibold text-ink font-mono" dir="ltr">lumiere.rashx.org</div>
-                  <div className="text-[11px] text-ink-muted">4 بوابات خاصة • هوية وشعار مستقل</div>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-white border-2 border-[#10B981]/40 shadow-xs space-y-1.5 text-center">
-                  <div className="text-[10px] font-bold text-[#10B981] uppercase font-mono">المنشأة (ب) • صالون رجالي</div>
-                  <div className="text-xs font-semibold text-ink font-mono" dir="ltr">elite-barber.rashx.org</div>
-                  <div className="text-[11px] text-ink-muted">4 بوابات خاصة • هوية وشعار مستقل</div>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-white border-2 border-[#8B5CF6]/40 shadow-xs space-y-1.5 text-center">
-                  <div className="text-[10px] font-bold text-[#8B5CF6] uppercase font-mono">المنشأة (ج) • مركز وسبا</div>
-                  <div className="text-xs font-semibold text-ink font-mono" dir="ltr">lavender-spa.rashx.org</div>
-                  <div className="text-[11px] text-ink-muted">4 بوابات خاصة • هوية وشعار مستقل</div>
-                </div>
+              <p className="text-center text-xs font-bold text-ink-muted">
+                {isAr ? 'الطبقة 1: نطاق فرعي مستقل لكل منشأة' : 'Tier 1: a dedicated subdomain per facility'}
+              </p>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                {tenants.map((t) => (
+                  <div key={t.url} className="space-y-1.5 rounded-2xl border border-mist-gray bg-white p-4 text-center">
+                    <span className={`inline-block rounded-full px-2.5 py-0.5 text-[11px] font-bold text-ink ${t.tone}`}>
+                      {isAr ? t.tag[0] : t.tag[1]}
+                    </span>
+                    <div className="font-mono text-xs font-bold text-ink" dir="ltr">
+                      {t.url}
+                    </div>
+                    <div className="text-[11px] text-ink-muted">
+                      {isAr ? '4 بوابات خاصة • هوية وشعار مستقل' : '4 private portals • own logo & brand'}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 
-            {/* Middle Tier: RashX Security Gateway & Tenant Context Barrier */}
-            <div className="p-5 rounded-2xl bg-ink text-white space-y-3 text-center relative overflow-hidden">
+            {/* Gateway */}
+            <div className="space-y-2 rounded-2xl bg-ink p-5 text-center text-white">
               <div className="flex items-center justify-center gap-2 text-xs font-bold text-dusty-blue">
-                <ShieldCheck className="w-4 h-4" />
+                <ShieldCheck className="h-4 w-4" aria-hidden="true" />
                 <span>
                   {isAr
-                    ? 'بوابة أمان راش إكس • تشفير TLS 1.3 والتحقق الصارم من سياق المنشأة'
-                    : 'RashX Security Gateway • TLS 1.3 & Strict Tenant Context Validation'}
+                    ? 'بوابة أمان راش إكس • تشفير TLS 1.3 والتحقق من سياق المنشأة'
+                    : 'RashX security gateway • TLS 1.3 & tenant context validation'}
                 </span>
               </div>
-              <p className="text-xs text-mist-gray/80 max-w-xl mx-auto leading-relaxed">
+              <p className="mx-auto max-w-xl text-xs leading-relaxed text-white/75">
                 {isAr
-                  ? 'يقوم جدار الحماية بالتحقق من هوية المنشأة وتوثيق كل طلب برمجياً، مع حظر أي استعلام يحاول طلب بيانات خارج سياق المنشأة المعتمدة.'
-                  : 'Automated perimeter firewalls enforce cryptographic tenant validation, terminating cross-boundary query attempts at the perimeter.'}
+                  ? 'يتحقق النظام من هوية المنشأة مع كل طلب، ويحظر أي استعلام يحاول الوصول إلى بيانات خارج سياق المنشأة المعتمدة.'
+                  : 'Every request is validated against its facility, and any query reaching outside that facility’s context is blocked.'}
               </p>
             </div>
 
-            {/* Bottom Tier: Isolated Logical Tenant Data Partitions */}
+            {/* Tier 2 */}
             <div className="space-y-3">
-              <div className="text-center text-xs font-bold text-ink-muted uppercase tracking-wider">
-                {isAr ? 'الطبقة 2: الفصل المنطقي التام لقواعد البيانات والمستندات' : 'Tier 2: Logical Separation of Database Partitions'}
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {/* Partition A */}
-                <div className="p-4 rounded-2xl bg-white border border-mist-gray space-y-2.5 relative">
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-xs text-ink flex items-center gap-1.5">
-                      <Database className="w-3.5 h-3.5 text-dusty-blue" />
-                      <span>بيانات المنشأة (أ)</span>
-                    </span>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-dusty-blue/20 text-dusty-blue">
-                      معزول منطقياً
-                    </span>
+              <p className="text-center text-xs font-bold text-ink-muted">
+                {isAr ? 'الطبقة 2: فصل منطقي لقواعد البيانات والمستندات' : 'Tier 2: logical separation of database partitions'}
+              </p>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                {tenants.map((t) => (
+                  <div key={t.url} className="space-y-3 rounded-2xl border border-mist-gray bg-white p-4">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="flex items-center gap-1.5 text-xs font-bold text-ink">
+                        <Database className="h-3.5 w-3.5 text-dusty-blue" aria-hidden="true" />
+                        <span>{isAr ? t.tag[0].split(' • ')[0].replace('المنشأة', 'بيانات المنشأة') : t.tag[1].split(' • ')[0] + ' data'}</span>
+                      </span>
+                      <span className={`rounded px-2 py-0.5 text-[10px] font-bold text-ink ${t.tone}`}>
+                        {isAr ? 'معزول منطقياً' : 'Isolated'}
+                      </span>
+                    </div>
+                    <ul className="space-y-1.5">
+                      {t.items.map((item) => (
+                        <li key={item[1]} className="flex items-start gap-2 text-[12px] text-ink-muted">
+                          <Check className="mt-0.5 h-3 w-3 shrink-0 text-ink" strokeWidth={3} aria-hidden="true" />
+                          <span>{isAr ? item[0] : item[1]}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                  <ul className="text-[11px] text-ink-muted space-y-1 list-disc list-inside">
-                    <li>قاعدة عميلات وملاحظات صالون أ</li>
-                    <li>فواتير ZATCA وسجلات الكاشير</li>
-                    <li>عمولات مصففات الشعر ورواتبهن</li>
-                  </ul>
-                  <div className="pt-1 text-[10px] text-[#10B981] font-semibold flex items-center gap-1">
-                    <CheckCircle2 className="w-3 h-3" />
-                    <span>مغلق تماماً عن المنشآت الأخرى</span>
-                  </div>
-                </div>
-
-                {/* Partition B */}
-                <div className="p-4 rounded-2xl bg-white border border-mist-gray space-y-2.5 relative">
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-xs text-ink flex items-center gap-1.5">
-                      <Database className="w-3.5 h-3.5 text-[#10B981]" />
-                      <span>بيانات المنشأة (ب)</span>
-                    </span>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#10B981]/20 text-[#10B981]">
-                      معزول منطقياً
-                    </span>
-                  </div>
-                  <ul className="text-[11px] text-ink-muted space-y-1 list-disc list-inside">
-                    <li>سجلات زبائن الحلاقة والاشتراكات</li>
-                    <li>فواتير ZATCA وسجلات الكاشير</li>
-                    <li>عمولات الحلاقين ومواعيد الكراسي</li>
-                  </ul>
-                  <div className="pt-1 text-[10px] text-[#10B981] font-semibold flex items-center gap-1">
-                    <CheckCircle2 className="w-3 h-3" />
-                    <span>مغلق تماماً عن المنشآت الأخرى</span>
-                  </div>
-                </div>
-
-                {/* Partition C */}
-                <div className="p-4 rounded-2xl bg-white border border-mist-gray space-y-2.5 relative">
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-xs text-ink flex items-center gap-1.5">
-                      <Database className="w-3.5 h-3.5 text-[#8B5CF6]" />
-                      <span>بيانات المنشأة (ج)</span>
-                    </span>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#8B5CF6]/20 text-[#8B5CF6]">
-                      معزول منطقياً
-                    </span>
-                  </div>
-                  <ul className="text-[11px] text-ink-muted space-y-1 list-disc list-inside">
-                    <li>باقات جلسات السبا والتدليك</li>
-                    <li>فواتير ZATCA والمخزون الداخلي</li>
-                    <li>سجلات المعالجين وتقارير الفروع</li>
-                  </ul>
-                  <div className="pt-1 text-[10px] text-[#10B981] font-semibold flex items-center gap-1">
-                    <CheckCircle2 className="w-3 h-3" />
-                    <span>مغلق تماماً عن المنشآت الأخرى</span>
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
 
-            {/* Diagram Takeaway Footer */}
-            <div className="pt-3 border-t border-mist-gray flex flex-wrap items-center justify-between gap-4 text-xs text-ink-muted">
-              <span className="flex items-center gap-1.5 font-semibold text-ink">
-                <CheckCircle2 className="w-4 h-4 text-[#10B981]" />
-                <span>0% تداخل أو تسريب بين بيانات المنشآت المختلفة</span>
-              </span>
-              <span className="text-[11px]">
-                {isAr ? 'عزل معماري على مستوى التطبيق وقواعد البيانات' : 'Application & Database Tenancy Isolation'}
-              </span>
-            </div>
+            <p className="border-t border-mist-gray pt-4 text-center text-xs font-bold text-ink">
+              {isAr
+                ? 'كل منشأة تعمل في سياق بيانات منفصل عن غيرها على مستوى التطبيق وقواعد البيانات'
+                : 'Each facility runs in its own data context, at both application and database level'}
+            </p>
           </div>
-        </div>
+        </section>
 
-        {/* ===================================================================
-           Section 3: The 7 Pillars (الأركان السبعة من وصف الشركة)
-           =================================================================== */}
-        <div className="space-y-8">
-          <div className="text-center max-w-2xl mx-auto space-y-2">
-            <span className="text-xs font-medium text-dusty-blue uppercase tracking-wider">
-              {isAr ? 'منظومة الأمان المتكاملة' : 'Integrated Security Architecture'}
+        {/* =========================== 7 pillars =========================== */}
+        <section className="space-y-8">
+          <div className="mx-auto max-w-2xl space-y-3 text-center">
+            <span className="text-xs font-bold text-ink-muted">
+              {isAr ? 'منظومة الأمان المتكاملة' : 'Integrated security architecture'}
             </span>
-            <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
+            <h2 className="text-balance text-2xl font-extrabold text-ink sm:text-3xl">
               {isAr
                 ? 'الأركان السبعة لحماية صالونك واستمرارية أعمالك'
-                : 'The 7 Security Pillars Safeguarding Your Salon'}
+                : 'The 7 security pillars protecting your salon'}
             </h2>
-            <p className="text-xs sm:text-sm text-ink-muted font-normal">
+            <p className="text-sm text-ink-muted">
               {isAr
-                ? 'إجراءات تقنية وتنظيمية متكاملة تضمن سرية البيانات وسلامة العمليات التشغيلية.'
-                : 'Comprehensive technical and organizational controls guaranteeing data confidentiality and business continuity.'}
+                ? 'إجراءات تقنية وتنظيمية تدعم سرية البيانات وسلامة العمليات التشغيلية.'
+                : 'Technical and organizational controls supporting data confidentiality and business continuity.'}
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
             {securityPillars.map((pillar, idx) => {
-              const IconComponent = pillar.icon;
+              const Icon = pillar.icon;
               return (
-                <div
+                <article
                   key={idx}
-                  className="p-6 sm:p-7 rounded-3xl bg-white border border-mist-gray hover:border-dusty-blue/40 hover:shadow-md transition-all space-y-3"
+                  className="space-y-3 rounded-3xl border border-mist-gray bg-white p-6 sm:p-7"
                 >
-                  <div className="w-10 h-10 rounded-2xl bg-mist-gray/60 flex items-center justify-center text-ink">
-                    <IconComponent className="w-5 h-5 text-dusty-blue" />
-                  </div>
-                  <h3 className="text-base font-semibold text-ink">
+                  <span
+                    className={`flex h-11 w-11 items-center justify-center rounded-2xl text-ink ${PILLAR_TONES[idx % 2]}`}
+                  >
+                    <Icon className="h-5 w-5" aria-hidden="true" />
+                  </span>
+                  <h3 className="text-base font-extrabold text-ink">
                     {isAr ? pillar.titleAr : pillar.titleEn}
                   </h3>
-                  <p className="text-xs sm:text-sm text-ink-muted leading-relaxed font-normal">
+                  <p className="text-sm leading-relaxed text-ink-muted">
                     {isAr ? pillar.descAr : pillar.descEn}
                   </p>
-                </div>
+                </article>
               );
             })}
           </div>
-        </div>
+        </section>
 
-        {/* ===================================================================
-           Section 4: Data Hosting [TODO] & PDPL Regulatory Links
-           =================================================================== */}
-        <div className="rounded-3xl bg-white border-2 border-mist-gray p-8 sm:p-10 shadow-sm space-y-6">
-          <div className="max-w-3xl space-y-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-mist-gray text-xs font-medium text-ink">
-              <FileCheck2 className="w-3.5 h-3.5 text-[#10B981]" />
-              <span>{isAr ? 'موقع الاستضافة والامتثال النظامي' : 'Hosting & Regulatory Framework'}</span>
+        {/* ======================= Hosting & PDPL ======================= */}
+        <section className="space-y-6 rounded-3xl bg-dusty-blue/15 p-6 sm:p-10">
+          <div className="max-w-3xl space-y-4">
+            <div className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs font-bold text-ink">
+              <FileCheck2 className="h-3.5 w-3.5 text-dusty-blue" aria-hidden="true" />
+              <span>{isAr ? 'موقع الاستضافة والإطار النظامي' : 'Hosting & regulatory framework'}</span>
             </div>
 
-            <h2 className="text-2xl sm:text-3xl font-semibold text-ink leading-tight">
+            <h2 className="text-balance text-2xl font-extrabold leading-tight text-ink sm:text-3xl">
               {isAr
-                ? 'استضافة موثوقة والتزام تام بنظام حماية البيانات الشخصية السعودي (PDPL)'
-                : 'Reliable Hosting & Full Saudi PDPL Compliance'}
+                ? 'استضافة موثوقة والتزام بنظام حماية البيانات الشخصية السعودي (PDPL)'
+                : 'Reliable hosting & alignment with the Saudi PDPL'}
             </h2>
 
-            <div className="space-y-3 text-xs sm:text-sm text-ink-muted leading-relaxed">
+            <div className="space-y-3 text-sm leading-relaxed text-ink-muted">
               <p>
-                <strong className="text-ink">{isAr ? 'موقع استضافة البيانات:' : 'Data Hosting Infrastructure:'}</strong>{' '}
-                <span className="font-mono text-dusty-blue font-semibold">
+                <strong className="text-ink">{isAr ? 'موقع استضافة البيانات:' : 'Data hosting location:'}</strong>{' '}
+                <span className="rounded bg-warm-peach/50 px-1.5 py-0.5 font-mono text-xs font-bold text-ink">
                   {isAr
                     ? '[TODO: مكان استضافة البيانات - يُحدد وفق مزود الاستضافة السحابي المعتمد وبيئة التشغيل المخصصة للمنصة]'
                     : '[TODO: Data hosting infrastructure location is determined based on the authorized cloud hosting partner and certified deployment environment]'}
@@ -514,118 +494,116 @@ export default async function SecurityPage({ params }: SecurityPageProps) {
               </p>
               <p>
                 {isAr
-                  ? 'تلتزم منصة راش إكس بمتطلبات نظام حماية البيانات الشخصية الصادر في المملكة العربية السعودية بالمرسوم الملكي رقم (م/19)، وتطبق كافة المعايير اللازمة لضمان شفافية المعالجة، سرية سجلات المراجعين، وحجب أرقام الهواتف التلقائي لحماية المنشآت من تسريب العملاء.'
-                  : 'RashX adheres to all mandates of the Saudi Personal Data Protection Law (PDPL, Royal Decree M/19), incorporating transparent consent controls, patient and client record confidentiality, and automated phone masking protecting businesses from data exfiltration.'}
+                  ? 'تلتزم منصة راش إكس بمتطلبات نظام حماية البيانات الشخصية الصادر في المملكة العربية السعودية بالمرسوم الملكي رقم (م/19)، وتطبق المعايير اللازمة لشفافية المعالجة وسرية سجلات المراجعين وحجب أرقام الهواتف التلقائي لحماية المنشآت من تسريب بيانات العملاء.'
+                  : 'RashX follows the requirements of the Saudi Personal Data Protection Law (PDPL, Royal Decree M/19), with transparent consent controls, confidential client records and automated phone masking that protects businesses from client data leakage.'}
               </p>
             </div>
           </div>
 
-          {/* Quick Legal & Regulatory Links */}
-          <div className="pt-2 flex flex-wrap items-center gap-4">
+          <div className="flex flex-wrap items-center gap-3">
             <Link
               href={`/${locale}/privacy`}
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-ink text-white hover:bg-ink/90 text-xs font-semibold transition-all"
+              className="inline-flex items-center gap-2 rounded-2xl bg-warm-peach px-5 py-3 text-xs font-bold text-ink transition-colors hover:bg-warm-peach/80 sm:text-sm"
             >
-              <FileText className="w-4 h-4 text-dusty-blue" />
-              <span>{isAr ? 'اطلع على سياسة الخصوصية وحماية البيانات' : 'Read Full Privacy Policy'}</span>
-              <ArrowRight className="w-4 h-4 rtl:rotate-180 text-dusty-blue" />
+              <FileText className="h-4 w-4" aria-hidden="true" />
+              <span>{isAr ? 'سياسة الخصوصية وحماية البيانات' : 'Read the privacy policy'}</span>
+              <ArrowRight className="h-4 w-4 rtl:rotate-180" aria-hidden="true" />
             </Link>
 
             <Link
               href={`/${locale}/blog/saudi-pdpl-compliance-for-salons`}
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-white border border-mist-gray hover:bg-mist-gray/40 text-xs font-semibold text-ink transition-colors"
+              className="inline-flex items-center rounded-2xl bg-white px-5 py-3 text-xs font-bold text-ink transition-colors hover:bg-mist-gray sm:text-sm"
             >
-              <span>{isAr ? 'دليل نظام PDPL للصالونات' : 'Salon PDPL Compliance Guide'}</span>
+              {isAr ? 'دليل نظام PDPL للصالونات' : 'Salon PDPL compliance guide'}
             </Link>
 
             <Link
               href={`/${locale}/terms`}
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-white border border-mist-gray hover:bg-mist-gray/40 text-xs font-semibold text-ink transition-colors"
+              className="inline-flex items-center rounded-2xl bg-white px-5 py-3 text-xs font-bold text-ink transition-colors hover:bg-mist-gray sm:text-sm"
             >
-              <span>{isAr ? 'شروط وأحكام الخدمة' : 'Terms of Service'}</span>
+              {isAr ? 'شروط وأحكام الخدمة' : 'Terms of service'}
             </Link>
           </div>
-        </div>
+        </section>
 
-        {/* ===================================================================
-           Section 5: FAQ Accordion
-           =================================================================== */}
-        <div className="max-w-3xl mx-auto space-y-6">
-          <div className="text-center space-y-2">
-            <span className="text-xs font-medium text-dusty-blue uppercase tracking-wider">
+        {/* ============================== FAQ ============================== */}
+        <section className="mx-auto max-w-3xl space-y-6">
+          <div className="space-y-3 text-center">
+            <span className="text-xs font-bold text-ink-muted">
               {isAr ? 'الأسئلة الشائعة حول الأمان' : 'Security FAQ'}
             </span>
-            <h2 className="text-2xl sm:text-3xl font-semibold text-ink">
+            <h2 className="text-balance text-2xl font-extrabold text-ink sm:text-3xl">
               {isAr
                 ? 'أسئلة شائعة حول أمان وسرية بيانات الصالونات'
-                : 'Frequently Asked Questions about Salon Security & Isolation'}
+                : 'Frequently asked questions about salon data security'}
             </h2>
           </div>
 
           <div className="space-y-3">
             {securityFaqs.map((faq, idx) => (
-              <div
+              <details
                 key={idx}
-                className="p-5 rounded-2xl bg-white border border-mist-gray hover:border-dusty-blue/30 transition-colors space-y-2"
+                open={idx === 0}
+                className="group rounded-2xl border border-mist-gray bg-white transition-colors open:border-ink hover:border-ink/40"
               >
-                <h3 className="text-sm font-semibold text-ink flex items-start gap-2">
-                  <HelpCircle className="w-4 h-4 text-dusty-blue shrink-0 mt-0.5" />
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 text-sm font-bold text-ink marker:hidden [&::-webkit-details-marker]:hidden sm:px-6">
                   <span>{faq.question}</span>
-                </h3>
-                <p className="text-xs sm:text-sm text-ink-muted leading-relaxed pe-4 ps-6 font-normal">
-                  {faq.answer}
-                </p>
-              </div>
+                  <span
+                    aria-hidden="true"
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-dusty-blue/30 text-ink transition-colors group-open:bg-warm-peach"
+                  >
+                    <Plus className="h-4 w-4 transition-transform duration-200 group-open:rotate-45" strokeWidth={2.5} />
+                  </span>
+                </summary>
+                <p className="px-5 pb-5 text-sm leading-relaxed text-ink-muted sm:px-6">{faq.answer}</p>
+              </details>
             ))}
           </div>
-        </div>
+        </section>
 
-        {/* ===================================================================
-           Section 6: Closing CTA
-           =================================================================== */}
-        <div className="rounded-3xl bg-ink text-white p-8 sm:p-12 text-center space-y-6 relative overflow-hidden shadow-xl">
-          <div className="max-w-2xl mx-auto space-y-3 relative z-10">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-white text-xs font-medium backdrop-blur-xs">
-              <ShieldCheck className="w-3.5 h-3.5 text-dusty-blue" />
-              <span>{isAr ? 'أمان بنكي وخصوصية تامة' : 'Bank-Grade Security & Privacy'}</span>
+        {/* ========================== Closing CTA ========================== */}
+        <section className="space-y-6 rounded-3xl bg-dusty-blue/20 p-8 text-center sm:p-12">
+          <div className="mx-auto max-w-2xl space-y-4">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-bold text-ink">
+              <Lock className="h-3.5 w-3.5 text-dusty-blue" aria-hidden="true" />
+              <span>{isAr ? 'أمان وخصوصية لبيانات صالونك' : 'Security & privacy for your salon data'}</span>
             </div>
 
-            <h2 className="text-2xl sm:text-4xl font-semibold tracking-tight leading-tight">
+            <h2 className="text-balance text-2xl font-extrabold leading-tight text-ink sm:text-4xl">
               {isAr
                 ? 'حافظ على سرية عميلاتك وأمان صالونك مع راش إكس'
-                : 'Protect Your Clients & Secure Your Salon with RashX'}
+                : 'Protect your clients & secure your salon with RashX'}
             </h2>
 
-            <p className="text-xs sm:text-sm text-mist-gray/80 leading-relaxed max-w-xl mx-auto font-normal">
+            <p className="mx-auto max-w-xl text-sm leading-relaxed text-ink-muted">
               {isAr
-                ? 'اكتشف كيف تحمي بنيتنا السحابية منشأتك من تسريب البيانات وتضمن امتثالك الكامل للأنظمة السعودية في عرض حي مدته 20 دقيقة، مع تجربة مجانية لمدة 14 يومًا.'
-                : 'See how our private cloud architecture safeguards your salon from data leaks and delivers full Saudi regulatory compliance in a 20-minute tailored walkthrough. Includes a 14-day free trial.'}
+                ? 'اكتشف كيف تحمي بنيتنا السحابية بيانات منشأتك وتدعم امتثالك للأنظمة السعودية في عرض حي مدته 20 دقيقة، مع تجربة مجانية لمدة 14 يومًا.'
+                : 'See how our cloud architecture protects your facility’s data and supports your Saudi regulatory compliance in a 20-minute tailored walkthrough, with a 14-day free trial.'}
             </p>
           </div>
 
-          <div className="pt-2 flex flex-wrap items-center justify-center gap-4 relative z-10">
+          <div className="flex flex-wrap items-center justify-center gap-3">
             <Link
               href={`/${locale}/demo`}
-              className="px-6 py-3.5 text-sm font-bold text-black bg-dusty-blue hover:bg-dusty-blue/90 rounded-xl shadow-md transition-all active:scale-[0.98]"
+              className="rounded-2xl bg-warm-peach px-6 py-3.5 text-sm font-bold text-ink transition-colors hover:bg-warm-peach/80"
             >
-              {isAr ? 'احجز عرضًا تجريبيًا مجانيًا (20 دقيقة)' : 'Book Free 20-Min Demo'}
+              {isAr ? 'احجز عرضًا تجريبيًا مجانيًا (20 دقيقة)' : 'Book a free 20-min demo'}
             </Link>
 
             <a
-              href={`${SITE_CONFIG.whatsappUrl}?text=${encodeURIComponent(
-                isAr
-                  ? 'مرحبًا راش إكس، أود الاستفسار عن معايير الأمان وحماية البيانات في المنصة.'
-                  : 'Hello RashX, I would like to inquire about security and privacy standards.'
-              )}`}
+              href={waText(
+                'مرحبًا راش إكس، أود الاستفسار عن معايير الأمان وحماية البيانات في المنصة.',
+                'Hello RashX, I would like to inquire about security and privacy standards.'
+              )}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-5 py-3.5 text-sm font-bold text-white bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl transition-colors"
+              className="inline-flex items-center gap-2 rounded-2xl bg-white px-5 py-3.5 text-sm font-bold text-ink transition-colors hover:bg-mist-gray"
             >
-              <PhoneCall className="w-4 h-4 text-[#25D366]" />
-              <span>{isAr ? 'تواصل معنا عبر واتساب' : 'WhatsApp Consultation'}</span>
+              <PhoneCall className="h-4 w-4" aria-hidden="true" />
+              <span>{isAr ? 'تواصل معنا عبر واتساب' : 'WhatsApp consultation'}</span>
             </a>
           </div>
-        </div>
+        </section>
       </div>
     </div>
   );

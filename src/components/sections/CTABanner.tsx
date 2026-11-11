@@ -7,7 +7,7 @@ import {
   ArrowUpRight,
   PhoneCall,
   Sparkles,
-  CheckCircle2,
+  Check,
   Globe,
   ShieldCheck,
   Smartphone,
@@ -16,9 +16,11 @@ import {
 import { SITE_CONFIG } from '@/config/site';
 import { Locale, DEFAULT_LOCALE } from '@/i18n/config';
 
-/* =========================================================================
-   TYPES & INTERFACES
-   ========================================================================= */
+/**
+ * RASHX closing CTA — simplified.
+ * Brand colors only: dusty-blue, warm-peach, mist-gray, ink, ink-muted.
+ * Font weights follow the brand font (400 / 500 / 700 / 800): no 600.
+ */
 
 export type CTABannerVariant = 'default' | 'minimal' | 'action-split';
 
@@ -26,13 +28,6 @@ export interface CTABannerProps {
   locale?: Locale;
   variant?: CTABannerVariant;
 }
-
-/* =========================================================================
-   FONT WEIGHT SCALE (موحّد في كل المنظومة)
-   - font-normal   (400): الوصف والنصوص الفرعية
-   - font-medium   (500): الشارات، المزايا، الكبسولات
-   - font-semibold (600): العناوين الرئيسية وأزرار الـ CTA
-   ========================================================================= */
 
 export const CTABanner: React.FC<CTABannerProps> = ({
   locale = DEFAULT_LOCALE,
@@ -46,159 +41,139 @@ export const CTABanner: React.FC<CTABannerProps> = ({
     SITE_CONFIG.whatsappDefaultMessage
   )}`;
 
+  const trust = [
+    isAr ? 'بدون بطاقة ائتمان' : 'No credit card',
+    isAr ? 'تفعيل فوري خلال دقائق' : 'Instant activation',
+    isAr ? 'دعم فني بالسعودية' : 'KSA support',
+  ];
+
   return (
-    <section dir={dir} className="w-full bg-white py-10 text-black sm:py-14 lg:py-20">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Main Flat Horizontal Split Card */}
-        <div className="rounded-3xl bg-[#F5F7F7] p-6 sm:p-10 lg:p-12">
-          <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-12 lg:gap-12">
-            
-            {/* =============================================================
-                1. LEFT/START SIDE: ACTION CONTENT (7 Cols on Desktop)
-               ============================================================= */}
-            <div className="space-y-5 text-start lg:col-span-7 lg:space-y-6">
-              {/* Top Pill Badge */}
-              <div className="inline-flex items-center gap-2 rounded-xl bg-white px-3.5 py-2 text-xs font-medium text-black">
-                <span className="flex h-5 w-5 items-center justify-center rounded-md bg-[#91B8C0] text-black">
-                  <Sparkles className="h-3 w-3" />
-                </span>
-                <span>
-                  {isAr ? 'ابدأ رحلة التحول الرقمي لمنشأتك' : 'Elevate Your Salon Today'}
-                </span>
-              </div>
-
-              {/* Direct H2 Heading */}
-              <h2 className="text-2xl font-semibold leading-[1.3] tracking-tight text-black sm:text-3xl lg:text-4xl">
-                {isAr ? (
-                  <>
-                    جاهز لتطوير صالونك بنطاق فرعي خاص{' '}
-                    <span className="inline-block rounded-xl bg-white px-3 py-0.5 text-black">
-                      و10 أنظمة ذكية متكاملة؟
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    Ready to Transform Your Salon with a{' '}
-                    <span className="inline-block rounded-xl bg-white px-3 py-0.5 text-black">
-                      Dedicated Subdomain & 10 Systems?
-                    </span>
-                  </>
-                )}
-              </h2>
-
-              {/* Short Value Proposition */}
-              <p className="max-w-xl text-xs font-normal leading-relaxed text-[#5E6665] sm:text-sm lg:text-[15px]">
-                {isAr
-                  ? 'انضم إلى مئات مراكز التجميل والسبا في المملكة التي تستخدم منظومة RASHX لإدارة المواعيد، الكاشير، العمولات، وربط ZATCA المرحلة الثانية.'
-                  : 'Join hundreds of beauty salons and spas in KSA using RASHX for appointments, POS, commissions, and ZATCA Phase 2 compliance.'}
-              </p>
-
-              {/* Dual Action CTAs */}
-              <div className="flex flex-col items-stretch justify-start gap-3 pt-1 sm:flex-row sm:items-center">
-                <Link
-                  href={`/${locale}/demo`}
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#91B8C0] px-6 py-3.5 text-xs font-semibold text-black transition-colors hover:bg-[#91B8C0]/80 sm:text-sm"
-                >
-                  <span>{isAr ? 'احجز عرضاً تجريبياً' : 'Book a Free Demo'}</span>
-                  <ArrowIcon className="h-4 w-4 text-black" />
-                </Link>
-
-                <a
-                  href={whatsappHref}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-6 py-3.5 text-xs font-semibold text-black transition-colors hover:bg-[#E5E9E8] sm:text-sm"
-                >
-                  <PhoneCall className="h-4 w-4 text-black" />
-                  <span>{isAr ? 'استشر فريقنا عبر واتساب' : 'Chat via WhatsApp'}</span>
-                </a>
-              </div>
-
-              {/* Trust Checkmarks */}
-              <div className="flex flex-wrap items-center gap-3 pt-1 text-xs font-medium text-[#5E6665]">
-                <div className="inline-flex items-center gap-1.5">
-                  <CheckCircle2 className="h-4 w-4 text-black" />
-                  <span>{isAr ? 'بدون بطاقة ائتمان' : 'No Credit Card'}</span>
-                </div>
-                <span>•</span>
-                <div className="inline-flex items-center gap-1.5">
-                  <CheckCircle2 className="h-4 w-4 text-black" />
-                  <span>{isAr ? 'تفعيل فوري خلال دقائق' : 'Instant Activation'}</span>
-                </div>
-                <span>•</span>
-                <div className="inline-flex items-center gap-1.5">
-                  <CheckCircle2 className="h-4 w-4 text-black" />
-                  <span>{isAr ? 'دعم فني بالسعودية' : 'KSA Support'}</span>
-                </div>
-              </div>
+    <section dir={dir} data-variant={variant} className="w-full py-4 text-ink sm:py-6">
+      <div className="rounded-3xl bg-dusty-blue/20 p-6 sm:p-10 lg:p-12">
+        <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-12 lg:gap-12">
+          {/* Content */}
+          <div className="space-y-5 text-start lg:col-span-7 lg:space-y-6">
+            <div className="inline-flex items-center gap-2 rounded-xl bg-white px-3.5 py-2 text-xs font-bold text-ink">
+              <span className="flex h-5 w-5 items-center justify-center rounded-md bg-dusty-blue">
+                <Sparkles className="h-3 w-3" aria-hidden="true" />
+              </span>
+              <span>{isAr ? 'ابدأ رحلة التحول الرقمي لمنشأتك' : 'Elevate your salon today'}</span>
             </div>
 
-            {/* =============================================================
-                2. RIGHT/END SIDE: INTERACTIVE SUBDOMAIN PREVIEW CARD (5 Cols)
-               ============================================================= */}
-            <div className="lg:col-span-5">
-              <div className="rounded-3xl bg-white p-6 sm:p-7 text-start">
-                {/* Header inside card */}
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-black">
-                    {isAr ? 'معاينة النطاق الفرعي' : 'Subdomain Preview'}
+            <h2 className="text-balance text-2xl font-extrabold leading-[1.35] text-ink sm:text-3xl lg:text-4xl">
+              {isAr ? (
+                <>
+                  جاهز لتطوير صالونك بنطاق فرعي خاص{' '}
+                  <span className="box-decoration-clone rounded-xl bg-white px-3 py-0.5">
+                    و10 أنظمة ذكية متكاملة؟
                   </span>
-                  <span className="rounded-lg bg-[#EFF5F7] px-2.5 py-1 text-[11px] font-medium text-black">
-                    {isAr ? 'جاهز للعمل' : 'Ready'}
+                </>
+              ) : (
+                <>
+                  Ready to transform your salon with a{' '}
+                  <span className="box-decoration-clone rounded-xl bg-white px-3 py-0.5">
+                    dedicated subdomain & 10 systems?
                   </span>
-                </div>
+                </>
+              )}
+            </h2>
 
-                {/* Simulated Address Bar */}
-                <div
-                  dir="ltr"
-                  className="mt-4 flex items-center justify-between rounded-2xl bg-[#F5F7F7] px-4 py-3 font-mono text-xs text-black"
-                >
-                  <div className="flex items-center gap-2">
-                    <Globe className="h-4 w-4 text-[#91B8C0]" />
-                    <span className="font-semibold text-black">your-salon-name</span>
-                    <span className="text-[#5E6665]">.rashx.org</span>
-                  </div>
-                  <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                </div>
+            <p className="max-w-xl text-sm leading-relaxed text-ink-muted lg:text-[15px]">
+              {isAr
+                ? 'منظومة RASHX تجمع إدارة المواعيد والكاشير والعمولات ودعم ZATCA المرحلة الثانية في مكان واحد، لتدير صالونك بهدوء.'
+                : 'RASHX brings appointments, POS, commissions and ZATCA Phase 2 support together in one place, so you can run your salon with less stress.'}
+            </p>
 
-                {/* 2 Quick System Features Inside Card */}
-                <div className="mt-4 grid grid-cols-2 gap-3">
-                  <div className="rounded-2xl bg-[#EFF5F7] p-3.5 text-start">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[11px] font-medium text-[#5E6665]">
-                        {isAr ? 'تطبيق العملاء' : 'Client App'}
-                      </span>
-                      <Smartphone className="h-3.5 w-3.5 text-black" />
-                    </div>
-                    <div className="mt-1 text-xs font-semibold text-black">
-                      {isAr ? 'حجز ذاتي مخصص' : 'Custom PWA'}
-                    </div>
-                  </div>
+            <div className="flex flex-col items-stretch gap-3 pt-1 sm:flex-row sm:items-center">
+              <Link
+                href={`/${locale}/demo`}
+                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-warm-peach px-6 py-3.5 text-sm font-bold text-ink transition-colors hover:bg-warm-peach/80"
+              >
+                <span>{isAr ? 'احجز عرضاً تجريبياً' : 'Book a Free Demo'}</span>
+                <ArrowIcon className="h-4 w-4" />
+              </Link>
 
-                  <div className="rounded-2xl bg-[#FDF6F2] p-3.5 text-start">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[11px] font-medium text-[#5E6665]">
-                        {isAr ? 'الفوترة' : 'Invoicing'}
-                      </span>
-                      <ShieldCheck className="h-3.5 w-3.5 text-black" />
-                    </div>
-                    <div className="mt-1 text-xs font-semibold text-black">
-                      {isAr ? 'ZATCA المرحلة 2' : 'ZATCA Phase 2'}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Bottom mini status bar */}
-                <div className="mt-4 flex items-center justify-between rounded-2xl bg-[#F5F7F7] px-4 py-3 text-xs">
-                  <div className="flex items-center gap-2 font-medium text-black">
-                    <CalendarCheck className="h-4 w-4 text-black" />
-                    <span>{isAr ? 'نظام المواعيد متصل' : 'Appointments Synced'}</span>
-                  </div>
-                  <span className="font-mono font-semibold text-black">10/10</span>
-                </div>
-              </div>
+              <a
+                href={whatsappHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-6 py-3.5 text-sm font-bold text-ink transition-colors hover:bg-mist-gray"
+              >
+                <PhoneCall className="h-4 w-4" />
+                <span>{isAr ? 'استشر فريقنا عبر واتساب' : 'Chat via WhatsApp'}</span>
+              </a>
             </div>
 
+            <ul className="flex flex-wrap items-center gap-x-5 gap-y-2 pt-1 text-xs font-medium text-ink-muted">
+              {trust.map((item) => (
+                <li key={item} className="inline-flex items-center gap-1.5">
+                  <Check className="h-4 w-4 text-ink" strokeWidth={2.5} aria-hidden="true" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Subdomain preview */}
+          <div className="lg:col-span-5">
+            <div className="rounded-3xl bg-white p-6 text-start sm:p-7">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-ink">
+                  {isAr ? 'معاينة النطاق الفرعي' : 'Subdomain preview'}
+                </span>
+                <span className="rounded-lg bg-dusty-blue/30 px-2.5 py-1 text-[11px] font-bold text-ink">
+                  {isAr ? 'جاهز للعمل' : 'Ready'}
+                </span>
+              </div>
+
+              <div
+                dir="ltr"
+                className="mt-4 flex items-center justify-between rounded-2xl bg-neutral/40 px-4 py-3 font-mono text-xs text-ink"
+              >
+                <div className="flex min-w-0 items-center gap-2">
+                  <Globe className="h-4 w-4 shrink-0 text-ink" aria-hidden="true" />
+                  <span className="truncate">
+                    <span className="font-bold">your-salon-name</span>
+                    <span className="text-ink-muted">.rashx.org</span>
+                  </span>
+                </div>
+                <span className="h-2 w-2 shrink-0 rounded-full bg-dusty-blue" />
+              </div>
+
+              <div className="mt-4 grid grid-cols-2 gap-3">
+                <div className="rounded-2xl bg-dusty-blue/20 p-3.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-medium text-ink-muted">
+                      {isAr ? 'تطبيق العملاء' : 'Client app'}
+                    </span>
+                    <Smartphone className="h-3.5 w-3.5 text-ink" aria-hidden="true" />
+                  </div>
+                  <div className="mt-1 text-xs font-bold text-ink">
+                    {isAr ? 'حجز ذاتي مخصص' : 'Custom PWA'}
+                  </div>
+                </div>
+
+                <div className="rounded-2xl bg-warm-peach/30 p-3.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-medium text-ink-muted">
+                      {isAr ? 'الفوترة' : 'Invoicing'}
+                    </span>
+                    <ShieldCheck className="h-3.5 w-3.5 text-ink" aria-hidden="true" />
+                  </div>
+                  <div className="mt-1 text-xs font-bold text-ink">
+                    {isAr ? 'ZATCA المرحلة 2' : 'ZATCA Phase 2'}
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-4 flex items-center justify-between rounded-2xl bg-neutral/40 px-4 py-3 text-xs">
+                <div className="flex items-center gap-2 font-medium text-ink">
+                  <CalendarCheck className="h-4 w-4" aria-hidden="true" />
+                  <span>{isAr ? 'نظام المواعيد متصل' : 'Appointments synced'}</span>
+                </div>
+                <span className="font-mono font-bold text-ink">10/10</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>

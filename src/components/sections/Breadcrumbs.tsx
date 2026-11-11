@@ -40,26 +40,27 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
       <JsonLd data={getBreadcrumbSchema(schemaItems)} id="breadcrumb-schema" />
 
       <nav
-        aria-label="Breadcrumb"
-        className="py-3 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-xs text-ink-muted"
+        aria-label={isAr ? 'مسار التنقل' : 'Breadcrumb'}
+        dir={isAr ? 'rtl' : 'ltr'}
+        className="mx-auto max-w-7xl px-4 py-3 text-xs text-ink-muted sm:px-6 lg:px-8"
       >
-        <ol className="flex items-center gap-1.5 flex-wrap">
+        <ol className="flex flex-wrap items-center gap-1.5">
           {fullList.map((crumb, idx) => {
             const isLast = idx === fullList.length - 1;
 
             return (
               <li key={crumb.href} className="flex items-center gap-1.5">
-                {idx > 0 && <Separator className="w-3.5 h-3.5 text-mist-gray shrink-0" />}
+                {idx > 0 && <Separator className="h-3.5 w-3.5 shrink-0 text-ink-muted/50" aria-hidden="true" />}
                 {isLast ? (
-                  <span className="font-semibold text-ink" aria-current="page">
+                  <span className="font-bold text-ink" aria-current="page">
                     {crumb.label}
                   </span>
                 ) : (
                   <Link
                     href={crumb.href}
-                    className="hover:text-dusty-blue transition-colors flex items-center gap-1"
+                    className="flex items-center gap-1 font-medium transition-colors hover:text-ink"
                   >
-                    {idx === 0 && <Home className="w-3 h-3 text-ink-muted shrink-0" />}
+                    {idx === 0 && <Home className="h-3 w-3 shrink-0" aria-hidden="true" />}
                     <span>{crumb.label}</span>
                   </Link>
                 )}
@@ -73,4 +74,3 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
 };
 
 export default Breadcrumbs;
-

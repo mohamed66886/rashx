@@ -163,13 +163,13 @@ export const Header: React.FC<HeaderProps> = ({
     return (
       <header
         dir={dir}
-        className={`fixed inset-x-0 top-0 z-50 w-full transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+        className={`fixed inset-x-0 top-0 z-50 w-full pointer-events-none transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
           isVisible ? 'translate-y-0' : '-translate-y-full'
         }`}
       >
         <div className="mx-auto max-w-7xl px-3 pt-3 sm:px-6 lg:px-8">
           <div
-            className={`flex items-center justify-between rounded-2xl px-4 py-3 backdrop-blur-md sm:px-6 ${capsuleSurfaceClass}`}
+            className={`pointer-events-auto flex items-center justify-between rounded-2xl px-4 py-3 backdrop-blur-md sm:px-6 ${capsuleSurfaceClass}`}
           >
             <div className="flex items-center gap-3">
               <Link href={`/${locale}`} className="shrink-0" aria-label={SITE_CONFIG.name}>
@@ -229,14 +229,14 @@ export const Header: React.FC<HeaderProps> = ({
     <>
       <header
         dir={dir}
-        className={`fixed inset-x-0 top-0 z-50 w-full transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+        className={`fixed inset-x-0 top-0 z-50 w-full pointer-events-none transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
           isVisible ? 'translate-y-0' : '-translate-y-full'
         }`}
       >
         {/* ============ A. SMART TOP BAR (Collapses smoothly when scrolling) ============ */}
         {showTopBar && (
           <div
-            className={`overflow-hidden bg-[#000000] text-white transition-all duration-300 ease-out ${
+            className={`pointer-events-auto overflow-hidden bg-[#000000] text-white transition-all duration-300 ease-out ${
               isAtTop ? 'max-h-12 opacity-100' : 'max-h-0 opacity-0'
             }`}
           >
@@ -304,7 +304,7 @@ export const Header: React.FC<HeaderProps> = ({
         >
           <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
             <div
-              className={`flex items-center justify-between rounded-2xl px-3.5 py-2.5 backdrop-blur-md transition-colors sm:px-5 sm:py-3 ${mainSurfaceClass}`}
+              className={`pointer-events-auto flex items-center justify-between rounded-2xl px-3.5 py-2.5 backdrop-blur-md transition-colors sm:px-5 sm:py-3 ${mainSurfaceClass}`}
             >
               {/* 1. Brand Logo + Badge */}
               <div className="flex items-center gap-3">
@@ -573,9 +573,6 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
       </header>
-
-      {/* Spacer to prevent content jump under fixed header */}
-      <div className={showTopBar ? 'h-24 sm:h-28' : 'h-16 sm:h-20'} aria-hidden="true" />
 
       {/* ============ C. MOBILE & TABLET FULL-SCREEN BENTO DRAWER ============ */}
       {mobileMenuOpen && (

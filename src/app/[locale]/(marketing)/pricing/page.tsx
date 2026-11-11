@@ -63,7 +63,7 @@ export default async function PricingPage({ params }: PageProps) {
       />
 
       {/* Visual Breadcrumbs */}
-      <div className="bg-[#FAFBFB] border-b border-mist-gray">
+      <div className="bg-[#FAFBFB] border-b border-mist-gray pt-24 sm:pt-28">
         <Breadcrumbs locale={locale} items={breadcrumbsList} />
       </div>
 

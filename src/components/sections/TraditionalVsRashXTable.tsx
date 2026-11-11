@@ -1,12 +1,20 @@
 'use client';
 
 import React from 'react';
-import { Check, X, Sparkles, FileSpreadsheet, Smartphone, ShieldCheck } from 'lucide-react';
+import { Check, X, Sparkles } from 'lucide-react';
 import { Locale, DEFAULT_LOCALE } from '@/i18n/config';
+
+/**
+ * Traditional vs RashX — simplified.
+ * Brand colors only. Desktop: 3-column table. Mobile: each row becomes a
+ * small card (no sideways scrolling).
+ */
 
 interface TraditionalVsRashXTableProps {
   locale?: Locale;
 }
+
+const GRID = 'md:grid-cols-[1fr_1.5fr_1.5fr]';
 
 export const TraditionalVsRashXTable: React.FC<TraditionalVsRashXTableProps> = ({
   locale = DEFAULT_LOCALE,
@@ -80,73 +88,88 @@ export const TraditionalVsRashXTable: React.FC<TraditionalVsRashXTableProps> = (
     },
   ];
 
+  const traditionalLabel = isAr ? 'الطريقة التقليدية (ورق / إكسل / شات)' : 'Traditional (paper / Excel / chat)';
+  const rashxLabel = isAr ? 'منظومة راش إكس' : 'RashX Platform';
+
   return (
-    <section className="py-16 md:py-24 bg-white border-t border-mist-gray" id="comparison">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section
+      dir={isAr ? 'rtl' : 'ltr'}
+      id="comparison"
+      className="border-t border-mist-gray bg-white py-16 md:py-24"
+    >
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="text-center max-w-3xl mx-auto space-y-4 mb-14">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-mist-gray text-ink text-xs font-medium">
-            <Sparkles className="w-3.5 h-3.5 text-dusty-blue" />
-            <span>{isAr ? 'مقارنة الفوارق التشغيلية' : 'Operational Comparison'}</span>
+        <div className="mx-auto mb-12 max-w-3xl space-y-4 text-center md:mb-14">
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-mist-gray/60 px-3 py-1 text-xs font-bold text-ink">
+            <Sparkles className="h-3.5 w-3.5 text-dusty-blue" aria-hidden="true" />
+            <span>{isAr ? 'مقارنة الفوارق التشغيلية' : 'Operational comparison'}</span>
           </div>
 
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-ink tracking-tight leading-tight">
+          <h2 className="text-balance text-2xl font-extrabold leading-tight text-ink sm:text-3xl md:text-4xl">
             {isAr
               ? 'الإدارة بالطريقة التقليدية (ورق / إكسل / واتساب) مقابل راش إكس'
-              : 'Traditional Salon Management (Paper / Excel / WhatsApp) vs. RashX'}
+              : 'Traditional salon management (paper / Excel / WhatsApp) vs. RashX'}
           </h2>
 
-          <p className="text-xs sm:text-sm font-normal text-ink-muted leading-relaxed">
+          <p className="text-sm leading-relaxed text-ink-muted sm:text-base">
             {isAr
-              ? 'اكتشف الفرق الجوهري بين إهدار الساعات في الأعمال اليدوية المعرضة للخطأ، وبين إدارة منشأتك بمنظومة رقمية ذكية ومؤتمتة بالكامل.'
-              : 'Discover the profound shift from manual error-prone tasks to a synchronized, automated digital ecosystem.'}
+              ? 'الفرق بين إهدار الساعات في أعمال يدوية معرضة للخطأ، وبين إدارة منشأتك بمنظومة رقمية مؤتمتة.'
+              : 'The difference between hours lost on error-prone manual work and running your facility on one automated digital system.'}
           </p>
         </div>
 
-        {/* Comparison Table */}
-        <div className="overflow-x-auto rounded-3xl border border-mist-gray shadow-md bg-white">
-          <table className="w-full text-start text-xs sm:text-sm">
-            <thead>
-              <tr className="border-b border-mist-gray">
-                <th className="py-5 px-6 text-start font-semibold text-ink w-1/4 bg-mist-gray/30">
-                  {isAr ? 'مجال العمليات' : 'Operational Area'}
-                </th>
-                <th className="py-5 px-6 text-start font-semibold text-rose-700 w-[37.5%] bg-rose-50/50 border-e border-mist-gray/70">
-                  <div className="flex items-center gap-2">
-                    <X className="w-4 h-4 text-rose-600" />
-                    <span>{isAr ? 'الطريقة التقليدية (ورق / إكسل / شات)' : 'Traditional Methods (Paper / Excel)'}</span>
-                  </div>
-                </th>
-                <th className="py-5 px-6 text-start font-semibold text-black w-[37.5%] bg-dusty-blue/20">
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-dusty-blue" />
-                    <span>{isAr ? 'منظومة راش إكس (RashX)' : 'RashX Platform'}</span>
-                  </div>
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-mist-gray/60">
-              {rows.map((row, idx) => (
-                <tr key={idx} className="hover:bg-mist-gray/15 transition-colors">
-                  <td className="py-4 px-6 text-ink font-bold bg-mist-gray/10">
-                    {isAr ? row.criterionAr : row.criterionEn}
-                  </td>
-                  <td className="py-4 px-6 text-ink-muted leading-relaxed bg-rose-50/20 border-e border-mist-gray/60">
-                    <div className="flex items-start gap-2">
-                      <X className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
-                      <span>{isAr ? row.traditionalAr : row.traditionalEn}</span>
-                    </div>
-                  </td>
-                  <td className="py-4 px-6 text-ink font-medium leading-relaxed bg-dusty-blue/10">
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5 font-bold" />
-                      <span>{isAr ? row.rashxAr : row.rashxEn}</span>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        {/* Comparison */}
+        <div role="table" className="overflow-hidden rounded-3xl border border-mist-gray bg-white">
+          {/* Column headers (desktop) */}
+          <div role="row" className={`hidden bg-neutral/40 md:grid ${GRID}`}>
+            <div role="columnheader" className="px-6 py-5 text-sm font-extrabold text-ink">
+              {isAr ? 'مجال العمليات' : 'Operational area'}
+            </div>
+            <div
+              role="columnheader"
+              className="flex items-center gap-2 px-6 py-5 text-sm font-extrabold text-ink-muted"
+            >
+              <X className="h-4 w-4" aria-hidden="true" />
+              <span>{traditionalLabel}</span>
+            </div>
+            <div
+              role="columnheader"
+              className="flex items-center gap-2 bg-dusty-blue/30 px-6 py-5 text-sm font-extrabold text-ink"
+            >
+              <Sparkles className="h-4 w-4" aria-hidden="true" />
+              <span>{rashxLabel}</span>
+            </div>
+          </div>
+
+          {rows.map((row, idx) => (
+            <div
+              key={idx}
+              role="row"
+              className={`grid gap-3 border-mist-gray p-5 md:gap-0 md:p-0 ${GRID} ${idx > 0 ? 'border-t' : 'md:border-t'}`}
+            >
+              <div role="rowheader" className="text-sm font-extrabold text-ink md:px-6 md:py-5">
+                {isAr ? row.criterionAr : row.criterionEn}
+              </div>
+
+              <div role="cell" className="md:px-6 md:py-5">
+                <span className="mb-1 block text-[11px] font-bold text-ink-muted md:hidden">
+                  {traditionalLabel}
+                </span>
+                <div className="flex items-start gap-2 text-sm leading-relaxed text-ink-muted">
+                  <X className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+                  <span>{isAr ? row.traditionalAr : row.traditionalEn}</span>
+                </div>
+              </div>
+
+              <div role="cell" className="rounded-2xl bg-dusty-blue/15 p-3 md:rounded-none md:bg-dusty-blue/15 md:px-6 md:py-5">
+                <span className="mb-1 block text-[11px] font-bold text-ink md:hidden">{rashxLabel}</span>
+                <div className="flex items-start gap-2 text-sm font-medium leading-relaxed text-ink">
+                  <Check className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={2.5} aria-hidden="true" />
+                  <span>{isAr ? row.rashxAr : row.rashxEn}</span>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>
@@ -154,4 +177,3 @@ export const TraditionalVsRashXTable: React.FC<TraditionalVsRashXTableProps> = (
 };
 
 export default TraditionalVsRashXTable;
-

@@ -559,7 +559,7 @@ export const Hero: React.FC<HeroProps> = ({ locale = DEFAULT_LOCALE }) => {
   return (
     <section
       dir={dir}
-      className="relative w-full overflow-hidden border-b border-mist-gray/70 bg-gradient-to-b from-dusty-blue/25 via-base to-base pt-12 pb-16 text-ink sm:pt-16 sm:pb-20 lg:pt-20 lg:pb-24"
+      className="relative w-full overflow-hidden border-b border-mist-gray/70 bg-gradient-to-b from-dusty-blue/25 via-base to-base pt-28 pb-16 text-ink sm:pt-36 sm:pb-20 lg:pt-40 lg:pb-24"
     >
       {/* Soft decorative glows */}
       <div className="pointer-events-none absolute -top-32 left-1/2 h-80 w-[48rem] max-w-full -translate-x-1/2 rounded-full bg-dusty-blue/25 blur-3xl" />

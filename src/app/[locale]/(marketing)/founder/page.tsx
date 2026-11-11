@@ -140,7 +140,7 @@ export default async function FounderPage({ params }: FounderPageProps) {
       <JsonLd data={getProfilePageSchema(locale)} id="founder-profile-schema" />
       <JsonLd data={getBreadcrumbSchema(breadcrumbs)} id="founder-breadcrumb-schema" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-8 sm:pt-32 sm:pb-12 lg:pt-36 lg:pb-16">
         {/* Breadcrumb Navigation */}
         <nav
           aria-label="Breadcrumb"
