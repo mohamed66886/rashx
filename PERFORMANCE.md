@@ -159,7 +159,70 @@ gs://<bucket>/
 
 ---
 
-## 6. Customer Digital Signing Flow & Security Model
+## 6. Invoice Status State Machine
+
+The contract & invoice module enforces a strict, deterministic state machine across all document operations:
+
+```mermaid
+stateDiagram-v2
+    [*] --> draft : saveDraftInvoice
+    draft --> draft : saveDraftInvoice (preserve number & lock docKind)
+    draft --> issuing : issueInvoice (allocate sequential number)
+    issuing --> issued : generate & store original.pdf
+    issued --> sent : sendInvoiceAction (generates signing token)
+    sent --> sent : resend (rotates token)
+    sent --> viewed : customer opens /sign link
+    viewed --> uploaded : customer uploads signed copy
+    uploaded --> uploaded : additional upload (<= 15MB)
+    uploaded --> signed : approveSignedFile (admin verification)
+    uploaded --> sent : rejectSignedFile (returns for re-upload)
+    signed --> paid : markInvoicePaid
+    draft --> cancelled : cancelInvoiceAction
+    issued --> cancelled : cancelInvoiceAction
+    sent --> cancelled : cancelInvoiceAction
+    viewed --> cancelled : cancelInvoiceAction
+    uploaded --> cancelled : cancelInvoiceAction
+    signed --> [*]
+    paid --> [*]
+    cancelled --> [*]
+```
+
+### State Machine Transition Rules & Invariants:
+1. **Draft Invariance**:
+   - Sequential document number is assigned only at issue time.
+   - If a draft has an existing reserved sequential number, changing `docKind` (`contract_invoice` $\leftrightarrow$ `quote`) is strictly rejected to preserve number sequence integrity.
+2. **Uploading Allowed Window**:
+   - Direct file uploads via `requestUploadUrlAction` and `confirmUploadAction` are permitted **only** when status is `'sent'`, `'viewed'`, or `'uploaded'`.
+   - Attempts to upload for `'draft'`, `'issued'`, `'signed'`, `'paid'`, or `'cancelled'` return a neutral error.
+3. **Post-Signing Immutability**:
+   - Once marked `'signed'`, the customer portal link becomes **read-only** (document viewing and original PDF download only; upload controls are removed).
+4. **Resend Token Invalidation**:
+   - Re-sending an invoice invalidates the prior token immediately by generating a fresh 32-byte crypto token and updating `signing.tokenHash`.
+5. **Real-Time Atomic Statistics**:
+   - Every status transition updates `stats/invoices` counter fields (`draftCount`, `issuedCount`, `sentCount`, `uploadedCount`, `signedCount`, `paidCount`, `cancelledCount`, `outstandingHalalas`, `paidMonthHalalas`) using atomic Firestore `FieldValue.increment` within the same WriteBatch or transaction.
+
+---
+
+## 7. Automated Storage Cleanup Cron Job
+
+Orphaned and unconfirmed uploads under Cloud Storage are pruned automatically by a scheduled serverless cron job:
+
+- **Endpoint**: `GET /api/cron/cleanup-storage`
+- **Schedule**: Daily at 03:00 UTC (`0 3 * * *` configured in `vercel.json`)
+- **Authentication**:
+  - Requires `Authorization: Bearer ${CRON_SECRET}` HTTP header.
+  - Zero query parameter bypass (no `?key=` allowed).
+  - Validated using `crypto.timingSafeEqual` to prevent timing attacks. Missing or incorrect secret returns `HTTP 401 Unauthorized`.
+- **Paged Traversal & Pre-filtering**:
+  - Traverses storage with `bucket.getFiles({ prefix: 'invoices/', autoPaginate: false, maxResults: 500, pageToken })`.
+  - Filters strictly by regex: `/^invoices\/[^/]+\/signed\//`.
+  - Checks object `timeCreated` > 24 hours **before** making any Firestore lookup. Files younger than 24 hours are kept to allow active customer upload sessions to complete.
+  - Compares file names against `signing.files[].path` in the corresponding invoice document (cached per page).
+  - Deletes orphaned objects not confirmed in Firestore.
+
+---
+
+## 8. Customer Digital Signing Flow & Security Model
 
 The signing module implements a bank-grade digital evidence trail:
 
@@ -192,7 +255,7 @@ The signing module implements a bank-grade digital evidence trail:
 
 ---
 
-## 7. Token Expiry, Rotation & Revocation Rules
+## 9. Token Expiry, Rotation & Revocation Rules
 
 1. **30-Day Default Validity**:
    - `expiresAt` is set to `Date.now() + 30 * 24 * 60 * 60 * 1000`.
@@ -211,7 +274,7 @@ The signing module implements a bank-grade digital evidence trail:
 
 ---
 
-## 8. Contract Clauses Management & Lifecycle
+## 10. Contract Clauses Management & Lifecycle
 
 Contract clauses represent reusable legal provisions that govern commercial contracts and price quotes.
 
@@ -239,7 +302,7 @@ Contract clauses represent reusable legal provisions that govern commercial cont
 
 ---
 
-## 9. Build Route Table & Bundle Performance
+## 11. Build Route Table & Bundle Performance
 
 Measured First-Load JS and production route classification from `next build`:
 

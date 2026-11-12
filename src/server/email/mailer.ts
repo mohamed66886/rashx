@@ -147,8 +147,15 @@ export async function sendInvoiceEmail({
     const safeDisplayStart = escapeHtml(displayStart);
     const safeDisplayEnd = escapeHtml(displayEnd);
     const safeFormattedTotal = escapeHtml(formattedTotal);
-    const safeSigningUrl = escapeHtml(signingUrl || 'https://rashx.com');
-    const safeSellerAddress = escapeHtml(billingSettings?.address || 'المملكة العربية السعودية');
+    if (!signingUrl || !signingUrl.trim()) {
+      throw new Error('Signing URL is required to send invoice email');
+    }
+    if (!billingSettings?.address || !billingSettings.address.trim()) {
+      throw new Error('Seller billing data (address) is required to send invoice email');
+    }
+
+    const safeSigningUrl = escapeHtml(signingUrl.trim());
+    const safeSellerAddress = escapeHtml(billingSettings.address.trim());
 
     const emailSubject = isEn
       ? `${isQuote ? 'Price Quote & Contract' : 'Contract & Invoice'} for ${safeFacilityName} | #${safeInvoiceNumber}`

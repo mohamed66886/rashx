@@ -192,8 +192,9 @@ async function verifyApiInvoicesProtection(serverOnline) {
     { path: '/api/dashboard/invoices/test-id/pdf', method: 'GET', expectedStatus: 401 },
     { path: '/api/dashboard/billing/asset?path=invoices/test/original.pdf', method: 'GET', expectedStatus: 401 },
     { path: '/api/dashboard/billing/upload', method: 'POST', expectedStatus: 401 },
-    { path: '/api/sign/download', method: 'GET', expectedStatus: [400, 401] },
-    { path: '/api/sign/download?token=fake.invalid-token-123', method: 'GET', expectedStatus: [400, 401, 404] },
+    { path: '/api/cron/cleanup-storage', method: 'GET', expectedStatus: 401 },
+    { path: '/api/sign/download', method: 'GET', expectedStatus: [401, 403] },
+    { path: '/api/sign/download?token=fake.invalid-token-123', method: 'GET', expectedStatus: 403, requireNoStore: true },
   ];
 
   if (serverOnline) {
@@ -217,6 +218,15 @@ async function verifyApiInvoicesProtection(serverOnline) {
             `Expected: ${expected.join(' or ')}`
           );
         }
+
+        if (ep.requireNoStore) {
+          const cacheControl = res.headers.get('cache-control') || '';
+          if (cacheControl.includes('no-store')) {
+            logPass(`${ep.path}: Cache-Control contains no-store`);
+          } else {
+            logFail(`${ep.path}: Missing no-store in Cache-Control header ("${cacheControl}")`);
+          }
+        }
       } catch (err) {
         logFail(`Error probing ${ep.method} ${ep.path}: ${err.message}`);
       }
@@ -227,7 +237,8 @@ async function verifyApiInvoicesProtection(serverOnline) {
       { file: 'src/app/api/dashboard/invoices/[id]/pdf/route.ts', authCheck: 'getAdmin(false)', rejectCode: '401' },
       { file: 'src/app/api/dashboard/billing/asset/route.ts', authCheck: 'getAdmin(false)', rejectCode: '401' },
       { file: 'src/app/api/dashboard/billing/upload/route.ts', authCheck: 'getAdmin(false)', rejectCode: '401' },
-      { file: 'src/app/api/sign/download/route.ts', authCheck: 'verifySigningToken', rejectCode: '400' },
+      { file: 'src/app/api/cron/cleanup-storage/route.ts', authCheck: 'timingSafeMatch', rejectCode: '401' },
+      { file: 'src/app/api/sign/download/route.ts', authCheck: 'verifySigningToken', rejectCode: '403' },
     ];
 
     for (const { file, authCheck, rejectCode } of apiFiles) {
@@ -239,6 +250,16 @@ async function verifyApiInvoicesProtection(serverOnline) {
         } else {
           logFail(`${file}: Missing ${authCheck} or ${rejectCode} rejection`);
         }
+      }
+    }
+
+    const downloadFile = path.resolve(process.cwd(), 'src/app/api/sign/download/route.ts');
+    if (fs.existsSync(downloadFile)) {
+      const c = fs.readFileSync(downloadFile, 'utf8');
+      if (c.includes("'Cache-Control': 'no-store, max-age=0'")) {
+        logPass('src/app/api/sign/download/route.ts: Emits Cache-Control: no-store, max-age=0 on rejection');
+      } else {
+        logFail('src/app/api/sign/download/route.ts: Missing Cache-Control: no-store header on rejection');
       }
     }
   }
@@ -276,6 +297,13 @@ async function verifyNeutralSignPage(serverOnline) {
           continue;
         }
 
+        const cacheControl = res.headers.get('cache-control') || '';
+        if (cacheControl.includes('no-store')) {
+          logPass(`${item.path}: Cache-Control contains no-store`);
+        } else {
+          logFail(`${item.path}: Missing no-store in Cache-Control header ("${cacheControl}")`);
+        }
+
         const hasArNeutral = bodyText.includes('رابط غير صالح أو منتهي الصلاحية') || bodyText.includes('غير صالح');
         const hasEnNeutral = bodyText.includes('Invalid or Expired Link') || bodyText.includes('invalid or has expired');
         const isNeutral = item.lang === 'ar' ? (hasArNeutral || hasEnNeutral) : (hasEnNeutral || hasArNeutral);
@@ -296,7 +324,15 @@ async function verifyNeutralSignPage(serverOnline) {
       }
     }
   } else {
-    // Static code inspection of /sign/[token]/page.tsx
+    // Static code inspection of /sign/[token]/page.tsx & proxy.ts
+    const proxyFile = path.resolve(process.cwd(), 'src/proxy.ts');
+    const proxyContent = fs.readFileSync(proxyFile, 'utf8');
+    if (proxyContent.includes("res.headers.set('Cache-Control', 'no-store, max-age=0, must-revalidate')")) {
+      logPass('Proxy middleware: Strictly applies Cache-Control: no-store, max-age=0 to all /sign routes');
+    } else {
+      logFail('Proxy middleware: Missing Cache-Control: no-store on /sign routes');
+    }
+
     const signPage = path.resolve(process.cwd(), 'src/app/[locale]/sign/[token]/page.tsx');
     const content = fs.readFileSync(signPage, 'utf8');
 

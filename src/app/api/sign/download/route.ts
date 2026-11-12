@@ -8,8 +8,12 @@ export async function GET(req: NextRequest) {
     const token = req.nextUrl.searchParams.get('token');
     if (!token) {
       return new NextResponse('رابط التوقيع مفقود أو غير صالح.', {
-        status: 400,
-        headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+        status: 403,
+        headers: {
+          'Content-Type': 'text/plain; charset=utf-8',
+          'Cache-Control': 'no-store, max-age=0',
+          'X-Robots-Tag': 'noindex, nofollow',
+        },
       });
     }
 

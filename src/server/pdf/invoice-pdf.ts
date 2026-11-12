@@ -142,20 +142,15 @@ export async function generateInvoicePdf(
   const docTitleAr = isQuote ? 'عرض سعر وعقد' : 'عقد وفاتورة تجارية';
   const docTitleEn = isQuote ? 'PRICE QUOTE & CONTRACT' : 'COMMERCIAL CONTRACT & INVOICE';
   const docNumberLabelAr = isQuote ? 'رقم عرض السعر والعقد' : 'رقم العقد والفاتورة';
-  const docNumber = invoice.number || (isQuote ? 'QUO-0001' : 'INV-0001');
+  if (!invoice.seller || !invoice.seller.nameAr || !invoice.seller.iban || !invoice.seller.bankName) {
+    throw new Error('Seller billing data (name, IBAN, bank details) is required to generate the official invoice PDF');
+  }
+  const seller: InvoiceSeller = invoice.seller;
 
-  const seller: InvoiceSeller = invoice.seller || {
-    nameAr: 'منصة راش إكس لتقنية المعلومات RASHX',
-    nameEn: 'RASHX PLATFORM',
-    commercialRegNumber: '1010000000',
-    address: 'المملكة العربية السعودية',
-    email: 'contact@rashx.com',
-    phone: '920000000',
-    bankName: 'مصرف الراجحي',
-    accountName: 'منصة راش إكس',
-    iban: 'SA0000000000000000000000',
-    disclaimerLine: 'هذا المستند عقد وفاتورة تجارية ولا يُغني عن الفاتورة الضريبية الرسمية عند الاقتضاء.',
-  };
+  if (!invoice.number) {
+    throw new Error('Invoice number is required to generate the official invoice PDF');
+  }
+  const docNumber = invoice.number;
 
   const hasVat = Boolean(invoice.vatRatePercent > 0 && seller.vatNumber);
   const subtotalSar = halalasToSar(invoice.totals.subtotal);

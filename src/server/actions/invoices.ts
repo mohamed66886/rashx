@@ -20,14 +20,12 @@ import {
   markPaidSchema,
   approveSignedFileSchema,
   rejectSignedFileSchema,
-  sendInvoiceActionSchema,
   type SaveDraftInvoiceInput,
   type IssueInvoiceInput,
   type CancelInvoiceInput,
   type MarkPaidInput,
   type ApproveSignedFileInput,
   type RejectSignedFileInput,
-  type SendInvoiceActionInput,
 } from '@/server/invoices/schemas';
 import type {
   PlatformInvoice,
@@ -37,23 +35,6 @@ import type {
   InvoiceSigningFile,
 } from '@/lib/types/billing';
 import { halalasToSar } from '@/lib/types/billing';
-
-export {
-  saveDraftInvoiceSchema,
-  issueInvoiceSchema,
-  cancelInvoiceSchema,
-  markPaidSchema,
-  approveSignedFileSchema,
-  rejectSignedFileSchema,
-  sendInvoiceActionSchema,
-  type SaveDraftInvoiceInput,
-  type IssueInvoiceInput,
-  type CancelInvoiceInput,
-  type MarkPaidInput,
-  type ApproveSignedFileInput,
-  type RejectSignedFileInput,
-  type SendInvoiceActionInput,
-};
 
 function getSiteUrl(): string {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
@@ -110,12 +91,22 @@ export async function saveDraftInvoice(
     const existingDoc = data.id ? await invoiceRef.get() : null;
     const isNew = !existingDoc || !existingDoc.exists;
 
+    const existingData = !isNew && existingDoc ? existingDoc.data() : null;
+    const reservedNumber = existingData?.number || null;
+
     if (!isNew && existingDoc) {
-      const currentStatus = existingDoc.data()?.status;
+      const currentStatus = existingData?.status;
       if (currentStatus && currentStatus !== 'draft') {
         return {
           success: false,
           error: `لا يمكن تعديل المستند كمسودة؛ حالته الحالية هي: ${currentStatus}`,
+        };
+      }
+
+      if (reservedNumber && existingData?.docKind && existingData.docKind !== data.docKind) {
+        return {
+          success: false,
+          error: `لا يمكن تغيير نوع المستند بعد حجز الرقم التسلسلي (${reservedNumber})`,
         };
       }
     }
@@ -127,7 +118,7 @@ export async function saveDraftInvoice(
       invoiceRef,
       {
         id: invoiceId,
-        number: null, // Draft has no sequential number assigned yet
+        number: reservedNumber, // Preserve reserved sequential number if one was previously assigned
         docKind: data.docKind,
         locale: data.locale || 'ar',
         customer: data.customer,
@@ -204,7 +195,7 @@ export async function saveDraftInvoice(
       success: true,
       data: {
         id: invoiceId,
-        number: null,
+        number: reservedNumber,
         docKind: data.docKind,
         locale: data.locale || 'ar',
         customer: data.customer,
