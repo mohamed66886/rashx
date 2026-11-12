@@ -66,10 +66,10 @@ interface PlatformOverviewPageProps {
 }
 
 export default async function PlatformOverviewPage({ params }: PlatformOverviewPageProps) {
-  const admin = await requireAdmin();
   const { locale: rawLocale } = await params;
   const locale = rawLocale || 'ar';
   const isAr = locale === 'ar';
+  const admin = await requireAdmin(undefined, { locale });
 
   const [stats, tenantsData, leadsData, invoiceStats] = await Promise.all([
     getPlatformStats(),

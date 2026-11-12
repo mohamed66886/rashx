@@ -24,10 +24,8 @@ export default async function PlatformAdminLayout({
     return <>{children}</>;
   }
 
-  const [admin, invoiceStats] = await Promise.all([
-    requireAdmin(),
-    getInvoiceStats(),
-  ]);
+  const admin = await requireAdmin(undefined, { locale });
+  const invoiceStats = await getInvoiceStats();
 
   const uploadedCount = invoiceStats.uploadedCount || 0;
 
