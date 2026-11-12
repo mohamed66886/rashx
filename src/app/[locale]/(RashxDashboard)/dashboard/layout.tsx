@@ -1,6 +1,7 @@
 import React from 'react';
 import { headers } from 'next/headers';
 import { requireAdmin } from '@/server/auth/session';
+import { getInvoiceStats } from '@/server/data/invoices';
 import { DashboardShell } from '@/components/dashboard/DashboardShell';
 
 export const instant = false;
@@ -23,10 +24,19 @@ export default async function PlatformAdminLayout({
     return <>{children}</>;
   }
 
-  const admin = await requireAdmin();
+  const [admin, invoiceStats] = await Promise.all([
+    requireAdmin(),
+    getInvoiceStats(),
+  ]);
+
+  const uploadedCount = invoiceStats.uploadedCount || 0;
 
   return (
-    <DashboardShell admin={admin} locale={locale || 'ar'}>
+    <DashboardShell
+      admin={admin}
+      locale={locale || 'ar'}
+      uploadedInvoicesCount={uploadedCount}
+    >
       {children}
     </DashboardShell>
   );

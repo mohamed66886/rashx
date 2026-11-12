@@ -1,22 +1,66 @@
 'use client';
 
 import React from 'react';
-import type { PlatformInvoice } from '@/lib/types/platform';
+import type { PlatformInvoice as LegacyInvoice, BillingSettings } from '@/lib/types/platform';
+import type { PlatformInvoice, ContractClause } from '@/lib/types/billing';
 
 export interface InvoicePrintableDocumentProps {
-  invoice: PlatformInvoice;
+  invoice: PlatformInvoice | LegacyInvoice | any;
+  billingSettings?: BillingSettings | null;
   id?: string;
   className?: string;
 }
 
 export const InvoicePrintableDocument: React.FC<InvoicePrintableDocumentProps> = ({
   invoice,
+  billingSettings,
   id = 'printable-invoice-doc',
   className = '',
 }) => {
-  const displayDate = invoice.invoiceDate || new Date().toISOString().split('T')[0];
-  const displayStart = invoice.startDate || displayDate;
-  const displayEnd = invoice.endDate || 'سنة من تاريخ البدء';
+  const isQuote = invoice.docKind === 'quote';
+  const docTitleAr = isQuote ? 'عرض سعر وعقد' : 'عقد وفاتورة';
+  const docTitleEn = isQuote ? 'PRICE QUOTE & CONTRACT' : 'CONTRACT & INVOICE';
+  const docNumberLabelAr = isQuote ? 'رقم عرض السعر والعقد' : 'رقم العقد والفاتورة';
+  const docNumberLabelEn = isQuote ? 'QUOTE NO.' : 'INVOICE NO.';
+
+  // Seller from frozen copy or billingSettings
+  const seller = invoice.seller || (billingSettings ? {
+    nameAr: billingSettings.facilityName,
+    nameEn: 'RASHX PLATFORM',
+    bankName: billingSettings.bankName,
+    accountName: billingSettings.accountName,
+    iban: billingSettings.iban,
+    vatNumber: billingSettings.taxNumber,
+    address: billingSettings.address,
+    disclaimerLine: billingSettings.disclaimerLine,
+  } : undefined);
+
+  const sellerNameAr = seller?.nameAr || billingSettings?.facilityName || 'منصة راش إكس RASHX';
+  const sellerBankName = seller?.bankName || billingSettings?.bankName;
+  const sellerAccountName = seller?.accountName || billingSettings?.accountName;
+  const sellerIban = seller?.iban || billingSettings?.iban;
+  const sellerVatNumber = seller?.vatNumber || billingSettings?.taxNumber;
+  const disclaimerLine = seller?.disclaimerLine || billingSettings?.disclaimerLine || 'هذا المستند عقد وفاتورة تجارية ولا يُغني عن الفاتورة الضريبية الرسمية عند الاقتضاء.';
+
+  const isVatEnabled = invoice.vatRatePercent !== undefined ? invoice.vatRatePercent > 0 : Boolean(invoice.vatEnabled);
+  const hasVat = Boolean(isVatEnabled && sellerVatNumber);
+  const vatRatePercent = invoice.vatRatePercent !== undefined ? invoice.vatRatePercent : Math.round((invoice.vatRate || 0.15) * 100);
+
+  const facilityName = invoice.customer?.facilityName || invoice.facilityName || '—';
+  const facilityAddress = invoice.customer?.address || invoice.facilityAddress || '—';
+  const customerName = invoice.customer?.name || invoice.customerName || '';
+  const customerPhone = invoice.customer?.phone || invoice.customerPhone || '';
+  const commercialReg = invoice.customer?.commercialRegNumber || invoice.commercialReg || invoice.taxNumber || '';
+
+  const subtotal = (invoice.totals?.subtotal !== undefined ? invoice.totals.subtotal / 100 : invoice.subtotal) || 0;
+  const discount = (invoice.totals?.discount !== undefined ? invoice.totals.discount / 100 : invoice.discount) || 0;
+  const vatAmount = (invoice.totals?.vat !== undefined ? invoice.totals.vat / 100 : invoice.vatAmount) || 0;
+  const totalAmount = (invoice.totals?.total !== undefined ? invoice.totals.total / 100 : invoice.totalAmount) || 0;
+
+  const displayDate = invoice.issueDate || invoice.invoiceDate || new Date().toISOString().split('T')[0];
+  const displayStart = invoice.issueDate || invoice.startDate || displayDate;
+  const displayEnd = invoice.dueDate || invoice.endDate || 'سنة من تاريخ البدء';
+  const invoiceNum = invoice.number || invoice.invoiceNumber || (isQuote ? 'QUO-0001' : 'INV-0001');
 
   const formatCurrency = (val: number) =>
     Number(val || 0).toLocaleString('en-US', {
@@ -53,13 +97,13 @@ export const InvoicePrintableDocument: React.FC<InvoicePrintableDocumentProps> =
           </div>
         </div>
 
-        {/* Top Right: INVOICE / فاتورة */}
+        {/* Top Right: CONTRACT & INVOICE / عقد وفاتورة */}
         <div className="text-left font-sans">
-          <div className="text-2xl font-normal tracking-[2px] text-[#000000] uppercase">
-            INVOICE
+          <div className="text-xl font-bold tracking-[1.5px] text-[#000000] uppercase">
+            {docTitleEn}
           </div>
           <div className="text-xs text-[#5E6665] font-normal tracking-normal mt-0.5">
-            عقد اشتراك وفاتورة
+            {docTitleAr}
           </div>
         </div>
       </div>
@@ -75,22 +119,22 @@ export const InvoicePrintableDocument: React.FC<InvoicePrintableDocumentProps> =
             BILLED TO · الطرف الثاني (المنشأة المشتركة)
           </div>
           <div className="text-base font-bold text-[#000000] mb-1">
-            {invoice.facilityName || '[Client name]'}
+            {facilityName}
           </div>
           <div className="text-xs text-[#5E6665] font-normal leading-relaxed">
-            {invoice.facilityAddress || '[Client address]'}
+            {facilityAddress}
           </div>
-          {invoice.customerName && (
+          {customerName && (
             <div className="text-xs text-[#000000] font-medium mt-1.5">
-              المسؤول المفوض: <span className="font-bold">{invoice.customerName}</span>
-              {invoice.customerPhone && (
-                <span className="text-[#5E6665] ms-2">({invoice.customerPhone})</span>
+              المسؤول المفوض: <span className="font-bold">{customerName}</span>
+              {customerPhone && (
+                <span className="text-[#5E6665] ms-2">({customerPhone})</span>
               )}
             </div>
           )}
-          {invoice.taxNumber && (
+          {commercialReg && (
             <div className="text-[11px] text-[#5E6665] mt-0.5">
-              الرقم الضريبي / السجل: {invoice.taxNumber}
+              الرقم الضريبي / السجل: {commercialReg}
             </div>
           )}
         </div>
@@ -99,10 +143,10 @@ export const InvoicePrintableDocument: React.FC<InvoicePrintableDocumentProps> =
         <div className="text-left">
           <div className="mb-3">
             <div className="text-[10px] text-[#5E6665] font-bold tracking-widest uppercase mb-0.5">
-              INVOICE NO. · رقم العقد والفاتورة
+              {docNumberLabelEn} · {docNumberLabelAr}
             </div>
             <div className="text-sm font-bold text-[#000000]">
-              {invoice.invoiceNumber || 'RX-0001'}
+              {invoiceNum}
             </div>
           </div>
 
@@ -139,23 +183,27 @@ export const InvoicePrintableDocument: React.FC<InvoicePrintableDocumentProps> =
         {/* Table Rows */}
         <div className="divide-y divide-[#E5E9E8]">
           {invoice.items && invoice.items.length > 0 ? (
-            invoice.items.map((item, idx) => (
-              <div
-                key={item.id || idx}
-                className="px-4 py-3.5 flex items-center justify-between text-xs font-normal"
-              >
-                <div className="flex-1 text-right">
-                  <div className="font-bold text-[#000000]">{item.description}</div>
+            invoice.items.map((item: any, idx: number) => {
+              const uPrice = item.unitPriceHalalas !== undefined ? item.unitPriceHalalas / 100 : (item.unitPrice || 0);
+              const lineTotal = Number(item.quantity || 1) * uPrice;
+              return (
+                <div
+                  key={item.id || idx}
+                  className="px-4 py-3.5 flex items-center justify-between text-xs font-normal"
+                >
+                  <div className="flex-1 text-right">
+                    <div className="font-bold text-[#000000]">{item.description}</div>
+                  </div>
+                  <div className="w-16 text-center text-[#5E6665]">{item.quantity}</div>
+                  <div className="w-28 text-left font-mono text-[#5E6665]">
+                    {formatCurrency(uPrice)}
+                  </div>
+                  <div className="w-28 text-left font-mono font-bold text-[#000000]">
+                    {formatCurrency(lineTotal)}
+                  </div>
                 </div>
-                <div className="w-16 text-center text-[#5E6665]">{item.quantity}</div>
-                <div className="w-28 text-left font-mono text-[#5E6665]">
-                  {formatCurrency(item.unitPrice)}
-                </div>
-                <div className="w-28 text-left font-mono font-bold text-[#000000]">
-                  {formatCurrency(Number(item.quantity) * Number(item.unitPrice))}
-                </div>
-              </div>
-            ))
+              );
+            })
           ) : (
             <div className="px-4 py-3.5 text-xs text-[#5E6665] text-center">
               لا توجد بنود محددة
@@ -172,28 +220,30 @@ export const InvoicePrintableDocument: React.FC<InvoicePrintableDocumentProps> =
 
           {/* Subtotal */}
           <div className="flex justify-between items-center text-xs text-[#5E6665] py-1">
-            <span>المجموع قبل الضريبة (Subtotal):</span>
+            <span>{hasVat ? 'المجموع قبل الضريبة (Subtotal):' : 'المجموع الإجمالي:'}</span>
             <span className="font-mono text-[#000000] font-medium">
-              {formatCurrency(invoice.subtotal)}
+              {formatCurrency(subtotal)}
             </span>
           </div>
 
-          {invoice.discount > 0 && (
+          {discount > 0 && (
             <div className="flex justify-between items-center text-xs text-amber-700 py-1">
               <span>الخصم الترويجي المعتمد:</span>
               <span className="font-mono font-medium">
-                -{formatCurrency(invoice.discount)}
+                -{formatCurrency(discount)}
               </span>
             </div>
           )}
 
-          {/* Tax (15%) */}
-          <div className="flex justify-between items-center text-xs text-[#5E6665] py-1 mb-2">
-            <span>ضريبة القيمة المضافة 15% (VAT):</span>
-            <span className="font-mono text-[#000000] font-medium">
-              {formatCurrency(invoice.vatAmount)}
-            </span>
-          </div>
+          {/* Tax (Only when VAT is enabled and seller VAT number exists) */}
+          {hasVat && (
+            <div className="flex justify-between items-center text-xs text-[#5E6665] py-1 mb-2">
+              <span>ضريبة القيمة المضافة {vatRatePercent}% (VAT):</span>
+              <span className="font-mono text-[#000000] font-medium">
+                {formatCurrency(vatAmount)}
+              </span>
+            </div>
+          )}
 
           {/* TOTAL Highlight Bar (#F0C5AE) */}
           <div className="bg-[#F0C5AE] text-[#000000] px-3.5 py-3 flex justify-between items-center rounded-xs">
@@ -201,7 +251,7 @@ export const InvoicePrintableDocument: React.FC<InvoicePrintableDocumentProps> =
               TOTAL · الإجمالي المستحق
             </span>
             <span className="text-base font-black font-mono">
-              {formatCurrency(invoice.totalAmount)} ر.س
+              {formatCurrency(totalAmount)} ر.س
             </span>
           </div>
         </div>
@@ -213,12 +263,29 @@ export const InvoicePrintableDocument: React.FC<InvoicePrintableDocumentProps> =
           PAYMENT DETAILS · تفاصيل الحساب البنكي المعتمد
         </div>
         <div className="text-xs text-[#000000] leading-relaxed">
-          {invoice.paymentDetails || (
+          {sellerBankName && sellerIban ? (
             <>
-              مصرف الراجحي (Al Rajhi Bank) · الحساب: مؤسسة راش إكس للاتصالات وتقنية المعلومات
+              {sellerBankName} · الحساب: {sellerAccountName}
               <br />
-              الآيبان البنكي (IBAN): <span className="font-mono font-bold" dir="ltr">SA44 8000 0205 6080 1001 2345</span>
+              الآيبان البنكي (IBAN):{' '}
+              <span className="font-mono font-bold" dir="ltr">
+                {sellerIban}
+              </span>
+              {hasVat && sellerVatNumber && (
+                <div className="text-[11px] text-[#5E6665] mt-1">
+                  الرقم الضريبي للمنشأة المصدرة: {sellerVatNumber}
+                </div>
+              )}
             </>
+          ) : (
+            <div className="text-rose-600 bg-rose-50 border border-rose-200 px-3 py-2 rounded-md font-medium text-[11px] my-1">
+              خطأ: لم يتم ضبط إعدادات الفوترة البنكية (Missing billing settings)
+            </div>
+          )}
+          {invoice.paymentDetails && (
+            <div className="mt-1.5 text-[#5E6665]">
+              {invoice.paymentDetails}
+            </div>
           )}
         </div>
         {invoice.notes && (
@@ -227,6 +294,25 @@ export const InvoicePrintableDocument: React.FC<InvoicePrintableDocumentProps> =
           </div>
         )}
       </div>
+
+      {/* ───────────────── Contract Clauses / Terms (If available) ───────────────── */}
+      {Array.isArray(invoice.terms) && invoice.terms.length > 0 && (
+        <div className="mb-8 pt-3 border-t border-[#E5E9E8] text-xs">
+          <div className="text-[10px] text-[#5E6665] font-bold tracking-widest uppercase mb-2">
+            CONTRACT CLAUSES & CONDITIONS · بنود وشروط التعاقد والاشتراك
+          </div>
+          <div className="space-y-2 bg-[#FAFBFB] p-3.5 rounded-lg border border-[#E5E9E8]">
+            {invoice.terms.map((term: any, idx: number) => (
+              <div key={term.id || idx} className="text-[10.5px] leading-relaxed text-[#2C3333]">
+                <span className="font-bold text-[#000000]">
+                  {idx + 1}. {term.title}:
+                </span>{' '}
+                <span className="text-[#5E6665]">{term.body}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* ───────────────── Contract Agreement & Signature Section ("يمضي عليه") ───────────────── */}
       <div className="p-4 rounded-xl border border-[#CCD4D3] bg-[#FAFBFB] mb-8 text-xs">
@@ -244,15 +330,32 @@ export const InvoicePrintableDocument: React.FC<InvoicePrintableDocumentProps> =
         {/* Two Signature Boxes */}
         <div className="grid grid-cols-2 gap-6 pt-2">
           {/* Box 1: RashX Platform (First Party) */}
-          <div className="border border-dashed border-[#CCD4D3] rounded-lg p-3 bg-white text-center">
+          <div className="border border-dashed border-[#CCD4D3] rounded-lg p-3 bg-white text-center relative overflow-hidden">
             <div className="text-[10px] font-bold text-[#5E6665] uppercase mb-1">
-              الطرف الأول (منصة راش إكس RASHX)
+              الطرف الأول ({sellerNameAr})
             </div>
             <div className="text-xs font-bold text-[#000000]">إدارة الاشتراكات والتعاقدات</div>
-            <div className="h-14 flex items-center justify-center my-1">
-              <span className="text-[11px] font-bold text-[#29545c] border-b border-[#29545c] px-4 py-1">
-                معتمد رسمياً · RASHX HQ
-              </span>
+            <div className="h-14 flex items-center justify-center my-1 relative">
+              {billingSettings?.stampUrl && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={billingSettings.stampUrl}
+                  alt="Official Stamp"
+                  className="absolute h-14 w-auto object-contain opacity-75 pointer-events-none transform -rotate-6"
+                />
+              )}
+              {billingSettings?.signatureUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={billingSettings.signatureUrl}
+                  alt="Authorized Signature"
+                  className="relative z-10 h-10 w-auto object-contain"
+                />
+              ) : (
+                <span className="text-[11px] font-bold text-[#29545c] border-b border-[#29545c] px-4 py-1 z-10">
+                  معتمد رسمياً · RASHX HQ
+                </span>
+              )}
             </div>
             <div className="text-[10px] text-[#5E6665]">
               التاريخ: {displayDate}
@@ -265,7 +368,7 @@ export const InvoicePrintableDocument: React.FC<InvoicePrintableDocumentProps> =
               الطرف الثاني (الصالون المشترك · المفوض بالتوقيع)
             </div>
             <div className="text-xs font-bold text-[#000000]">
-              {invoice.customerName || invoice.facilityName || 'المفوض بالتوقيع'}
+              {customerName || facilityName || 'المفوض بالتوقيع'}
             </div>
             <div className="h-14 flex flex-col items-center justify-center border-y border-dashed border-neutral/60 my-1 text-[10px] text-[#8F9998]">
               <span>[ مساحة توقيع العميل وختم المنشأة الرسمي ]</span>
@@ -277,9 +380,13 @@ export const InvoicePrintableDocument: React.FC<InvoicePrintableDocumentProps> =
         </div>
       </div>
 
-      {/* ───────────────── Footer (#91B8C0 line + thank you) ───────────────── */}
+      {/* ───────────────── Footer (#91B8C0 line + legal disclaimer + thank you) ───────────────── */}
       <div className="mt-6">
-        <div className="w-full h-[2px] bg-[#91B8C0] mb-3" />
+        <div className="w-full h-[2px] bg-[#91B8C0] mb-2.5" />
+        <div className="text-[10px] text-[#5E6665] text-center mb-2 leading-relaxed font-normal">
+          {disclaimerLine}
+        </div>
+        <div className="w-full h-[1px] bg-[#E5E9E8] mb-2.5" />
         <div className="flex justify-between items-center text-xs text-[#5E6665]">
           <div>
             Thank you for your business · شكراً لتعاملكم واختياركم راش إكس

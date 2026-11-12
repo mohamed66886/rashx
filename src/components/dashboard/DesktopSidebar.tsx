@@ -11,6 +11,7 @@ import { getPlatformNavItems } from './nav-data';
 
 interface DesktopSidebarProps {
   onLogoutRequest: () => void;
+  uploadedInvoicesCount?: number;
 }
 
 /**
@@ -19,14 +20,14 @@ interface DesktopSidebarProps {
  * Removed: version tag, database/session box, fake "Live" green badges,
  * staggered entrance animation, red sign-out button.
  */
-export function DesktopSidebar({ onLogoutRequest }: DesktopSidebarProps) {
+export function DesktopSidebar({ onLogoutRequest, uploadedInvoicesCount }: DesktopSidebarProps) {
   const { admin, openAvatarPicker } = useDashboardAuth();
   const pathname = usePathname();
   const params = useParams();
   const locale = (params?.locale as string) || 'ar';
   const isAr = locale === 'ar';
 
-  const navItems = getPlatformNavItems(locale);
+  const navItems = getPlatformNavItems(locale, { uploadedInvoices: uploadedInvoicesCount });
 
   if (!admin) return null;
 

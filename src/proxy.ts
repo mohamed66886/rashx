@@ -18,6 +18,21 @@ export function proxy(request: NextRequest) {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set('x-pathname', pathname);
 
+  // Exclude /sign and /:locale/sign from dashboard guard and admin-subdomain rewrites
+  if (
+    pathname === '/sign' ||
+    pathname.startsWith('/sign/') ||
+    pathname.match(/^\/[a-zA-Z]{2}\/sign(\/.*)?$/)
+  ) {
+    const res = NextResponse.next({
+      request: { headers: requestHeaders },
+    });
+    res.headers.set('Cache-Control', 'no-store, max-age=0, must-revalidate');
+    res.headers.set('X-Robots-Tag', 'noindex, nofollow');
+    res.headers.set('Referrer-Policy', 'no-referrer');
+    return res;
+  }
+
   // Check if accessing via admin subdomain (e.g. admin.rashx.org or admin.localhost:3000)
   const isAdminSubdomain = hostname.startsWith('admin.');
 

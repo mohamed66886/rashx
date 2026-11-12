@@ -11,10 +11,13 @@ import {
   Database,
   ChevronRight,
   Inbox,
+  PenTool,
+  UploadCloud,
 } from 'lucide-react';
 import { getTenantsPage } from '@/server/data/tenants';
 import { getLeadsPage } from '@/server/data/leads';
 import { getPlatformStats } from '@/server/data/stats';
+import { getInvoiceStats } from '@/server/data/invoices';
 import { requireAdmin } from '@/server/auth/session';
 import type { SalonTenant } from '@/lib/types/platform';
 import {
@@ -68,10 +71,11 @@ export default async function PlatformOverviewPage({ params }: PlatformOverviewP
   const locale = rawLocale || 'ar';
   const isAr = locale === 'ar';
 
-  const [stats, tenantsData, leadsData] = await Promise.all([
+  const [stats, tenantsData, leadsData, invoiceStats] = await Promise.all([
     getPlatformStats(),
     getTenantsPage({ limit: 5 }),
     getLeadsPage({ limit: 5 }),
+    getInvoiceStats(),
   ]);
 
   const tenants = tenantsData.items;
@@ -81,6 +85,9 @@ export default async function PlatformOverviewPage({ params }: PlatformOverviewP
   const activeTenantsCount = stats.tenantsActive;
   const totalTenantsCount = stats.tenantsTotal;
   const totalLeadsCount = stats.leadsTotal;
+
+  const awaitingSignatureCount = (invoiceStats.sentCount || 0) + (invoiceStats.viewedCount || 0);
+  const uploadedReviewCount = invoiceStats.uploadedCount || 0;
 
   const sar = isAr ? 'ر.س' : 'SAR';
 
@@ -183,6 +190,67 @@ export default async function PlatformOverviewPage({ params }: PlatformOverviewP
           title={isAr ? 'طلبات الانضمام' : 'Inbound leads'}
           value={totalLeadsCount}
         />
+      </div>
+
+      {/* ============================== Invoice & Contract Action Cards ============================== */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+        {/* Awaiting signature card */}
+        <Link
+          href={`/${locale}/dashboard/invoices?status=sent`}
+          className="flex items-center justify-between p-4 rounded-2xl border border-neutral bg-base hover:border-primary transition-all group shadow-2xs"
+        >
+          <div className="flex items-center gap-3">
+            <div className="grid h-10 w-10 place-items-center rounded-xl bg-primary/20 text-[#29545c] group-hover:bg-primary/30 transition-colors">
+              <PenTool className="h-5 w-5" />
+            </div>
+            <div>
+              <div className="text-xs font-bold text-ink-muted">
+                {isAr ? 'بانتظار التوقيع' : 'Awaiting signature'}
+              </div>
+              <div className="text-lg font-black text-ink">
+                {awaitingSignatureCount}{' '}
+                <span className="text-xs font-normal text-ink-muted">
+                  {isAr ? 'مستند مرسل' : 'documents'}
+                </span>
+              </div>
+            </div>
+          </div>
+          <ChevronRight className="h-4 w-4 text-ink-muted rtl:rotate-180 group-hover:translate-x-[-2px] rtl:group-hover:translate-x-[2px] transition-transform" />
+        </Link>
+
+        {/* Uploaded – needs review card */}
+        <Link
+          href={`/${locale}/dashboard/invoices?status=uploaded`}
+          className={`flex items-center justify-between p-4 rounded-2xl border transition-all group shadow-2xs ${
+            uploadedReviewCount > 0
+              ? 'border-warm-peach/80 bg-warm-peach/10 hover:border-warm-peach'
+              : 'border-neutral bg-base hover:border-primary'
+          }`}
+        >
+          <div className="flex items-center gap-3">
+            <div
+              className={`grid h-10 w-10 place-items-center rounded-xl transition-colors ${
+                uploadedReviewCount > 0
+                  ? 'bg-warm-peach text-ink'
+                  : 'bg-neutral text-ink-muted'
+              }`}
+            >
+              <UploadCloud className="h-5 w-5" />
+            </div>
+            <div>
+              <div className="text-xs font-bold text-ink-muted">
+                {isAr ? 'نسخ مرفوعة – تحتاج مراجعة' : 'Uploaded – needs review'}
+              </div>
+              <div className="text-lg font-black text-ink">
+                {uploadedReviewCount}{' '}
+                <span className="text-xs font-normal text-ink-muted">
+                  {isAr ? 'نسخة بانتظار الاعتماد' : 'awaiting review'}
+                </span>
+              </div>
+            </div>
+          </div>
+          <ChevronRight className="h-4 w-4 text-ink-muted rtl:rotate-180 group-hover:translate-x-[-2px] rtl:group-hover:translate-x-[2px] transition-transform" />
+        </Link>
       </div>
 
       {/* ============================ Tenants + leads ============================ */}

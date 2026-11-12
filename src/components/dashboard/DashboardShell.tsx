@@ -24,9 +24,10 @@ interface DashboardShellProps {
   children: React.ReactNode;
   admin: AdminUser;
   locale: string;
+  uploadedInvoicesCount?: number;
 }
 
-export function DashboardShell({ children, locale }: DashboardShellProps) {
+export function DashboardShell({ children, locale, uploadedInvoicesCount }: DashboardShellProps) {
   const { logout } = useDashboardAuth();
   const isAr = locale === 'ar';
 
@@ -51,13 +52,17 @@ export function DashboardShell({ children, locale }: DashboardShellProps) {
     <ToastProvider position={isAr ? 'bottom-left' : 'bottom-right'}>
       <div dir={isAr ? 'rtl' : 'ltr'} className="min-h-dvh flex bg-[#F3F5F5] text-ink">
         {/* Navigation: Desktop Sidebar & Mobile Sidebar */}
-        <DesktopSidebar onLogoutRequest={() => setShowLogoutConfirm(true)} />
+        <DesktopSidebar
+          onLogoutRequest={() => setShowLogoutConfirm(true)}
+          uploadedInvoicesCount={uploadedInvoicesCount}
+        />
         <MobileSidebar
           isOpen={mobileMenuOpen}
           onClose={() => setMobileMenuOpen(false)}
           onOpen={() => setMobileMenuOpen(true)}
           onToggle={() => setMobileMenuOpen((open) => !open)}
           onLogoutRequest={() => setShowLogoutConfirm(true)}
+          uploadedInvoicesCount={uploadedInvoicesCount}
         />
 
         {/* Main container */}

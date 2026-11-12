@@ -29,6 +29,7 @@ interface MobileSidebarProps {
   onOpen?: () => void;
   onToggle?: () => void;
   onLogoutRequest: () => void;
+  uploadedInvoicesCount?: number;
 }
 
 /**
@@ -44,6 +45,7 @@ export function MobileSidebar({
   onOpen,
   onToggle,
   onLogoutRequest,
+  uploadedInvoicesCount,
 }: MobileSidebarProps) {
   const { admin, openAvatarPicker } = useDashboardAuth();
   const pathname = usePathname();
@@ -51,7 +53,7 @@ export function MobileSidebar({
   const locale = (params?.locale as string) || 'ar';
   const isAr = locale === 'ar';
 
-  const navItems = getPlatformNavItems(locale);
+  const navItems = getPlatformNavItems(locale, { uploadedInvoices: uploadedInvoicesCount });
   const { mounted, visible } = usePresence(isOpen, 280);
 
   // ESC to close + lock body scroll while open

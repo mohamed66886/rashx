@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import {
   Settings,
   Globe,
@@ -8,6 +9,7 @@ import {
   Database,
   CheckCircle2,
   Save,
+  CreditCard,
 } from 'lucide-react';
 import { useToast } from '@/components/ui/Toast';
 
@@ -56,12 +58,21 @@ export function SettingsClientView({ projectId, authDomain }: SettingsClientView
           </p>
         </div>
 
-        {saved && (
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-800 text-xs font-bold border border-emerald-200 animate-fadeIn">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span>تم حفظ التعديلات بنجاح</span>
-          </div>
-        )}
+        <div className="flex flex-wrap items-center gap-3">
+          <Link
+            href="./settings/billing"
+            className="px-4 py-2 rounded-xl bg-[#29545c] hover:bg-[#1E3E44] text-white text-xs font-bold transition-colors flex items-center gap-2"
+          >
+            <CreditCard className="w-4 h-4 text-[#91B8C0]" />
+            <span>إعدادات الفوترة والبيانات البنكية</span>
+          </Link>
+          {saved && (
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-800 text-xs font-bold border border-emerald-200 animate-fadeIn">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <span>تم حفظ التعديلات بنجاح</span>
+            </div>
+          )}
+        </div>
       </div>
 
       <form onSubmit={handleSave} className="grid grid-cols-1 lg:grid-cols-2 gap-6">

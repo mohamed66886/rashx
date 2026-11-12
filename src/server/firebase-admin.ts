@@ -3,6 +3,7 @@ import 'server-only';
 import { getApps, initializeApp, cert, getApp, type App } from 'firebase-admin/app';
 import { getAuth, type Auth } from 'firebase-admin/auth';
 import { getFirestore, type Firestore } from 'firebase-admin/firestore';
+import { getStorage, type Storage } from 'firebase-admin/storage';
 
 function formatPrivateKey(key?: string): string | undefined {
   if (!key) return undefined;
@@ -48,4 +49,14 @@ function getFirebaseAdminApp(): App {
 const adminApp = getFirebaseAdminApp();
 export const adminAuth: Auth = getAuth(adminApp);
 export const adminDb: Firestore = getFirestore(adminApp);
+export const adminStorage: Storage = getStorage(adminApp);
+
+export function getAdminStorageBucket() {
+  const bucketName =
+    process.env.FIREBASE_STORAGE_BUCKET ||
+    process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ||
+    (process.env.FIREBASE_PROJECT_ID ? `${process.env.FIREBASE_PROJECT_ID}.firebasestorage.app` : undefined);
+  return adminStorage.bucket(bucketName);
+}
+
 export { adminApp };

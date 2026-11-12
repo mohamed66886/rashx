@@ -19,7 +19,13 @@ export interface PlatformNavItem {
   exact?: boolean;
 }
 
-export function getPlatformNavItems(locale: string): PlatformNavItem[] {
+export interface NavItemOptions {
+  uploadedInvoices?: number;
+}
+
+export function getPlatformNavItems(locale: string, options?: NavItemOptions): PlatformNavItem[] {
+  const uploadedCount = options?.uploadedInvoices || 0;
+
   return [
     {
       title: 'نظرة عامة على المنصة',
@@ -41,11 +47,11 @@ export function getPlatformNavItems(locale: string): PlatformNavItem[] {
       icon: CreditCard,
     },
     {
-      title: 'إصدار الفواتير الضريبية (Invoices)',
-      titleEn: 'Tax Invoices & Billing',
+      title: 'الفواتير والعقود',
+      titleEn: 'Invoices & Contracts',
       href: `/${locale}/dashboard/invoices`,
       icon: Receipt,
-      badge: 'ZATCA',
+      badge: uploadedCount > 0 ? String(uploadedCount) : undefined,
     },
     {
       title: 'طلبات الانضمام والعروض (Leads)',

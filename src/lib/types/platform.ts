@@ -136,6 +136,7 @@ export interface PlatformInvoiceItem {
 export interface PlatformInvoice {
   id: string;
   invoiceNumber: string;
+  docKind?: 'contract_invoice' | 'quote';
   facilityName: string;
   facilityAddress: string;
   invoiceDate: string;
@@ -153,6 +154,7 @@ export interface PlatformInvoice {
   subtotal: number;
   discount: number;
   taxableAmount: number;
+  vatEnabled?: boolean;
   vatRate: number;
   vatAmount: number;
   totalAmount: number;
@@ -162,7 +164,47 @@ export interface PlatformInvoice {
   notes?: string;
   sentToEmail?: string;
   sentAt?: string;
+  cancelledAt?: string;
+  cancelReason?: string;
   createdAt: string;
   updatedAt?: string;
+}
+
+export interface BillingSettings {
+  facilityName: string;
+  accountName: string;
+  bankName: string;
+  iban: string;
+  taxNumber?: string;
+  commercialReg?: string;
+  address?: string;
+  disclaimerLine?: string;
+  signatureUrl?: string;
+  stampUrl?: string;
+}
+
+export interface BillingSellerSettings {
+  nameAr: string;
+  nameEn: string;
+  commercialRegNumber: string;
+  vatNumber?: string;
+  address: string;
+  email: string;
+  phone: string;
+  bankName: string;
+  accountName: string;
+  iban: string;
+}
+
+export interface PlatformBillingSettings {
+  seller: BillingSellerSettings;
+  signaturePath?: string | null;
+  stampPath?: string | null;
+  invoicePrefix: string;
+  quotePrefix?: string;
+  disclaimerLine?: string;
+  defaultDueDays: number;
+  updatedAt?: string;
+  updatedBy?: string;
 }
 

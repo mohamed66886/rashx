@@ -1,24 +1,57 @@
 import React from 'react';
 import { requireAdmin } from '@/server/auth/session';
-import { getInvoicesPage } from '@/server/data/invoices';
-import { getTenantsPage } from '@/server/data/tenants';
-import { InvoicesClientView } from '@/components/dashboard/invoices/InvoicesClientView';
+import { getInvoicesPage, getInvoiceStats } from '@/server/data/invoices';
+import { InvoicesListClientView } from '@/components/dashboard/invoices/InvoicesListClientView';
+import type { InvoiceStatus } from '@/lib/types/billing';
 
 export const instant = false;
 
-export default async function InvoicesPage() {
+interface InvoicesPageProps {
+  searchParams: Promise<{
+    status?: string;
+    q?: string;
+  }>;
+}
+
+const VALID_STATUSES = new Set<string>([
+  'draft',
+  'issued',
+  'sent',
+  'viewed',
+  'uploaded',
+  'signed',
+  'paid',
+  'cancelled',
+]);
+
+export default async function InvoicesPage({ searchParams }: InvoicesPageProps) {
   await requireAdmin(['super_admin', 'platform_engineer', 'sales_director']);
-  
-  const [invoicesData, tenantsData] = await Promise.all([
-    getInvoicesPage({ limit: 50 }),
-    getTenantsPage({ limit: 100 }),
+
+  const resolvedParams = await searchParams;
+  const statusParam = resolvedParams.status;
+  const qParam = resolvedParams.q;
+
+  const validStatus = statusParam && VALID_STATUSES.has(statusParam)
+    ? (statusParam as InvoiceStatus)
+    : undefined;
+
+  const [stats, invoicesData] = await Promise.all([
+    getInvoiceStats(),
+    getInvoicesPage({
+      status: validStatus,
+      q: qParam,
+      limit: 25,
+    }),
   ]);
 
   return (
-    <InvoicesClientView
+    <InvoicesListClientView
+      stats={stats}
       initialInvoices={invoicesData.items}
-      tenants={tenantsData.items}
+      initialNextCursor={invoicesData.nextCursor}
+      initialHasMore={invoicesData.hasMore}
+      currentStatus={statusParam || 'all'}
+      currentQuery={qParam || ''}
     />
   );
 }
-

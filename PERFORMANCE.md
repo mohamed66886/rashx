@@ -1,12 +1,12 @@
 # RASHX Platform HQ — Performance & Architecture Guide
 
-This document describes the caching strategy, database indexing, regional deployment topology, and implementation rules for the central platform administration dashboard (`admin.rashx.org` / `/[locale]/dashboard`).
+This document describes the caching strategy, database indexing, regional deployment topology, storage layout, customer digital signing flow, and contract management architecture for the central platform administration dashboard (`admin.rashx.org` / `/[locale]/dashboard`) and customer signing portal.
 
 ---
 
 ## 1. Cache Tags & Invalidation Matrix
 
-Every platform read function in `src/server/data/*` uses Next.js 16 `'use cache'`, `cacheLife('minutes')`, and granular cache tags. When mutations occur via Server Actions in `src/server/actions/*`, `updateTag(tag)` is called immediately after the `WriteBatch` or transaction commits.
+Every platform read function in `src/server/data/*` uses Next.js 16 `'use cache'`, `cacheLife()`, and granular cache tags. When mutations occur via Server Actions in `src/server/actions/*`, `updateTag(tag)` is called immediately after the `WriteBatch` or transaction commits.
 
 | Cache Tag | Data Domain | Read Function (`src/server/data/`) | Invalidation Triggers (`src/server/actions/`) |
 | :--- | :--- | :--- | :--- |
@@ -16,12 +16,17 @@ Every platform read function in `src/server/data/*` uses Next.js 16 `'use cache'
 | **`admins`** | Platform HQ staff directory | `getAdmins()` | Role updates, account promotions (`set-admin-claim.mjs`) |
 | **`audit`** | Immutable system audit log trail | `getAuditLogsPage()` | Automatically written by every mutating Server Action |
 | **`sessions`** | Active administrative sessions | `getAdminSessions()` | `revokeAdminSessionAction`, session expiry |
+| **`invoices`** | Platform invoices & quotes collection list | `getInvoicesPage()` | `saveDraftInvoice`, `issueInvoice`, `sendInvoiceAction`, `cancelInvoice`, `markPaid`, `approveSignedFile`, `rejectSignedFile` |
+| **`invoice:${id}`** | Single invoice doc & timeline | `getInvoice(id)`, `getInvoiceEvents(id)` | Any mutation targeting the specific invoice doc |
+| **`invoice-stats`** | Invoices breakdown counts & amounts (`stats/invoices`) | `getInvoiceStats()` | Any invoice status transition (`saveDraft`, `issue`, `send`, `view`, `upload`, `approve`, `reject`, `markPaid`, `cancel`) |
+| **`billing-settings`**| Official seller info, bank IBAN, logo/stamp | `getBillingSettings()` | `saveBillingSettingsAction`, corporate image uploads |
+| **`contract-clauses`**| Master legal contract clauses library | `getClauses()` | `saveClauseAction`, `seed-clauses.mjs` |
 
 ---
 
 ## 2. Firestore Composite Indexes
 
-Firestore requires composite indexes whenever a query combines `where` filters with `orderBy` on different fields. The required indexes are declared in `firestore.indexes.json`:
+Firestore requires composite indexes whenever a query combines `where` filters with `orderBy` on different fields. The declared indexes in `firestore.indexes.json` are:
 
 ```json
 {
@@ -41,6 +46,38 @@ Firestore requires composite indexes whenever a query combines `where` filters w
         { "fieldPath": "status", "order": "ASCENDING" },
         { "fieldPath": "submittedAt", "order": "DESCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "platform_invoices",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "platform_invoices",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "docKind", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "platform_invoices",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "number", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "contract_clauses",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "active", "order": "ASCENDING" },
+        { "fieldPath": "order", "order": "ASCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []
@@ -50,6 +87,10 @@ Firestore requires composite indexes whenever a query combines `where` filters w
 ### Purpose of Each Index:
 1. **`tenants (status ASC, createdAt DESC)`**: Powers filtered tab views (`Active`, `Trial`, `Suspended`) ordered chronologically with cursor-based pagination.
 2. **`leads (status ASC, submittedAt DESC)`**: Powers pipeline stage filtering (`New`, `Contacted`, `Converted`) ordered chronologically with cursor-based pagination.
+3. **`platform_invoices (status ASC, createdAt DESC)`**: Powers invoice list status filtering (`draft`, `issued`, `sent`, `viewed`, `uploaded`, `signed`, `paid`, `cancelled`) ordered by newest first with cursor pagination.
+4. **`platform_invoices (docKind ASC, createdAt DESC)`**: Powers document type filtering (`contract_invoice` vs `quote`).
+5. **`platform_invoices (status ASC, number ASC)`**: Enables sequential document numbering lookups.
+6. **`contract_clauses (active ASC, order ASC)`**: Retrieves active contract clauses sorted in natural sequential clause order (`order: 1, 2, ...`).
 
 ---
 
@@ -65,57 +106,147 @@ By default, `vercel.json` omits the `regions` setting to use Vercel's default or
 }
 ```
 
-### Optional Region Alignment:
-Once the target Firestore database location is selected in Google Cloud, you may optionally set the closest Vercel Function region (in Vercel Project Settings > Functions, or via `regions` in `vercel.json`):
-- **Middle East GCP Clusters**: Select the closest available low-latency Vercel Function region or leave at default.
-- **Europe GCP Clusters**: Align with corresponding European function regions (e.g. Frankfurt, London).
-- **US GCP Clusters**: Align with corresponding US function regions (e.g. Washington D.C., Cleveland, San Francisco).
-
 ---
 
 ## 4. Cold-Load Read Budget & Enforcement
 
-The dashboard enforces a strict cold-load read budget to prevent runaway Firestore costs:
+The platform enforces a strict cold-load read budget to guarantee low latency and prevent runaway Firestore costs:
 
 - **`dashboard` (Overview)**: **At most 3 reads** on a cold cache:
   1. `getPlatformStats()`: 1 document read (`stats/platform`).
-  2. `getTenantsPage({ limit: 5 })`: 1 collection query (5 docs).
-  3. `getLeadsPage({ limit: 5 })`: 1 collection query (5 docs).
-- **Subsequent Visits**: **0 reads** (served from Next.js `'use cache'` tag layer).
-- **`dashboard/tenants`**: 1 query read (limit 25).
-- **`dashboard/leads`**: 1 query read (limit 25).
-- **`dashboard/admins`**: 1 query read (admins directory without passwords).
-- **`dashboard/settings`**: 0 Firestore reads (configuration rendered from environment).
-- **`dashboard/login`**: 0 Firestore reads (client-side Firebase Auth ID token acquisition).
+  2. `getInvoiceStats()`: 1 document read (`stats/invoices`).
+  3. `getTenantsPage({ limit: 5 })`: 1 collection query (5 docs).
+  *(Alert cards for "Awaiting signature" and "Uploaded – needs review" consume `stats/invoices` with zero extra queries)*.
+- **`dashboard/invoices` (List Page)**: **At most 2 reads/queries**:
+  1. `getInvoiceStats()`: 1 document read (`stats/invoices`).
+  2. `getInvoicesPage({ status, limit: 25 })`: 1 collection query with `.select(...)` summary projection.
+- **`dashboard/invoices/[id]` (View Page)**: **At most 3 reads**:
+  1. `getInvoice(id)`: 1 document read (`platform_invoices/{id}`).
+  2. `getInvoiceEvents(id)`: 1 subcollection query (`platform_invoices/{id}/events`, limit 50).
+  3. `getBillingSettings()`: 1 document read (`platform_settings/billing`).
+- **`sign/[token]` (Public Sign Portal)**: **At most 1 read** (Budget: $\le 2$):
+  1. Document read from `platform_invoices/{invoiceId}` to verify hash and expiration.
+  *(Invalid or expired tokens exit immediately without touching other collections)*.
+- **Subsequent / Warm Visits**: **0 Firestore reads** (served entirely from Next.js `'use cache'` tag layer).
 
 ---
 
-## 5. Rules for Adding a New Page or Feature
+## 5. Cloud Storage Layout & Access Control
 
-Follow these non-negotiable architectural rules whenever introducing a new dashboard feature:
+All document assets, signatures, and customer uploads are stored in Google Cloud Storage with strict zero-public-access rules (`storage.rules` denies all direct client operations):
 
-1. **Server Components by Default**:
-   - The route `page.tsx` must be an async Server Component.
-   - Restrict `'use client'` strictly to small, self-contained interactive islands (e.g. `NewFeatureClientView.tsx`).
-2. **Server-Only Data Reads (`src/server/data/*.ts`)**:
-   - File must begin with `import 'server-only';`.
-   - Exported functions must declare `'use cache'`, `cacheLife('minutes')`, and `cacheTag('feature_tag')`.
-   - Firestore `Timestamp` objects must be converted to ISO strings before crossing into client props.
-3. **Server Actions for Mutations (`src/server/actions/*.ts`)**:
-   - File must begin with `'use server';`.
-   - First line of every action must call `await requireAdmin(['allowed_role'])`.
-   - Validate all arguments using `zod`.
-   - Perform mutations in a single atomic `WriteBatch` containing:
-     1. The resource creation / update / deletion.
-     2. An audit log entry into the `audit_logs` collection.
-     3. An aggregate counter update (`FieldValue.increment`) on `stats/platform` if relevant.
-   - Call `updateTag('feature_tag')` (and `updateTag('stats')` if metrics changed) after committing.
-4. **Optimistic UI & Visible Errors**:
-   - Client views must combine `useOptimistic` + `useTransition` for instantaneous optimistic UI updates.
-   - If an action fails, roll back state and display a real error toast via `useToast()`. Never fail silently to `localStorage`.
-5. **Cursor Pagination**:
-   - Never load entire collections unbounded.
-   - Use `orderBy` + `limit(25)` + cursor (`startAfter`) with a "تحميل المزيد" (Load More) trigger.
-6. **Zero Client Firestore Access**:
-   - Never import `firebase/firestore` or `@/lib/firebase` inside dashboard pages or components. All database communication runs through `src/server/` using Firebase Admin SDK.
+```
+gs://<bucket>/
+├── billing/
+│   └── assets/
+│       ├── signature.png       # RASHX authorized signature image (processed via sharp, max 600px)
+│       └── stamp.png           # RASHX official corporate stamp image (transparent PNG)
+└── invoices/
+    └── {invoiceId}/
+        ├── original.pdf        # Immutable issued contract PDF generated server-side (stored with SHA-256)
+        └── signed/
+            └── {uniqueId}.{ext}# Customer-uploaded signed copy (PDF, JPG, PNG, WebP up to 15MB)
+```
 
+### Security Enforcement:
+- **Private by Default**: Storage rules reject all direct unauthenticated and client-side REST access.
+- **Authenticated Streaming Route**:
+  - Administrative previews stream through `GET /api/dashboard/billing/asset?path=...` (requires `super_admin`, `platform_engineer`, or `sales_director`).
+  - Path traversal attempts (`..`) are strictly rejected.
+  - Headers set `Content-Disposition: inline`, `Cache-Control: private`, and `X-Content-Type-Options: nosniff`.
+- **Public Customer Download Route**:
+  - `GET /api/sign/download?token=${token}` verifies token validity and streams `invoices/{invoiceId}/original.pdf` without exposing the internal storage path to the client.
+
+---
+
+## 6. Customer Digital Signing Flow & Security Model
+
+The signing module implements a bank-grade digital evidence trail:
+
+```
+[Admin Issues Invoice]
+       │
+       ▼ (Generates original.pdf + SHA-256 in Storage)
+[sendInvoiceAction] ───► Generates 32-byte crypto token
+       │                Stores SHA-256(token) + expiresAt (30 days) in Firestore
+       │                Sends email with URL: /sign/{invoiceId}.{token}
+       ▼
+[Customer Opens /sign] ──► verifySigningToken: Timing-safe comparison of SHA-256
+       │                 Checks: status !== 'cancelled' && now < expiresAt
+       │                 Strikes tokenHash & storage paths from client payload
+       ▼
+[recordViewAction] ───► Logs evidence: IP, User-Agent, ISO timestamp
+       │                Updates status to 'viewed' (if 'sent')
+       ▼
+[Customer Direct Upload] ──► requestUploadUrlAction: Validates type & size (<= 15MB)
+       │                    Rate-limits requests (10/hour per IP/token)
+       │                    Generates V4 signed PUT URL (10-min expiry)
+       ▼
+[confirmUploadAction] ───► Validates magic bytes (%PDF, PNG, JPEG SOI, WebP)
+                         Computes SHA-256 checksum of uploaded binary
+                         Stores file evidence in signing.files[]
+                         Updates status to 'uploaded'
+                         Atomic increment on stats/invoices
+                         Sends notification email to RASHX staff
+```
+
+---
+
+## 7. Token Expiry, Rotation & Revocation Rules
+
+1. **30-Day Default Validity**:
+   - `expiresAt` is set to `Date.now() + 30 * 24 * 60 * 60 * 1000`.
+   - Expired links display a neutral "انتهت صلاحية الرابط" (Link Expired) message.
+2. **Zero Plaintext Storage**:
+   - The raw 32-byte token is sent only in the email URL and is **never** persisted to Firestore or logs.
+   - Firestore stores only `crypto.createHash('sha256').update(rawToken).digest('hex')`.
+3. **Timing-Safe Comparison**:
+   - Comparison uses `crypto.timingSafeEqual(bufA, bufB)` to prevent side-channel timing attacks.
+4. **Instant Invalidation on Resend (Token Rotation)**:
+   - When an admin triggers "إعادة إرسال الرابط" (`sendInvoiceAction`), a fresh 32-byte token is minted and its new hash overwrites `signing.tokenHash`. The prior link is instantly invalidated.
+5. **Immediate Revocation on Cancellation**:
+   - Cancelling an invoice (`cancelInvoiceAction`) sets `status: 'cancelled'`. Any attempt to access `/sign/[token]` renders the neutral "المستند ملغى" (Document Cancelled) screen.
+6. **Zero Information Disclosure on Invalid Tokens**:
+   - If a random, forged, or malformed token is requested, the system renders a neutral generic error page with RASHX branding without confirming whether the invoice exists or revealing facility names.
+
+---
+
+## 8. Contract Clauses Management & Lifecycle
+
+Contract clauses represent reusable legal provisions that govern commercial contracts and price quotes.
+
+### How to Add a Clause:
+1. **Via Seed Script** (`scripts/seed-clauses.mjs`):
+   ```javascript
+   {
+     id: 'clause-confidentiality',
+     title: 'البند التاسع: السرية وحماية البيانات',
+     body: 'يلتزم الطرفان بالمحافظة التامة على سرية البيانات والمعلومات المتبادلة وعدم إفشائها لأي طرف ثالث.',
+     mandatory: true,  // Automatically included and locked in editor
+     order: 9,         // Sort order in the document
+     active: true      // Available for new invoices
+   }
+   ```
+2. **Via Server Action** (`saveClauseAction` in `src/server/actions/clauses.ts`):
+   - Validates input schema via `zod`.
+   - Requires admin role (`super_admin`, `platform_engineer`).
+   - Writes to `contract_clauses/{id}` and logs action in `audit_logs`.
+   - Purges cache via `updateTag('contract-clauses')`.
+
+### Immutability & Frozen Terms Rule:
+- When an invoice is issued, the editor takes a **frozen snapshot** of the selected clauses and stores them directly inside `invoice.terms`.
+- Modifying, reordering, or archiving master clauses in `contract_clauses` will **never** alter previously issued contracts or their generated PDFs.
+
+---
+
+## 9. Build Route Table & Bundle Performance
+
+Measured First-Load JS and production route classification from `next build`:
+
+| Route | Type | First-Load JS (Raw / Gzip) | Description |
+| :--- | :--- | :--- | :--- |
+| `/[locale]/dashboard/invoices` | Dynamic (`ƒ`) | 18.5 kB / 5.1 kB | Invoices table, KPI stats, status tabs, search filter |
+| `/[locale]/dashboard/invoices/new` | Dynamic (`ƒ`) | 31.8 kB / 8.1 kB | Full invoice & quote editor, clauses selector, live preview |
+| `/[locale]/dashboard/invoices/[id]` | Prerender (`◐`) | 30.0 kB / 7.8 kB | Contract viewer, digital evidence inspector, review actions |
+| `/[locale]/sign/[token]` | Prerender (`◐`) | 13.9 kB / 4.65 kB | Mobile-first customer signature & direct upload portal |
+| **Shared Application Runtime** | Shared (`○`) | ~124 kB (Gzip) | React 19, Next.js 16 App Router runtime, shared icons |
