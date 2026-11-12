@@ -6,9 +6,12 @@ import { headers } from 'next/headers';
 import { updateTag } from 'next/cache';
 import { FieldValue } from 'firebase-admin/firestore';
 import { adminDb, getAdminStorageBucket } from '@/server/firebase-admin';
-import type { PlatformInvoice, InvoiceSigningFile } from '@/lib/types/billing';
-import { toIsoString } from '@/server/data/utils';
-import { sendInvoiceEmail } from '@/server/email/mailer';
+import type { InvoiceSigningFile, InvoiceStatus } from '@/lib/types/billing';
+import { verifySigningToken } from '@/server/signing/verify';
+import { sendSignedUploadNotificationEmail } from '@/server/email/mailer';
+
+// Re-export verifySigningToken type for client usage if needed
+export type { VerifyTokenResult } from '@/server/signing/verify';
 
 // Allowed MIME types and max size (15MB)
 const ALLOWED_MIME_TYPES = new Set([
@@ -20,158 +23,58 @@ const ALLOWED_MIME_TYPES = new Set([
 const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB
 
 // ─────────────────────────────────────────────────────────────
-// Rate Limiter: In-memory sliding window counter (10 requests/hour per token or IP)
+// Distributed Rate Limiter: Firestore Transaction with Sliding Window
+// Stored in rate_limits/{key} (10 requests/hour limit)
 // ─────────────────────────────────────────────────────────────
-interface RateLimitRecord {
-  count: number;
-  resetAt: number;
-}
-const rateLimitMap = new Map<string, RateLimitRecord>();
-
-function checkRateLimit(key: string, limit: number = 10, windowMs: number = 60 * 60 * 1000): boolean {
+async function checkFirestoreRateLimit(
+  key: string,
+  limit: number = 10,
+  windowMs: number = 60 * 60 * 1000
+): Promise<boolean> {
+  const cleanKey = key.replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 100);
+  const docRef = adminDb.collection('rate_limits').doc(cleanKey);
   const now = Date.now();
-  const record = rateLimitMap.get(key);
 
-  if (!record || now > record.resetAt) {
-    rateLimitMap.set(key, { count: 1, resetAt: now + windowMs });
-    return true;
-  }
-
-  if (record.count >= limit) {
-    return false;
-  }
-
-  record.count += 1;
-  return true;
-}
-
-// ─────────────────────────────────────────────────────────────
-// Timing-Safe String Comparison Helper
-// ─────────────────────────────────────────────────────────────
-function timingSafeEqualHex(a: string, b: string): boolean {
-  if (typeof a !== 'string' || typeof b !== 'string') return false;
   try {
-    const bufA = Buffer.from(a, 'hex');
-    const bufB = Buffer.from(b, 'hex');
-    if (bufA.length !== bufB.length) return false;
-    return crypto.timingSafeEqual(bufA, bufB);
-  } catch {
-    return false;
-  }
-}
-
-export interface VerifyTokenResult {
-  valid: boolean;
-  error?: 'invalid_token' | 'not_found' | 'cancelled' | 'expired' | 'missing_token';
-  invoice?: PlatformInvoice;
-  invoiceId?: string;
-  token?: string;
-}
-
-/**
- * Validates the public customer signing token with timing-safe comparison,
- * ensuring document exists, is not cancelled, and token has not expired.
- */
-export async function verifySigningToken(fullToken: string): Promise<VerifyTokenResult> {
-  if (!fullToken || typeof fullToken !== 'string') {
-    return { valid: false, error: 'missing_token' };
-  }
-
-  const dotIndex = fullToken.indexOf('.');
-  if (dotIndex <= 0 || dotIndex >= fullToken.length - 1) {
-    return { valid: false, error: 'invalid_token' };
-  }
-
-  const invoiceId = fullToken.substring(0, dotIndex);
-  const rawToken = fullToken.substring(dotIndex + 1);
-
-  const docSnap = await adminDb.collection('platform_invoices').doc(invoiceId).get();
-  if (!docSnap.exists) {
-    return { valid: false, error: 'not_found' };
-  }
-
-  const data = docSnap.data()!;
-
-  // Must not be cancelled
-  if (data.status === 'cancelled') {
-    return { valid: false, error: 'cancelled' };
-  }
-
-  const storedHash = data.signing?.tokenHash;
-  const expiresAt = data.signing?.expiresAt;
-
-  if (!storedHash || !expiresAt) {
-    return { valid: false, error: 'invalid_token' };
-  }
-
-  // Timing-safe compare of SHA-256 hash
-  const computedHash = crypto.createHash('sha256').update(rawToken).digest('hex');
-  if (!timingSafeEqualHex(computedHash, storedHash)) {
-    return { valid: false, error: 'invalid_token' };
-  }
-
-  // Check expiration
-  const expTime = new Date(expiresAt).getTime();
-  if (isNaN(expTime) || expTime < Date.now()) {
-    return { valid: false, error: 'expired' };
-  }
-
-  // Sanitize signing and pdf to prevent leaking tokenHash or internal storage paths to public client
-  const sanitizedSigning = data.signing
-    ? {
-        expiresAt: data.signing.expiresAt,
-        sentTo: data.signing.sentTo,
-        sentAt: data.signing.sentAt,
-        viewedAt: data.signing.viewedAt,
-        signedAt: data.signing.signedAt,
-        reviewedBy: data.signing.reviewedBy,
-        files: (data.signing.files || []).map((f: InvoiceSigningFile) => ({
-          id: f.id,
-          name: f.name,
-          size: f.size,
-          mimeType: f.mimeType,
-          sha256: f.sha256,
-          uploadedAt: f.uploadedAt,
-          path: '', // stripped for public response
-        })),
+    return await adminDb.runTransaction(async (tx) => {
+      const snap = await tx.get(docRef);
+      if (!snap.exists) {
+        tx.set(docRef, {
+          count: 1,
+          resetAt: now + windowMs,
+          createdAt: FieldValue.serverTimestamp(),
+          updatedAt: FieldValue.serverTimestamp(),
+        });
+        return true;
       }
-    : undefined;
 
-  const sanitizedPdf = data.pdf
-    ? {
-        sha256: data.pdf.sha256,
-        path: '', // stripped for public response
+      const data = snap.data()!;
+      const resetAt = typeof data.resetAt === 'number' ? data.resetAt : 0;
+      const count = typeof data.count === 'number' ? data.count : 0;
+
+      if (now > resetAt) {
+        tx.set(docRef, {
+          count: 1,
+          resetAt: now + windowMs,
+          updatedAt: FieldValue.serverTimestamp(),
+        });
+        return true;
       }
-    : undefined;
 
-  const invoice: PlatformInvoice = {
-    id: docSnap.id,
-    number: data.number || null,
-    docKind: data.docKind || 'contract_invoice',
-    customer: data.customer || { facilityName: '', name: '', address: '' },
-    items: data.items || [],
-    totals: data.totals || { subtotal: 0, discount: 0, taxable: 0, vat: 0, total: 0 },
-    vatRatePercent: Number(data.vatRatePercent) || 0,
-    currency: 'SAR',
-    issueDate: data.issueDate || toIsoString(data.createdAt),
-    dueDate: data.dueDate,
-    terms: data.terms || [],
-    notes: data.notes,
-    seller: data.seller,
-    status: data.status,
-    signing: sanitizedSigning,
-    pdf: sanitizedPdf,
-    createdAt: toIsoString(data.createdAt),
-    updatedAt: toIsoString(data.updatedAt || data.createdAt),
-    createdBy: data.createdBy || '',
-  };
+      if (count >= limit) {
+        return false;
+      }
 
-  return {
-    valid: true,
-    invoice,
-    invoiceId,
-    token: rawToken,
-  };
+      tx.update(docRef, {
+        count: count + 1,
+        updatedAt: FieldValue.serverTimestamp(),
+      });
+      return true;
+    });
+  } catch (err) {
+    console.warn('[checkFirestoreRateLimit] Transaction failed, allowing request:', err);
+    return true; // fail-open for client resilience
+  }
 }
 
 /**
@@ -244,24 +147,34 @@ export async function recordViewAction(fullToken: string): Promise<{ success: bo
 
 /**
  * Requests a direct-to-Storage V4 signed PUT URL for uploading signed contracts.
- * Re-verifies token, validates size & MIME type, and applies 10/hr rate limiting.
+ * Re-verifies token, validates size & MIME type, enforces status gates,
+ * adds x-goog-content-length-range header, and applies transactional rate limiting.
  */
 export async function requestUploadUrlAction(
   fullToken: string,
   fileMeta: { name: string; size: number; type: string }
 ): Promise<{ success: boolean; data?: { uploadUrl: string; storagePath: string }; error?: string }> {
   const verification = await verifySigningToken(fullToken);
-  if (!verification.valid || !verification.invoiceId) {
+  if (!verification.valid || !verification.invoiceId || !verification.invoice) {
     return { success: false, error: 'رابط التوقيع غير صالح أو منتهي الصلاحية.' };
   }
 
-  const { invoiceId } = verification;
+  const { invoiceId, invoice } = verification;
 
-  // Rate Limiting
+  // Gate: Allow uploads ONLY when status is 'sent', 'viewed', or 'uploaded'
+  if (!['sent', 'viewed', 'uploaded'].includes(invoice.status)) {
+    return {
+      success: false,
+      error: 'رابط التوقيع غير متاح لرفع مستندات جديدة لهذا العقد.',
+    };
+  }
+
+  // Rate Limiting via Firestore Counter Transaction
   const headerList = await headers();
   const ip = headerList.get('x-forwarded-for')?.split(',')[0].trim() || headerList.get('x-real-ip') || 'unknown';
   const rateLimitKey = `upload_${invoiceId}_${ip}`;
-  if (!checkRateLimit(rateLimitKey, 10, 60 * 60 * 1000)) {
+  const allowed = await checkFirestoreRateLimit(rateLimitKey, 10, 60 * 60 * 1000);
+  if (!allowed) {
     return {
       success: false,
       error: 'تجاوزت الحد المسموح لطلبات الرفع (10 طلبات بالساعة). يرجى المحاولة لاحقاً.',
@@ -297,6 +210,9 @@ export async function requestUploadUrlAction(
       action: 'write',
       expires: Date.now() + 10 * 60 * 1000, // 10 minutes
       contentType: fileMeta.type,
+      extensionHeaders: {
+        'x-goog-content-length-range': '0,15728640',
+      },
     });
 
     return {
@@ -316,13 +232,13 @@ export async function requestUploadUrlAction(
 }
 
 /**
- * Confirms the direct upload to Storage:
+ * Confirms direct upload to Storage:
  * 1. Checks object exists in storage and verifies actual size.
  * 2. Validates magic bytes (PDF, JPEG, PNG, WebP).
  * 3. Computes SHA-256 of the stored file.
- * 4. Appends to signing.files and updates status to 'uploaded'.
- * 5. Records event with evidence: timestamp, IP, User Agent, SHA-256, and size.
- * 6. Sends email alert to RASHX team.
+ * 4. Appends to signing.files with full metadata: id, name, size, mimeType, sha256, path, uploadedAt.
+ * 5. Performs status transition and stats update inside an atomic Firestore transaction.
+ * 6. Sends internal email notification to RASHX platform staff.
  */
 export async function confirmUploadAction(
   fullToken: string,
@@ -335,6 +251,14 @@ export async function confirmUploadAction(
   }
 
   const { invoiceId, invoice } = verification;
+
+  // Gate: Allow uploads ONLY when status is 'sent', 'viewed', or 'uploaded'
+  if (!['sent', 'viewed', 'uploaded'].includes(invoice.status)) {
+    return {
+      success: false,
+      error: 'رابط التوقيع غير متاح لرفع مستندات جديدة لهذا العقد.',
+    };
+  }
 
   // Basic path sanitization
   const cleanPath = storagePath.replace(/\\/g, '/');
@@ -375,6 +299,8 @@ export async function confirmUploadAction(
     };
   }
 
+  const inferredMime = isPdf ? 'application/pdf' : isPng ? 'image/png' : isJpg ? 'image/jpeg' : 'image/webp';
+
   // 3. Compute SHA-256
   const fileSha256 = crypto.createHash('sha256').update(buffer).digest('hex');
 
@@ -384,72 +310,105 @@ export async function confirmUploadAction(
   const userAgent = headerList.get('user-agent') || 'unknown';
   const nowIso = new Date().toISOString();
 
+  // Full file metadata stored in signing.files entry
+  const fileId = crypto.randomUUID();
   const fileEntry: InvoiceSigningFile = {
+    id: fileId,
     name: fileMeta.name || 'signed-contract.pdf',
+    size: actualSize,
+    mimeType: inferredMime,
+    sha256: fileSha256,
     path: cleanPath,
     uploadedAt: nowIso,
+    uploaderIp: ip,
+    uploaderUserAgent: userAgent,
   };
 
   const invoiceRef = adminDb.collection('platform_invoices').doc(invoiceId);
-  const batch = adminDb.batch();
 
-  // Update Invoice Document
-  batch.update(invoiceRef, {
-    status: 'uploaded',
-    'signing.files': FieldValue.arrayUnion(fileEntry),
-    updatedAt: FieldValue.serverTimestamp(),
-  });
+  // 5. Update Status & Stats inside a single Firestore Transaction
+  try {
+    await adminDb.runTransaction(async (tx) => {
+      const snap = await tx.get(invoiceRef);
+      if (!snap.exists) {
+        throw new Error('المستند المطلوب غير موجود.');
+      }
 
-  // Log Event with Complete Digital Evidence
-  const eventRef = invoiceRef.collection('events').doc();
-  batch.set(eventRef, {
-    type: 'UPLOADED',
-    by: 'customer',
-    at: FieldValue.serverTimestamp(),
-    meta: {
-      timestamp: nowIso,
-      ip,
-      userAgent,
-      fileSha256,
-      fileSize: actualSize,
-      fileName: fileMeta.name,
-      storagePath: cleanPath,
-    },
-  });
+      const currentData = snap.data()!;
+      const currentStatus = currentData.status as InvoiceStatus;
 
-  // Update Stats if status changed to uploaded
-  if (invoice.status !== 'uploaded') {
-    const statsRef = adminDb.collection('stats').doc('invoices');
-    batch.set(
-      statsRef,
-      {
-        [`${invoice.status}Count`]: FieldValue.increment(-1),
-        [`counts.${invoice.status}`]: FieldValue.increment(-1),
-        uploadedCount: FieldValue.increment(1),
-        'counts.uploaded': FieldValue.increment(1),
+      if (!['sent', 'viewed', 'uploaded'].includes(currentStatus)) {
+        throw new Error('حالة المستند لا تسمح برفع نسخ جديدة حالياً.');
+      }
+
+      // Update invoice document
+      tx.update(invoiceRef, {
+        status: 'uploaded',
+        'signing.files': FieldValue.arrayUnion(fileEntry),
         updatedAt: FieldValue.serverTimestamp(),
-      },
-      { merge: true }
-    );
+      });
+
+      // Log event
+      const eventRef = invoiceRef.collection('events').doc();
+      tx.set(eventRef, {
+        type: 'UPLOADED',
+        by: 'customer',
+        at: FieldValue.serverTimestamp(),
+        meta: {
+          fileId,
+          timestamp: nowIso,
+          ip,
+          userAgent,
+          fileSha256,
+          fileSize: actualSize,
+          fileName: fileMeta.name,
+          storagePath: cleanPath,
+        },
+      });
+
+      // Update stats atomically using the status read inside transaction
+      if (currentStatus !== 'uploaded') {
+        const statsRef = adminDb.collection('stats').doc('invoices');
+        tx.set(
+          statsRef,
+          {
+            [`${currentStatus}Count`]: FieldValue.increment(-1),
+            [`counts.${currentStatus}`]: FieldValue.increment(-1),
+            uploadedCount: FieldValue.increment(1),
+            'counts.uploaded': FieldValue.increment(1),
+            updatedAt: FieldValue.serverTimestamp(),
+          },
+          { merge: true }
+        );
+      }
+    });
+  } catch (txErr: unknown) {
+    const msg = txErr instanceof Error ? txErr.message : 'فشلت معالجة تأكيد الرفع';
+    return { success: false, error: msg };
   }
 
-  await batch.commit();
   updateTag('invoices');
   updateTag('invoice-stats');
   updateTag(`invoice:${invoiceId}`);
 
-  // 5. Send Alert Email to RASHX Billing Team
+  // 6. Send Internal Notification Email to RASHX Staff
   const notifyEmail = process.env.BILLING_NOTIFY_EMAIL || process.env.SMTP_USER;
   if (notifyEmail) {
     try {
-      await sendInvoiceEmail({
+      await sendSignedUploadNotificationEmail({
         to: notifyEmail,
+        invoiceId,
         invoiceNumber: invoice.number || invoiceId,
+        docKind: invoice.docKind,
         facilityName: invoice.customer.facilityName,
-        totalAmount: invoice.totals.total / 100,
         customerName: invoice.customer.name,
+        customerEmail: invoice.customer.email,
         customerPhone: invoice.customer.phone,
-        notes: `تم رفع نسخة موقعة جديدة من قبل العميل: ${fileMeta.name} (حجم: ${(actualSize / 1024).toFixed(1)} KB, SHA-256: ${fileSha256.substring(0, 16)}...)`,
+        fileName: fileMeta.name,
+        fileSize: actualSize,
+        fileSha256,
+        uploadedAt: nowIso,
+        uploaderIp: ip,
       });
     } catch (err) {
       console.warn('[confirmUploadAction] Failed to send team alert email:', err);

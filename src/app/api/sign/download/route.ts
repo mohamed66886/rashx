@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifySigningToken } from '@/server/actions/signing';
+import { verifySigningToken } from '@/server/signing/verify';
 import { getAdminStorageBucket } from '@/server/firebase-admin';
 import { generateInvoicePdf } from '@/server/pdf/invoice-pdf';
 

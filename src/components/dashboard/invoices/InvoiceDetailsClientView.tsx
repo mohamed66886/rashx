@@ -62,7 +62,7 @@ export function InvoiceDetailsClientView({
   const router = useRouter();
 
   const [invoice, setInvoice] = useState<PlatformInvoice>(initialInvoice);
-  const [events, setEvents] = useState<InvoiceEvent[]>(initialEvents);
+  const [events] = useState<InvoiceEvent[]>(initialEvents);
 
   const [isPending, startTransition] = useTransition();
   const [statusMessage, setStatusMessage] = useState<{
@@ -446,6 +446,11 @@ export function InvoiceDetailsClientView({
   const isQuote = invoice.docKind === 'quote';
   const docNumber = invoice.number || 'مسودة غير مصدرة';
 
+  const latestEmailFailedEvent = events.find((ev) => ev.type === 'email_failed');
+  const hasEmailFailed = Boolean(
+    latestEmailFailedEvent || invoice.signing?.emailFailed
+  );
+
   return (
     <div className="space-y-6 pb-16" dir="rtl">
       {/* ──────────────── Top Navigation & Actions Bar ──────────────── */}
@@ -568,6 +573,32 @@ export function InvoiceDetailsClientView({
               <AlertCircle className="w-4 h-4 shrink-0" />
             )}
             <span>{statusMessage.text}</span>
+          </div>
+        )}
+
+        {/* Email Failed Alert Banner with Resend Button */}
+        {hasEmailFailed && (
+          <div className="p-3.5 sm:p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-900 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5 text-xs font-bold">
+              <AlertCircle className="w-5 h-5 text-rose-600 shrink-0" />
+              <div>
+                <p className="text-rose-950 font-bold">تعذر إرسال المستند بالبريد الإلكتروني للعميل</p>
+                <p className="text-[11px] text-rose-700 font-normal mt-0.5">
+                  {latestEmailFailedEvent?.meta && typeof latestEmailFailedEvent.meta === 'object' && 'error' in latestEmailFailedEvent.meta
+                    ? String((latestEmailFailedEvent.meta as { error?: string }).error)
+                    : 'حدث خطأ أثناء محاولة إرسال البريد للعميل. يمكنك إعادة المحاولة الآن.'}
+                </p>
+              </div>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowEmailModal(true)}
+              className="text-xs font-bold gap-1.5 h-8 border-rose-300 text-rose-800 hover:bg-rose-100 bg-white shrink-0"
+            >
+              <Mail className="w-3.5 h-3.5 text-rose-600" />
+              <span>إعادة إرسال البريد</span>
+            </Button>
           </div>
         )}
       </div>
@@ -856,6 +887,7 @@ export function InvoiceDetailsClientView({
                                 className="w-full h-80 rounded-lg border border-[#E5E9E8] bg-white"
                               />
                             ) : (
+                              // eslint-disable-next-line @next/next/no-img-element
                               <img
                                 src={assetUrl}
                                 alt={file.name}

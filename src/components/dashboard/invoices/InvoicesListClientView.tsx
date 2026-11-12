@@ -20,7 +20,7 @@ import {
   ArrowRight,
   Filter,
 } from 'lucide-react';
-import { Button, Input, SarIcon } from '@/components/ui';
+import { Button, SarIcon } from '@/components/ui';
 import type { PlatformInvoiceSummary, InvoiceStats, InvoiceStatus } from '@/lib/types/billing';
 import { formatHalalasAsSar } from '@/lib/types/billing';
 import { getInvoicesPageAction } from '@/server/actions/invoices';

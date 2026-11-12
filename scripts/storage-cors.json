@@ -1,0 +1,18 @@
+[
+  {
+    "origin": [
+      "https://admin.rashx.org",
+      "https://rashx.com",
+      "http://localhost:3000"
+    ],
+    "method": ["GET", "PUT", "OPTIONS"],
+    "responseHeader": [
+      "Content-Type",
+      "Content-Length",
+      "x-goog-content-length-range",
+      "ETag"
+    ],
+    "maxAgeSeconds": 3600
+  }
+]
+

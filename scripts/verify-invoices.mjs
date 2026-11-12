@@ -383,8 +383,10 @@ async function verifyZeroSecretLeakage() {
   }
 
   // B. Check signing token sanitization in verifySigningToken
-  const signingActions = path.resolve(process.cwd(), 'src/server/actions/signing.ts');
-  const signingContent = fs.readFileSync(signingActions, 'utf8');
+  const verifyPath = fs.existsSync(path.resolve(process.cwd(), 'src/server/signing/verify.ts'))
+    ? path.resolve(process.cwd(), 'src/server/signing/verify.ts')
+    : path.resolve(process.cwd(), 'src/server/actions/signing.ts');
+  const signingContent = fs.readFileSync(verifyPath, 'utf8');
   const sanitizesSigning = signingContent.includes('sanitizedSigning') && signingContent.includes("path: '', // stripped for public response");
   const omitsTokenHash = !signingContent.includes('signing: data.signing');
 

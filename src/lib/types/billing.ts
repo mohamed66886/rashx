@@ -6,6 +6,7 @@
 
 export type InvoiceStatus =
   | 'draft'
+  | 'issuing'
   | 'issued'
   | 'sent'
   | 'viewed'
@@ -105,6 +106,7 @@ export interface InvoiceSigning {
   reviewedBy?: string;
   rejectReason?: string;
   rejectedAt?: string;
+  emailFailed?: boolean;
   files: InvoiceSigningFile[];
 }
 
@@ -134,6 +136,7 @@ export interface PlatformInvoice {
   id: string;
   number: string | null; // e.g. INV-2026-0001 (assigned when issued, null in draft)
   docKind?: InvoiceDocKind;
+  locale?: 'ar' | 'en';
   customer: InvoiceCustomer;
   items: InvoiceItem[];
   totals: InvoiceTotals;
@@ -141,6 +144,7 @@ export interface PlatformInvoice {
   currency: 'SAR';
   issueDate: string;
   dueDate?: string;
+  selectedClauseIds?: string[]; // IDs of optional clauses selected in draft
   terms: ContractClause[]; // frozen copy of clauses used at issue time
   notes?: string;
   seller?: InvoiceSeller; // frozen copy of billing settings at issue time

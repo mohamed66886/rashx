@@ -46,17 +46,7 @@ const ROLE_TITLES: Record<PlatformRole, string> = {
  */
 export async function createSession(idToken: string): Promise<AdminUser> {
   const decodedToken = await adminAuth.verifyIdToken(idToken);
-  let role = decodedToken.role as PlatformRole | undefined;
-
-  // Auto-assign super_admin role to platform founder if not yet stamped in custom claims
-  if (!role && decodedToken.email === 'mohamed@rashx.org') {
-    role = 'super_admin';
-    try {
-      await adminAuth.setCustomUserClaims(decodedToken.uid, { role: 'super_admin' });
-    } catch {
-      // In development or without private key, proceed with role
-    }
-  }
+  const role = decodedToken.role as PlatformRole | undefined;
 
   if (!role || !PLATFORM_ROLES.includes(role)) {
     throw new Error('Access denied: User does not possess an authorized administrative role');
@@ -90,11 +80,7 @@ export async function createSession(idToken: string): Promise<AdminUser> {
   const name =
     profile?.name ||
     (decodedToken.name as string) ||
-    (email === 'mohamed@rashx.org'
-      ? 'م. محمد عبده رشاد البهي'
-      : email
-        ? email.split('@')[0]
-        : 'Administrator');
+    (email ? email.split('@')[0] : 'Administrator');
 
   return {
     uid: decodedToken.uid,
@@ -135,10 +121,7 @@ export async function getAdmin(checkRevoked: boolean = false): Promise<AdminUser
       }
     }
 
-    let role = decoded.role as PlatformRole | undefined;
-    if (!role && decoded.email === 'mohamed@rashx.org') {
-      role = 'super_admin';
-    }
+    const role = decoded.role as PlatformRole | undefined;
 
     if (!role || !PLATFORM_ROLES.includes(role)) {
       return null;
@@ -150,11 +133,7 @@ export async function getAdmin(checkRevoked: boolean = false): Promise<AdminUser
     const name =
       profile?.name ||
       (decoded.name as string) ||
-      (email === 'mohamed@rashx.org'
-        ? 'م. محمد عبده رشاد البهي'
-        : email
-          ? email.split('@')[0]
-          : 'Administrator');
+      (email ? email.split('@')[0] : 'Administrator');
 
     return {
       uid: decoded.uid,

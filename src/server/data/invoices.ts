@@ -239,6 +239,7 @@ export async function getInvoiceStats(): Promise<InvoiceStats> {
       cancelledCount: 0,
       counts: {
         draft: 0,
+        issuing: 0,
         issued: 0,
         sent: 0,
         viewed: 0,
@@ -279,6 +280,7 @@ export async function getInvoiceStats(): Promise<InvoiceStats> {
     cancelledCount,
     counts: {
       draft: draftCount,
+      issuing: 0,
       issued: issuedCount,
       sent: sentCount,
       viewed: viewedCount,

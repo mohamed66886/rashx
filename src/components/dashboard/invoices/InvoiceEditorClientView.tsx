@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useTransition, useEffect, useRef } from 'react';
+import React, { useState, useTransition, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -8,7 +8,6 @@ import {
   FileText,
   Save,
   Send,
-  CheckCircle2,
   AlertCircle,
   Plus,
   Trash2,
@@ -16,7 +15,6 @@ import {
   ChevronDown,
   Building2,
   Calendar,
-  Sparkles,
   ArrowRight,
   Eye,
   Percent,
@@ -26,7 +24,7 @@ import {
   Receipt,
   FileCheck2,
 } from 'lucide-react';
-import { Button, Input, SarIcon } from '@/components/ui';
+import { Button } from '@/components/ui';
 import type {
   PlatformInvoice,
   ContractClause,
@@ -169,8 +167,10 @@ export function InvoiceEditorClientView({
     clauses.forEach((c) => {
       if (c.mandatory) set.add(c.id);
     });
-    // If editing, preload existing terms
-    if (initialInvoice?.terms) {
+    // If editing, preload existing terms or selectedClauseIds
+    if (initialInvoice?.selectedClauseIds) {
+      initialInvoice.selectedClauseIds.forEach((id) => set.add(id));
+    } else if (initialInvoice?.terms) {
       initialInvoice.terms.forEach((t) => set.add(t.id));
     }
     return set;
@@ -326,6 +326,7 @@ export function InvoiceEditorClientView({
         const payload = {
           id: initialInvoice?.id,
           docKind,
+          locale: 'ar' as const,
           customer: {
             facilityName: facilityName.trim(),
             commercialRegNumber: commercialRegNumber.trim() || undefined,
@@ -344,6 +345,7 @@ export function InvoiceEditorClientView({
           vatRatePercent: effectiveVatPercent,
           issueDate,
           dueDate: dueDate || undefined,
+          selectedClauseIds: Array.from(selectedClauseIds),
           notes: notes.trim() || undefined,
         };
 
@@ -353,8 +355,9 @@ export function InvoiceEditorClientView({
         } else {
           setFormError(res.error || 'فشل في حفظ المسودة.');
         }
-      } catch (err: any) {
-        setFormError(err.message || 'حدث خطأ أثناء حفظ المسودة.');
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : 'حدث خطأ أثناء حفظ المسودة.';
+        setFormError(msg);
       }
     });
   };
@@ -369,6 +372,7 @@ export function InvoiceEditorClientView({
         const payload = {
           id: initialInvoice?.id,
           docKind,
+          locale: 'ar' as const,
           customer: {
             facilityName: facilityName.trim(),
             commercialRegNumber: commercialRegNumber.trim() || undefined,
@@ -387,6 +391,7 @@ export function InvoiceEditorClientView({
           vatRatePercent: effectiveVatPercent,
           issueDate,
           dueDate: dueDate || undefined,
+          selectedClauseIds: Array.from(selectedClauseIds),
           notes: notes.trim() || undefined,
         };
 
@@ -403,25 +408,26 @@ export function InvoiceEditorClientView({
               invoiceId,
               recipientEmail: email.trim() || undefined,
             })
-          : await issueInvoice({ invoiceId });
+          : await issueInvoice({ invoiceId, selectedClauseIds: Array.from(selectedClauseIds) });
 
         if (res.success && res.data) {
           router.push(`/dashboard/invoices/${invoiceId}`);
         } else {
           setFormError(res.error || 'فشل في إصدار المستند.');
         }
-      } catch (err: any) {
-        setFormError(err.message || 'حدث خطأ أثناء إصدار المستند.');
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : 'حدث خطأ أثناء إصدار المستند.';
+        setFormError(msg);
       }
     });
   };
 
   // Construct virtual invoice object for the live preview
-  const previewInvoiceData: any = {
+  const previewInvoiceData: PlatformInvoice = {
     id: initialInvoice?.id || 'preview-id',
     number: initialInvoice?.number || null,
-    invoiceNumber: initialInvoice?.number || (docKind === 'quote' ? 'QUO-PREVIEW' : 'INV-PREVIEW'),
     docKind,
+    currency: 'SAR',
     customer: {
       facilityName: facilityName || 'اسم المنشأة المشتركة',
       commercialRegNumber,
@@ -446,10 +452,14 @@ export function InvoiceEditorClientView({
     vatRatePercent: effectiveVatPercent,
     issueDate,
     dueDate,
+    selectedClauseIds: Array.from(selectedClauseIds),
     terms: activeSelectedClauses,
     notes,
     seller: initialInvoice?.seller, // if already frozen
     status: initialInvoice?.status || 'draft',
+    createdAt: initialInvoice?.createdAt || new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    createdBy: initialInvoice?.createdBy || 'admin',
   };
 
   return (

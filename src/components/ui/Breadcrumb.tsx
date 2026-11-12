@@ -77,7 +77,7 @@ const ROUTE_DICTIONARY: Record<string, BilingualTerm> = {
   reviews: { ar: 'تقييمات وآراء العملاء', en: 'Client Reviews' },
 
   // الإدارة المالية والمخزون (Finance)
-  invoices: { ar: 'الفواتير الضريبية', en: 'Tax Invoices' },
+  invoices: { ar: 'الفواتير والعقود', en: 'Invoices & Contracts' },
   'cash-register': { ar: 'الخزينة والدرج والورديات', en: 'Cash Register & Till' },
   inventory: { ar: 'جرد المخزون والمنتجات', en: 'Inventory & Stock' },
   products: { ar: 'دليل المنتجات', en: 'Products Directory' },

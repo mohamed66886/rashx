@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import {
-  FileText,
   Download,
   UploadCloud,
   Camera,
@@ -33,6 +32,7 @@ interface SigningClientViewProps {
 export function SigningClientView({ invoice, token, locale }: SigningClientViewProps) {
   const isAr = locale !== 'en';
   const dir = isAr ? 'rtl' : 'ltr';
+  const isReadOnly = ['signed', 'paid', 'cancelled'].includes(invoice.status);
 
   const [files, setFiles] = useState<InvoiceSigningFile[]>(
     invoice.signing?.files || []
@@ -55,7 +55,7 @@ export function SigningClientView({ invoice, token, locale }: SigningClientViewP
 
   // Handle direct-to-storage upload
   const handleFilesSelected = async (fileList: FileList | null) => {
-    if (!fileList || fileList.length === 0) return;
+    if (isReadOnly || !fileList || fileList.length === 0) return;
 
     setErrorMessage(null);
     setSuccessMessage(null);
@@ -145,6 +145,7 @@ export function SigningClientView({ invoice, token, locale }: SigningClientViewP
           body: file,
           headers: {
             'Content-Type': file.type,
+            'x-goog-content-length-range': '0,15728640',
           },
         });
 
@@ -343,144 +344,207 @@ export function SigningClientView({ invoice, token, locale }: SigningClientViewP
           </div>
         </div>
 
-        {/* Action 2: Upload Signed Copy Section */}
-        <div className="bg-white rounded-3xl border border-[#E5E9E8] shadow-xs p-6 space-y-5">
-          <div className="space-y-1">
-            <h2 className="text-base font-bold text-black flex items-center gap-2">
-              <UploadCloud className="w-5 h-5 text-[#29545c]" />
-              <span>
-                {isAr
-                  ? 'رفع النسخة الموقّعة والمختومة'
-                  : 'Upload Signed & Stamped Copy'}
-              </span>
-            </h2>
-            <p className="text-xs text-[#5E6665]">
-              {isAr
-                ? 'بعد طباعة وتوقيع أو ختم المستند، قم بالتقاط صورة بكاميرا هاتفك أو رفع ملف المستند (PDF أو صور JPG/PNG/WebP حتى 15 ميجابايت).'
-                : 'After signing or stamping the document, capture a photo or upload files (PDF, JPG, PNG, WebP up to 15MB each).'}
-            </p>
-          </div>
+        {/* Action 2: Upload Signed Copy Section (Read-Only after signed/paid) */}
+        {isReadOnly ? (
+          <div className="bg-white rounded-3xl border border-[#E5E9E8] shadow-xs p-6 space-y-4">
+            <div className="flex items-center gap-3 text-emerald-800 bg-emerald-50 p-4 rounded-2xl border border-emerald-200">
+              <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-600" />
+              <div>
+                <h2 className="font-bold text-sm text-emerald-950">
+                  {invoice.status === 'paid'
+                    ? (isAr ? 'تم سداد الفاتورة واعتماد العقد بنجاح' : 'Invoice Paid & Agreement Approved')
+                    : invoice.status === 'signed'
+                    ? (isAr ? 'تم توثيق واعتماد العقد رسمياً' : 'Contract Signed & Approved')
+                    : (isAr ? 'هذا المستند ملغي حالياً' : 'Document Cancelled')}
+                </h2>
+                <p className="text-xs text-emerald-800/80 mt-0.5">
+                  {isAr
+                    ? 'المستند مكتمل ومعتمد رسمياً. يمكنك تنزيل النسخة النهائية المعتمدة عبر زر التحميل أعلاه.'
+                    : 'This document is finalized and approved. You can download the approved PDF above.'}
+                </p>
+              </div>
+            </div>
 
-          {/* Hidden file inputs */}
-          <input
-            type="file"
-            ref={cameraInputRef}
-            accept="image/*"
-            capture="environment"
-            className="hidden"
-            onChange={(e) => handleFilesSelected(e.target.files)}
-          />
-          <input
-            type="file"
-            ref={fileInputRef}
-            accept="application/pdf,image/jpeg,image/png,image/webp"
-            multiple
-            className="hidden"
-            onChange={(e) => handleFilesSelected(e.target.files)}
-          />
+            {/* Uploaded Files List */}
+            {files.length > 0 && (
+              <div className="space-y-2.5 pt-1">
+                <h3 className="text-xs font-bold text-black flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                  <span>
+                    {isAr
+                      ? `الملفات المرفوعة والموثقة (${files.length})`
+                      : `Uploaded & Verified Files (${files.length})`}
+                  </span>
+                </h3>
 
-          {/* Upload Buttons */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <button
-              type="button"
-              disabled={isUploading}
-              onClick={() => cameraInputRef.current?.click()}
-              className="flex items-center justify-center gap-2.5 px-4 py-3 rounded-2xl border-2 border-dashed border-[#91B8C0] hover:border-[#29545c] bg-[#FAFBFB] hover:bg-[#F2F6F7] text-[#29545c] font-bold text-xs transition-colors cursor-pointer disabled:opacity-50"
-            >
-              <Camera className="w-4 h-4 text-[#29545c]" />
-              <span>
-                {isAr ? 'التقاط صورة بكاميرا الجوال' : 'Take a Photo with Camera'}
-              </span>
-            </button>
+                <div className="space-y-2">
+                  {files.map((file, idx) => (
+                    <div
+                      key={idx}
+                      className="p-3 rounded-2xl border border-[#E5E9E8] bg-[#FAFBFB] flex items-center justify-between text-xs"
+                    >
+                      <div className="flex items-center gap-2.5 truncate">
+                        <div className="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                          <Check className="w-3.5 h-3.5" />
+                        </div>
+                        <div className="truncate">
+                          <span className="font-bold text-black block truncate">
+                            {file.name}
+                          </span>
+                          <span className="text-[10px] text-[#5E6665] block">
+                            {file.uploadedAt ? file.uploadedAt.split('T')[0] : '—'}
+                          </span>
+                        </div>
+                      </div>
 
-            <button
-              type="button"
-              disabled={isUploading}
-              onClick={() => fileInputRef.current?.click()}
-              className="flex items-center justify-center gap-2.5 px-4 py-3 rounded-2xl border-2 border-dashed border-[#91B8C0] hover:border-[#29545c] bg-[#FAFBFB] hover:bg-[#F2F6F7] text-[#29545c] font-bold text-xs transition-colors cursor-pointer disabled:opacity-50"
-            >
-              <UploadCloud className="w-4 h-4 text-[#29545c]" />
-              <span>
-                {isAr ? 'اختيار ملف من جهازك' : 'Choose File from Device'}
-              </span>
-            </button>
-          </div>
-
-          {/* Upload Progress Status */}
-          {isUploading && (
-            <div className="p-4 rounded-2xl bg-[#F0F5F6] border border-[#91B8C0]/40 space-y-2">
-              <div className="flex items-center justify-between text-xs font-semibold text-[#29545c]">
-                <div className="flex items-center gap-2">
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  <span>{uploadStatusText || (isAr ? 'جاري الرفع...' : 'Uploading...')}</span>
+                      <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 shrink-0">
+                        {isAr ? 'معتمد' : 'Approved'}
+                      </span>
+                    </div>
+                  ))}
                 </div>
-                <span className="font-mono">{uploadProgress}%</span>
               </div>
-              <div className="w-full h-1.5 bg-[#E5E9E8] rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-[#29545c] transition-all duration-300 rounded-full"
-                  style={{ width: `${uploadProgress}%` }}
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Alerts: Error & Success */}
-          {errorMessage && (
-            <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2.5">
-              <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
-              <span>{errorMessage}</span>
-            </div>
-          )}
-
-          {successMessage && (
-            <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2.5">
-              <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
-              <span>{successMessage}</span>
-            </div>
-          )}
-
-          {/* Uploaded Files List */}
-          {files.length > 0 && (
-            <div className="space-y-2.5 pt-2">
-              <h3 className="text-xs font-bold text-black flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4 text-emerald-600" />
+            )}
+          </div>
+        ) : (
+          <div className="bg-white rounded-3xl border border-[#E5E9E8] shadow-xs p-6 space-y-5">
+            <div className="space-y-1">
+              <h2 className="text-base font-bold text-black flex items-center gap-2">
+                <UploadCloud className="w-5 h-5 text-[#29545c]" />
                 <span>
                   {isAr
-                    ? `الملفات المرفوعة والموثقة (${files.length})`
-                    : `Uploaded & Verified Files (${files.length})`}
+                    ? 'رفع النسخة الموقّعة والمختومة'
+                    : 'Upload Signed & Stamped Copy'}
                 </span>
-              </h3>
-
-              <div className="space-y-2">
-                {files.map((file, idx) => (
-                  <div
-                    key={idx}
-                    className="p-3 rounded-2xl border border-[#E5E9E8] bg-[#FAFBFB] flex items-center justify-between text-xs"
-                  >
-                    <div className="flex items-center gap-2.5 truncate">
-                      <div className="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
-                        <Check className="w-3.5 h-3.5" />
-                      </div>
-                      <div className="truncate">
-                        <span className="font-bold text-black block truncate">
-                          {file.name}
-                        </span>
-                        <span className="text-[10px] text-[#5E6665] block">
-                          {file.uploadedAt ? file.uploadedAt.split('T')[0] : '—'}
-                        </span>
-                      </div>
-                    </div>
-
-                    <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 shrink-0">
-                      {isAr ? 'تم الاستلام' : 'Received'}
-                    </span>
-                  </div>
-                ))}
-              </div>
+              </h2>
+              <p className="text-xs text-[#5E6665]">
+                {isAr
+                  ? 'بعد طباعة وتوقيع أو ختم المستند، قم بالتقاط صورة بكاميرا هاتفك أو رفع ملف المستند (PDF أو صور JPG/PNG/WebP حتى 15 ميجابايت).'
+                  : 'After signing or stamping the document, capture a photo or upload files (PDF, JPG, PNG, WebP up to 15MB each).'}
+              </p>
             </div>
-          )}
-        </div>
+
+            {/* Hidden file inputs */}
+            <input
+              type="file"
+              ref={cameraInputRef}
+              accept="image/*"
+              capture="environment"
+              className="hidden"
+              onChange={(e) => handleFilesSelected(e.target.files)}
+            />
+            <input
+              type="file"
+              ref={fileInputRef}
+              accept="application/pdf,image/jpeg,image/png,image/webp"
+              multiple
+              className="hidden"
+              onChange={(e) => handleFilesSelected(e.target.files)}
+            />
+
+            {/* Upload Buttons */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <button
+                type="button"
+                disabled={isUploading}
+                onClick={() => cameraInputRef.current?.click()}
+                className="flex items-center justify-center gap-2.5 px-4 py-3 rounded-2xl border-2 border-dashed border-[#91B8C0] hover:border-[#29545c] bg-[#FAFBFB] hover:bg-[#F2F6F7] text-[#29545c] font-bold text-xs transition-colors cursor-pointer disabled:opacity-50"
+              >
+                <Camera className="w-4 h-4 text-[#29545c]" />
+                <span>
+                  {isAr ? 'التقاط صورة بكاميرا الجوال' : 'Take a Photo with Camera'}
+                </span>
+              </button>
+
+              <button
+                type="button"
+                disabled={isUploading}
+                onClick={() => fileInputRef.current?.click()}
+                className="flex items-center justify-center gap-2.5 px-4 py-3 rounded-2xl border-2 border-dashed border-[#91B8C0] hover:border-[#29545c] bg-[#FAFBFB] hover:bg-[#F2F6F7] text-[#29545c] font-bold text-xs transition-colors cursor-pointer disabled:opacity-50"
+              >
+                <UploadCloud className="w-4 h-4 text-[#29545c]" />
+                <span>
+                  {isAr ? 'اختيار ملف من جهازك' : 'Choose File from Device'}
+                </span>
+              </button>
+            </div>
+
+            {/* Upload Progress Status */}
+            {isUploading && (
+              <div className="p-4 rounded-2xl bg-[#F0F5F6] border border-[#91B8C0]/40 space-y-2">
+                <div className="flex items-center justify-between text-xs font-semibold text-[#29545c]">
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>{uploadStatusText || (isAr ? 'جاري الرفع...' : 'Uploading...')}</span>
+                  </div>
+                  <span className="font-mono">{uploadProgress}%</span>
+                </div>
+                <div className="w-full h-1.5 bg-[#E5E9E8] rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-[#29545c] transition-all duration-300 rounded-full"
+                    style={{ width: `${uploadProgress}%` }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Alerts: Error & Success */}
+            {errorMessage && (
+              <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2.5">
+                <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+                <span>{errorMessage}</span>
+              </div>
+            )}
+
+            {successMessage && (
+              <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2.5">
+                <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
+                <span>{successMessage}</span>
+              </div>
+            )}
+
+            {/* Uploaded Files List */}
+            {files.length > 0 && (
+              <div className="space-y-2.5 pt-2">
+                <h3 className="text-xs font-bold text-black flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                  <span>
+                    {isAr
+                      ? `الملفات المرفوعة والموثقة (${files.length})`
+                      : `Uploaded & Verified Files (${files.length})`}
+                  </span>
+                </h3>
+
+                <div className="space-y-2">
+                  {files.map((file, idx) => (
+                    <div
+                      key={idx}
+                      className="p-3 rounded-2xl border border-[#E5E9E8] bg-[#FAFBFB] flex items-center justify-between text-xs"
+                    >
+                      <div className="flex items-center gap-2.5 truncate">
+                        <div className="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                          <Check className="w-3.5 h-3.5" />
+                        </div>
+                        <div className="truncate">
+                          <span className="font-bold text-black block truncate">
+                            {file.name}
+                          </span>
+                          <span className="text-[10px] text-[#5E6665] block">
+                            {file.uploadedAt ? file.uploadedAt.split('T')[0] : '—'}
+                          </span>
+                        </div>
+                      </div>
+
+                      <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 shrink-0">
+                        {isAr ? 'تم الاستلام' : 'Received'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Security & Authenticity Footer */}
         <div className="p-4 rounded-2xl bg-white border border-[#E5E9E8] flex items-center justify-center gap-2 text-center text-[11px] text-[#5E6665]">

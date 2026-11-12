@@ -4,17 +4,31 @@ import crypto from 'crypto';
 import { after } from 'next/server';
 import { updateTag } from 'next/cache';
 import { FieldValue } from 'firebase-admin/firestore';
-import { z } from 'zod';
 import { adminDb, getAdminStorageBucket } from '@/server/firebase-admin';
 import { requireAdmin } from '@/server/auth/session';
 import { computeTotals } from '@/server/invoices/compute-totals';
-import { nextInvoiceNumber } from '@/server/invoices/counters';
 import { getBillingSettings, toBillingSettings } from '@/server/data/billing-settings';
 import { getClauses } from '@/server/data/clauses';
 import { getInvoicesPage, getInvoice } from '@/server/data/invoices';
 import { toIsoString } from '@/server/data/utils';
 import { generateInvoicePdf } from '@/server/pdf/invoice-pdf';
-import { sendInvoiceEmail, generateInvoicePdfBuffer } from '@/server/email/mailer';
+import { sendInvoiceEmail } from '@/server/email/mailer';
+import {
+  saveDraftInvoiceSchema,
+  issueInvoiceSchema,
+  cancelInvoiceSchema,
+  markPaidSchema,
+  approveSignedFileSchema,
+  rejectSignedFileSchema,
+  sendInvoiceActionSchema,
+  type SaveDraftInvoiceInput,
+  type IssueInvoiceInput,
+  type CancelInvoiceInput,
+  type MarkPaidInput,
+  type ApproveSignedFileInput,
+  type RejectSignedFileInput,
+  type SendInvoiceActionInput,
+} from '@/server/invoices/schemas';
 import type {
   PlatformInvoice,
   InvoiceStatus,
@@ -24,68 +38,30 @@ import type {
 } from '@/lib/types/billing';
 import { halalasToSar } from '@/lib/types/billing';
 
-// ─────────────────────────────────────────────────────────────
-// Schemas
-// ─────────────────────────────────────────────────────────────
+export {
+  saveDraftInvoiceSchema,
+  issueInvoiceSchema,
+  cancelInvoiceSchema,
+  markPaidSchema,
+  approveSignedFileSchema,
+  rejectSignedFileSchema,
+  sendInvoiceActionSchema,
+  type SaveDraftInvoiceInput,
+  type IssueInvoiceInput,
+  type CancelInvoiceInput,
+  type MarkPaidInput,
+  type ApproveSignedFileInput,
+  type RejectSignedFileInput,
+  type SendInvoiceActionInput,
+};
 
-export const invoiceItemSchema = z.object({
-  id: z.string().default(() => Math.random().toString(36).substring(2, 9)),
-  description: z.string().trim().min(1, 'اسم الخدمة أو المنتج مطلوب'),
-  quantity: z.coerce.number().positive('الكمية يجب أن تكون أكبر من 0'),
-  unitPriceHalalas: z.coerce.number().int().nonnegative('السعر بالهللات يجب أن يكون 0 أو أكثر'),
-});
-
-export const invoiceCustomerSchema = z.object({
-  facilityName: z.string().trim().min(2, 'اسم المنشأة مطلوب (حرفين على الأقل)'),
-  commercialRegNumber: z.string().trim().optional(),
-  name: z.string().trim().min(2, 'اسم العميل / المفوض مطلوب'),
-  address: z.string().trim().min(2, 'العنوان مطلوب'),
-  email: z.string().trim().email('البريد الإلكتروني غير صالح').optional().or(z.literal('')),
-  phone: z.string().trim().optional(),
-});
-
-export const saveDraftInvoiceSchema = z.object({
-  id: z.string().trim().optional(),
-  docKind: z.enum(['contract_invoice', 'quote'] as const).default('contract_invoice'),
-  customer: invoiceCustomerSchema,
-  items: z.array(invoiceItemSchema).min(1, 'يجب إضافة بند واحد على الأقل في الفاتورة'),
-  discountHalalas: z.coerce.number().int().nonnegative().default(0),
-  vatRatePercent: z.coerce.number().min(0).max(100).default(15),
-  issueDate: z.string().trim().min(1, 'تاريخ الإصدار مطلوب'),
-  dueDate: z.string().trim().optional(),
-  notes: z.string().trim().optional(),
-});
-
-export const issueInvoiceSchema = z.object({
-  invoiceId: z.string().trim().min(1, 'معرف الفاتورة مطلوب'),
-});
-
-export const cancelInvoiceSchema = z.object({
-  invoiceId: z.string().trim().min(1, 'معرف الفاتورة مطلوب'),
-  reason: z.string().trim().min(3, 'سبب الإلغاء مطلوب (3 أحرف على الأقل)'),
-});
-
-export const markPaidSchema = z.object({
-  invoiceId: z.string().trim().min(1, 'معرف الفاتورة مطلوب'),
-  paymentMethod: z.string().trim().optional().default('bank-transfer'),
-  reference: z.string().trim().optional(),
-});
-
-export const approveSignedFileSchema = z.object({
-  invoiceId: z.string().min(1, 'معرف المستند مطلوب'),
-});
-
-export const rejectSignedFileSchema = z.object({
-  invoiceId: z.string().min(1, 'معرف المستند مطلوب'),
-  reason: z.string().trim().min(2, 'سبب الرفض مطلوب'),
-});
-
-export type SaveDraftInvoiceInput = z.infer<typeof saveDraftInvoiceSchema>;
-export type IssueInvoiceInput = z.infer<typeof issueInvoiceSchema>;
-export type CancelInvoiceInput = z.infer<typeof cancelInvoiceSchema>;
-export type MarkPaidInput = z.infer<typeof markPaidSchema>;
-export type ApproveSignedFileInput = z.infer<typeof approveSignedFileSchema>;
-export type RejectSignedFileInput = z.infer<typeof rejectSignedFileSchema>;
+function getSiteUrl(): string {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  if (!siteUrl || !siteUrl.trim()) {
+    throw new Error('NEXT_PUBLIC_SITE_URL environment variable is required');
+  }
+  return siteUrl.replace(/\/$/, '');
+}
 
 export interface InvoiceActionResponse<T = unknown> {
   success: boolean;
@@ -117,7 +93,13 @@ export async function saveDraftInvoice(
   }
 
   const data = validation.data;
-  const totals = computeTotals(data.items, data.discountHalalas, data.vatRatePercent);
+  const normalizedItems = data.items.map((it) => ({
+    id: it.id || Math.random().toString(36).substring(2, 9),
+    description: it.description,
+    quantity: it.quantity,
+    unitPriceHalalas: it.unitPriceHalalas,
+  }));
+  const totals = computeTotals(normalizedItems, data.discountHalalas, data.vatRatePercent);
 
   const invoiceRef = data.id
     ? adminDb.collection('platform_invoices').doc(data.id)
@@ -147,13 +129,15 @@ export async function saveDraftInvoice(
         id: invoiceId,
         number: null, // Draft has no sequential number assigned yet
         docKind: data.docKind,
+        locale: data.locale || 'ar',
         customer: data.customer,
-        items: data.items,
+        items: normalizedItems,
         totals,
         vatRatePercent: data.vatRatePercent,
         currency: 'SAR',
         issueDate: data.issueDate,
         dueDate: data.dueDate || null,
+        selectedClauseIds: data.selectedClauseIds || [],
         notes: data.notes || null,
         status: 'draft',
         updatedAt: FieldValue.serverTimestamp(),
@@ -222,13 +206,15 @@ export async function saveDraftInvoice(
         id: invoiceId,
         number: null,
         docKind: data.docKind,
+        locale: data.locale || 'ar',
         customer: data.customer,
-        items: data.items,
+        items: normalizedItems,
         totals,
         vatRatePercent: data.vatRatePercent,
         currency: 'SAR',
         issueDate: data.issueDate,
         dueDate: data.dueDate,
+        selectedClauseIds: data.selectedClauseIds || [],
         terms: [],
         notes: data.notes,
         status: 'draft',
@@ -272,37 +258,93 @@ export async function issueInvoice(
     };
   }
 
-  const { invoiceId } = validation.data;
+  const { invoiceId, selectedClauseIds: overrideClauseIds } = validation.data;
   const invoiceRef = adminDb.collection('platform_invoices').doc(invoiceId);
 
+  // ─────────────────────────────────────────────────────────────
+  // Phase 1: Atomic draft claim + sequential number allocation in ONE transaction
+  // ─────────────────────────────────────────────────────────────
+  let invoiceData: Record<string, unknown>;
+  let invoiceNumber: string;
+
   try {
-    const invoiceDoc = await invoiceRef.get();
-    if (!invoiceDoc.exists) {
-      return {
-        success: false,
-        error: 'المستند المطلوب غير موجود في قاعدة البيانات',
-      };
-    }
+    const claimResult = await adminDb.runTransaction(async (transaction) => {
+      const invoiceDoc = await transaction.get(invoiceRef);
+      if (!invoiceDoc.exists) {
+        throw new Error('المستند المطلوب غير موجود في قاعدة البيانات');
+      }
 
-    const invoiceData = invoiceDoc.data()!;
-    if (invoiceData.status !== 'draft') {
-      return {
-        success: false,
-        error: `لا يمكن إصدار المستند؛ حالته الحالية: ${invoiceData.status}`,
-      };
-    }
+      const data = invoiceDoc.data()!;
+      // Allow 'draft' or retry after interrupted 'issuing'
+      if (data.status !== 'draft' && data.status !== 'issuing') {
+        throw new Error(`لا يمكن إصدار المستند؛ حالته الحالية: ${data.status}`);
+      }
 
-    // 1. Fetch Billing Settings & Active Clauses
-    const [rawBilling, activeClauses] = await Promise.all([
+      let assignedNumber = data.number as string | undefined;
+
+      // If invoice already has a reserved number, reuse it!
+      if (!assignedNumber) {
+        const docKind = (data.docKind as InvoiceDocKind) || 'contract_invoice';
+        const billingDoc = await transaction.get(
+          adminDb.collection('platform_settings').doc('billing')
+        );
+        const billingData = billingDoc.data();
+        const prefix =
+          docKind === 'quote'
+            ? billingData?.quotePrefix || 'QUO'
+            : billingData?.invoicePrefix || 'INV';
+
+        const year = new Date().getFullYear();
+        const counterRef = adminDb.collection('counters').doc(`invoices-${year}`);
+        const counterDoc = await transaction.get(counterRef);
+        const currentCount = Number(counterDoc.data()?.lastNumber) || 0;
+        const next = currentCount + 1;
+
+        transaction.set(
+          counterRef,
+          {
+            lastNumber: next,
+            year,
+            updatedAt: FieldValue.serverTimestamp(),
+          },
+          { merge: true }
+        );
+
+        const formattedSeq = String(next).padStart(4, '0');
+        assignedNumber = `${(prefix || 'INV').trim().toUpperCase()}-${year}-${formattedSeq}`;
+      }
+
+      // Mark status as 'issuing' and store reserved sequential number
+      transaction.update(invoiceRef, {
+        status: 'issuing',
+        number: assignedNumber,
+        updatedAt: FieldValue.serverTimestamp(),
+      });
+
+      return { data, assignedNumber };
+    });
+
+    invoiceData = claimResult.data;
+    invoiceNumber = claimResult.assignedNumber;
+  } catch (claimErr: unknown) {
+    const message =
+      claimErr instanceof Error ? claimErr.message : 'فشل في حجز وتسجيل المستند للإصدار';
+    return { success: false, error: message };
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // Phase 2: PDF generation & Storage upload (Reverts to 'draft' on failure)
+  // ─────────────────────────────────────────────────────────────
+  try {
+    const [rawBilling, allClauses] = await Promise.all([
       getBillingSettings(),
       getClauses(false),
     ]);
 
     if (!rawBilling || !rawBilling.seller?.iban || !rawBilling.seller?.bankName) {
-      return {
-        success: false,
-        error: 'إعدادات الفوترة والآيبان البنكي للمنصة غير مكتملة. يرجى ضبطها أولاً من إعدادات الفوترة.',
-      };
+      throw new Error(
+        'إعدادات الفوترة والآيبان البنكي للمنصة غير مكتملة. يرجى ضبطها أولاً من إعدادات الفوترة.'
+      );
     }
 
     const sellerSnapshot: InvoiceSeller = {
@@ -319,30 +361,47 @@ export async function issueInvoice(
       disclaimerLine: rawBilling.disclaimerLine,
     };
 
-    // 2. Generate sequential number atomically via Firestore counter transaction
-    const docKind = (invoiceData.docKind as InvoiceDocKind) || 'contract_invoice';
-    const prefix = docKind === 'quote' ? (rawBilling.quotePrefix || 'QUO') : (rawBilling.invoicePrefix || 'INV');
-    const invoiceNumber = await nextInvoiceNumber(prefix);
+    // Requirement 1: Server enforces mandatory clauses can NEVER be omitted
+    const selectedIds = new Set<string>(
+      overrideClauseIds || (invoiceData.selectedClauseIds as string[]) || []
+    );
+    const frozenClauses = allClauses
+      .filter((c) => c.mandatory || selectedIds.has(c.id))
+      .sort((a, b) => (a.order || 0) - (b.order || 0));
 
-    // 3. Assemble full issued invoice snapshot and generate immutable PDF
+    const docKind = (invoiceData.docKind as InvoiceDocKind) || 'contract_invoice';
+    const totals = (invoiceData.totals as PlatformInvoice['totals']) || {
+      subtotal: 0,
+      discount: 0,
+      taxable: 0,
+      vat: 0,
+      total: 0,
+    };
+
+    // Assemble full issued invoice snapshot and generate immutable PDF
     const issuedInvoiceSnapshot: PlatformInvoice = {
       id: invoiceId,
       number: invoiceNumber,
       docKind,
-      customer: invoiceData.customer,
-      items: Array.isArray(invoiceData.items) ? invoiceData.items : [],
-      totals: invoiceData.totals || { subtotal: 0, discount: 0, taxable: 0, vat: 0, total: 0 },
+      locale: (invoiceData.locale as 'ar' | 'en') || 'ar',
+      customer: invoiceData.customer as PlatformInvoice['customer'],
+      items: Array.isArray(invoiceData.items)
+        ? (invoiceData.items as PlatformInvoice['items'])
+        : [],
+      totals,
       vatRatePercent: Number(invoiceData.vatRatePercent) || 0,
       currency: 'SAR',
-      issueDate: invoiceData.issueDate || new Date().toISOString(),
-      dueDate: invoiceData.dueDate,
-      terms: activeClauses,
-      notes: invoiceData.notes,
+      issueDate: (invoiceData.issueDate as string) || new Date().toISOString(),
+      dueDate: invoiceData.dueDate as string | undefined,
+      terms: frozenClauses,
+      notes: invoiceData.notes as string | undefined,
       seller: sellerSnapshot,
       status: 'issued',
-      createdAt: invoiceData.createdAt ? toIsoString(invoiceData.createdAt) : new Date().toISOString(),
+      createdAt: invoiceData.createdAt
+        ? toIsoString(invoiceData.createdAt)
+        : new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      createdBy: invoiceData.createdBy || admin.email,
+      createdBy: (invoiceData.createdBy as string) || admin.email,
     };
 
     const { buffer: pdfBuffer, sha256 } = await generateInvoicePdf(issuedInvoiceSnapshot);
@@ -362,14 +421,16 @@ export async function issueInvoice(
       },
     });
 
+    // ─────────────────────────────────────────────────────────────
+    // Phase 3: Finalize to 'issued' via atomic WriteBatch
+    // ─────────────────────────────────────────────────────────────
     const batch = adminDb.batch();
 
-    // 4. Update Invoice Document with frozen seller, terms, and immutable PDF record
     batch.update(invoiceRef, {
       number: invoiceNumber,
       status: 'issued',
       seller: sellerSnapshot,
-      terms: activeClauses,
+      terms: frozenClauses,
       pdf: {
         path: storagePath,
         sha256,
@@ -378,7 +439,7 @@ export async function issueInvoice(
       updatedAt: FieldValue.serverTimestamp(),
     });
 
-    // 4. Subcollection Event
+    // Subcollection Event
     const eventRef = invoiceRef.collection('events').doc();
     batch.set(eventRef, {
       type: 'ISSUED',
@@ -386,12 +447,12 @@ export async function issueInvoice(
       by: admin.email,
       meta: {
         number: invoiceNumber,
-        totalHalalas: invoiceData.totals?.total || 0,
-        termsCount: activeClauses.length,
+        totalHalalas: totals.total || 0,
+        termsCount: frozenClauses.length,
       },
     });
 
-    // 5. Audit Log
+    // Audit Log
     const auditRef = adminDb.collection('platform_audit_logs').doc();
     batch.set(auditRef, {
       adminId: admin.uid,
@@ -401,13 +462,13 @@ export async function issueInvoice(
       details: {
         invoiceId,
         number: invoiceNumber,
-        totalHalalas: invoiceData.totals?.total || 0,
+        totalHalalas: totals.total || 0,
       },
     });
 
-    // 6. Stats in stats/invoices
+    // Stats on stats/invoices
     const statsRef = adminDb.collection('stats').doc('invoices');
-    const invoiceTotalHalalas = Number(invoiceData.totals?.total) || 0;
+    const invoiceTotalHalalas = Number(totals.total) || 0;
     batch.set(
       statsRef,
       {
@@ -440,8 +501,20 @@ export async function issueInvoice(
       },
     };
   } catch (error: unknown) {
+    // If PDF generation or Storage upload fails, revert status to 'draft' keeping the reserved number!
+    console.error('[issueInvoice] PDF or upload failed, reverting status to draft:', error);
+    try {
+      await invoiceRef.update({
+        status: 'draft',
+        updatedAt: FieldValue.serverTimestamp(),
+      });
+      updateTag('invoices');
+      updateTag(`invoice:${invoiceId}`);
+    } catch (revertErr) {
+      console.error('[issueInvoice] Failed to revert status to draft:', revertErr);
+    }
+
     const message = error instanceof Error ? error.message : 'فشل في إصدار الفاتورة رسمياً';
-    console.error('[issueInvoice] Error:', error);
     return {
       success: false,
       error: message,
@@ -704,143 +777,6 @@ export async function markPaid(
   }
 }
 
-// ─────────────────────────────────────────────────────────────
-// Backward Compatibility Handlers for UI and Existing Views
-// ─────────────────────────────────────────────────────────────
-
-/**
- * Creates an invoice directly (issues or creates draft depending on requested status)
- */
-export async function createInvoiceAction(input: {
-  docKind?: InvoiceDocKind;
-  facilityName: string;
-  facilityAddress: string;
-  invoiceDate: string;
-  startDate?: string;
-  endDate?: string;
-  planName?: string;
-  paymentDetails?: string;
-  dueDate?: string;
-  customerName: string;
-  customerPhone?: string;
-  customerEmail?: string;
-  taxNumber?: string;
-  commercialReg?: string;
-  items: Array<{ id?: string; description: string; quantity: number; unitPrice: number }>;
-  subtotal?: number;
-  discount?: number;
-  vatEnabled?: boolean;
-  vatRate?: number;
-  paymentMethod?: string;
-  status?: string;
-  notes?: string;
-  sendEmailOnCreate?: boolean;
-  recipientEmail?: string;
-}): Promise<InvoiceActionResponse<{ id: string; invoiceNumber: string }>> {
-  // Convert SAR inputs to integer halalas
-  const itemsHalalas = input.items.map((it) => ({
-    id: it.id || Math.random().toString(36).substring(2, 9),
-    description: it.description,
-    quantity: it.quantity,
-    unitPriceHalalas: Math.round(Number(it.unitPrice || 0) * 100),
-  }));
-
-  const discountHalalas = Math.round(Number(input.discount || 0) * 100);
-  const vatRatePercent = input.vatEnabled ? Math.round((Number(input.vatRate) || 0.15) * 100) : 0;
-
-  // 1. Save Draft
-  const draftRes = await saveDraftInvoice({
-    docKind: input.docKind || 'contract_invoice',
-    customer: {
-      facilityName: input.facilityName,
-      commercialRegNumber: input.commercialReg,
-      name: input.customerName || input.facilityName,
-      address: input.facilityAddress,
-      email: input.customerEmail,
-      phone: input.customerPhone,
-    },
-    items: itemsHalalas,
-    discountHalalas,
-    vatRatePercent,
-    issueDate: input.invoiceDate,
-    dueDate: input.dueDate,
-    notes: input.notes,
-  });
-
-  if (!draftRes.success || !draftRes.data) {
-    return {
-      success: false,
-      error: draftRes.error || 'فشل في حفظ مسودة الفاتورة',
-    };
-  }
-
-  const invoiceId = draftRes.data.id;
-
-  // 2. Issue the invoice immediately
-  const issueRes = await issueInvoice({ invoiceId });
-  if (!issueRes.success || !issueRes.data) {
-    return {
-      success: false,
-      error: issueRes.error || 'فشل في إصدار الفاتورة',
-    };
-  }
-
-  const invoiceNumber = issueRes.data.number;
-
-  // If status is paid, mark paid
-  if (input.status === 'paid') {
-    await markPaid({
-      invoiceId,
-      paymentMethod: input.paymentMethod || 'bank-transfer',
-      reference: input.paymentDetails,
-    });
-  }
-
-  // Optional Email dispatch
-  let emailSent = false;
-  const targetEmail = (input.recipientEmail || input.customerEmail)?.trim();
-  if (input.sendEmailOnCreate && targetEmail) {
-    const totals = draftRes.data.totals;
-    const emailRes = await sendInvoiceEmail({
-      to: targetEmail,
-      invoiceNumber,
-      docKind: input.docKind,
-      vatEnabled: input.vatEnabled,
-      vatRate: input.vatRate,
-      facilityName: input.facilityName,
-      facilityAddress: input.facilityAddress,
-      invoiceDate: input.invoiceDate,
-      startDate: input.startDate,
-      endDate: input.endDate,
-      customerName: input.customerName,
-      customerPhone: input.customerPhone,
-      taxNumber: input.taxNumber,
-      planName: input.planName,
-      items: input.items.map((it) => ({
-        description: it.description,
-        quantity: it.quantity,
-        unitPrice: it.unitPrice,
-        total: it.quantity * it.unitPrice,
-      })),
-      subtotal: halalasToSar(totals.subtotal),
-      discount: halalasToSar(totals.discount),
-      vatAmount: halalasToSar(totals.vat),
-      totalAmount: halalasToSar(totals.total),
-      paymentDetails: input.paymentDetails,
-    });
-    if (emailRes.success) emailSent = true;
-  }
-
-  return {
-    success: true,
-    data: {
-      id: invoiceId,
-      invoiceNumber,
-    },
-    emailSent,
-  };
-}
-
 export async function cancelInvoiceAction(
   invoiceId: string,
   reason: string = 'إلغاء من قبل المشرف'
@@ -857,80 +793,6 @@ export async function deleteInvoiceAction(
     return { success: false, error: result.error || 'فشل في حذف المسودة' };
   }
   return { success: true, data: { deletedId: result.data.id } };
-}
-
-export async function generateInvoicePdfAction(params: {
-  invoiceNumber: string;
-  docKind?: InvoiceDocKind;
-  vatEnabled?: boolean;
-  vatRate?: number;
-  facilityName: string;
-  facilityAddress?: string;
-  invoiceDate?: string;
-  startDate?: string;
-  endDate?: string;
-  customerName?: string;
-  customerPhone?: string;
-  taxNumber?: string;
-  planName?: string;
-  items?: Array<{ description: string; quantity: number; unitPrice: number; total: number }>;
-  subtotal?: number;
-  discount?: number;
-  vatAmount?: number;
-  totalAmount: number;
-  paymentDetails?: string;
-}): Promise<InvoiceActionResponse<{ pdfBase64: string }>> {
-  await requireAdmin(['super_admin', 'platform_engineer', 'sales_director']);
-
-  try {
-    const rawBilling = await getBillingSettings();
-    const pdfBuf = generateInvoicePdfBuffer({
-      to: '',
-      invoiceNumber: params.invoiceNumber,
-      docKind: params.docKind,
-      vatEnabled: params.vatEnabled,
-      vatRate: params.vatRate,
-      facilityName: params.facilityName,
-      facilityAddress: params.facilityAddress,
-      invoiceDate: params.invoiceDate,
-      startDate: params.startDate,
-      endDate: params.endDate,
-      customerName: params.customerName,
-      customerPhone: params.customerPhone,
-      taxNumber: params.taxNumber,
-      planName: params.planName,
-      items: params.items,
-      subtotal: params.subtotal,
-      discount: params.discount,
-      vatAmount: params.vatAmount,
-      totalAmount: params.totalAmount,
-      paymentDetails: params.paymentDetails,
-      billingSettings: rawBilling ? {
-        facilityName: rawBilling.seller.nameAr || rawBilling.seller.nameEn,
-        accountName: rawBilling.seller.accountName,
-        bankName: rawBilling.seller.bankName,
-        iban: rawBilling.seller.iban,
-        taxNumber: rawBilling.seller.vatNumber,
-        commercialReg: rawBilling.seller.commercialRegNumber,
-        address: rawBilling.seller.address,
-        disclaimerLine: rawBilling.disclaimerLine,
-      } : null,
-    });
-
-    return {
-      success: true,
-      data: {
-        pdfBase64: pdfBuf.toString('base64'),
-      },
-    };
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'فشل في توليد مستند PDF';
-    console.error('[generateInvoicePdfAction] Error:', err);
-    return {
-      success: false,
-      error: message,
-    };
-  }
 }
 
 export async function sendInvoiceAction(
@@ -967,9 +829,9 @@ export async function sendInvoiceAction(
   const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
   const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(); // 30 days
 
-  // 2. Build signing URL
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://rashx.com';
-  const locale = 'ar';
+  // 2. Build signing URL with getSiteUrl() and invoice locale
+  const siteUrl = getSiteUrl();
+  const locale = data.locale === 'en' ? 'en' : 'ar';
   const signingUrl = `${siteUrl}/${locale}/sign/${invoiceId}.${token}`;
 
   // 3. Atomically update invoice document & stats
@@ -980,6 +842,7 @@ export async function sendInvoiceAction(
     'signing.expiresAt': expiresAt,
     'signing.sentTo': targetEmail.trim(),
     'signing.sentAt': FieldValue.serverTimestamp(),
+    'signing.emailFailed': false,
     updatedAt: FieldValue.serverTimestamp(),
   });
 
@@ -1058,16 +921,7 @@ export async function sendInvoiceAction(
         vatAmount: halalasToSar(totals.vat || 0),
         totalAmount: halalasToSar(totals.total || 0),
         paymentDetails: data.paymentDetails,
-        billingSettings: rawBilling ? {
-          facilityName: rawBilling.seller.nameAr || rawBilling.seller.nameEn,
-          accountName: rawBilling.seller.accountName,
-          bankName: rawBilling.seller.bankName,
-          iban: rawBilling.seller.iban,
-          taxNumber: rawBilling.seller.vatNumber,
-          commercialReg: rawBilling.seller.commercialRegNumber,
-          address: rawBilling.seller.address,
-          disclaimerLine: rawBilling.disclaimerLine,
-        } : null,
+        billingSettings: toBillingSettings(rawBilling),
         signingUrl,
         locale,
         pdfBuffer: pdfBuffer || undefined,
@@ -1084,6 +938,7 @@ export async function sendInvoiceAction(
           },
         });
       } else {
+        await invoiceRef.update({ 'signing.emailFailed': true });
         await invoiceRef.collection('events').doc().set({
           type: 'email_failed',
           at: FieldValue.serverTimestamp(),
@@ -1093,10 +948,12 @@ export async function sendInvoiceAction(
             error: res.error || 'Failed to send',
           },
         });
+        updateTag(`invoice:${invoiceId}`);
       }
     } catch (bgErr: unknown) {
       const errorMsg = bgErr instanceof Error ? bgErr.message : 'Unknown send failure';
       console.error('[sendInvoiceAction] after() background error:', bgErr);
+      await invoiceRef.update({ 'signing.emailFailed': true });
       await invoiceRef.collection('events').doc().set({
         type: 'email_failed',
         at: FieldValue.serverTimestamp(),
@@ -1106,6 +963,7 @@ export async function sendInvoiceAction(
           error: errorMsg,
         },
       });
+      updateTag(`invoice:${invoiceId}`);
     }
   });
 
@@ -1147,8 +1005,9 @@ export async function generateSigningLinkAction(
   const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
   const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://rashx.com';
-  const signingUrl = `${siteUrl}/ar/sign/${invoiceId}.${token}`;
+  const siteUrl = getSiteUrl();
+  const locale = data.locale === 'en' ? 'en' : 'ar';
+  const signingUrl = `${siteUrl}/${locale}/sign/${invoiceId}.${token}`;
 
   await invoiceRef.update({
     'signing.tokenHash': tokenHash,
@@ -1533,7 +1392,7 @@ export async function rejectSignedFile(
   if (targetEmail) {
     after(async () => {
       try {
-        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://rashx.com';
+        const siteUrl = getSiteUrl();
         // Generate or refresh signing link
         const newToken = crypto.randomBytes(32).toString('hex');
         const newTokenHash = crypto.createHash('sha256').update(newToken).digest('hex');
@@ -1544,7 +1403,8 @@ export async function rejectSignedFile(
           'signing.expiresAt': expiresAt,
         });
 
-        const signingUrl = `${siteUrl}/ar/sign/${invoiceId}.${newToken}`;
+        const locale = data.locale === 'en' ? 'en' : 'ar';
+        const signingUrl = `${siteUrl}/${locale}/sign/${invoiceId}.${newToken}`;
         const rawBilling = await getBillingSettings();
 
         await sendInvoiceEmail({

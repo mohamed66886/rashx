@@ -2,7 +2,7 @@ import React from 'react';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import { AlertCircle, Clock, XCircle, ShieldAlert } from 'lucide-react';
-import { verifySigningToken } from '@/server/actions/signing';
+import { verifySigningToken } from '@/server/signing/verify';
 import { SigningClientView } from '@/components/signing/SigningClientView';
 
 export const instant = false;

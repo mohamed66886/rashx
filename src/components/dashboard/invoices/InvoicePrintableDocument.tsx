@@ -2,10 +2,24 @@
 
 import React from 'react';
 import type { PlatformInvoice as LegacyInvoice, BillingSettings } from '@/lib/types/platform';
-import type { PlatformInvoice, ContractClause } from '@/lib/types/billing';
+import type { PlatformInvoice } from '@/lib/types/billing';
+
+interface PrintableItem {
+  id?: string;
+  description: string;
+  quantity?: number;
+  unitPriceHalalas?: number;
+  unitPrice?: number;
+}
+
+interface PrintableTerm {
+  id?: string;
+  title: string;
+  body: string;
+}
 
 export interface InvoicePrintableDocumentProps {
-  invoice: PlatformInvoice | LegacyInvoice | any;
+  invoice: PlatformInvoice | LegacyInvoice | Record<string, unknown>;
   billingSettings?: BillingSettings | null;
   id?: string;
   className?: string;
@@ -17,14 +31,16 @@ export const InvoicePrintableDocument: React.FC<InvoicePrintableDocumentProps> =
   id = 'printable-invoice-doc',
   className = '',
 }) => {
-  const isQuote = invoice.docKind === 'quote';
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const inv = invoice as any;
+  const isQuote = inv.docKind === 'quote';
   const docTitleAr = isQuote ? 'عرض سعر وعقد' : 'عقد وفاتورة';
   const docTitleEn = isQuote ? 'PRICE QUOTE & CONTRACT' : 'CONTRACT & INVOICE';
   const docNumberLabelAr = isQuote ? 'رقم عرض السعر والعقد' : 'رقم العقد والفاتورة';
   const docNumberLabelEn = isQuote ? 'QUOTE NO.' : 'INVOICE NO.';
 
   // Seller from frozen copy or billingSettings
-  const seller = invoice.seller || (billingSettings ? {
+  const seller = inv.seller || (billingSettings ? {
     nameAr: billingSettings.facilityName,
     nameEn: 'RASHX PLATFORM',
     bankName: billingSettings.bankName,
@@ -42,25 +58,25 @@ export const InvoicePrintableDocument: React.FC<InvoicePrintableDocumentProps> =
   const sellerVatNumber = seller?.vatNumber || billingSettings?.taxNumber;
   const disclaimerLine = seller?.disclaimerLine || billingSettings?.disclaimerLine || 'هذا المستند عقد وفاتورة تجارية ولا يُغني عن الفاتورة الضريبية الرسمية عند الاقتضاء.';
 
-  const isVatEnabled = invoice.vatRatePercent !== undefined ? invoice.vatRatePercent > 0 : Boolean(invoice.vatEnabled);
+  const isVatEnabled = inv.vatRatePercent !== undefined ? inv.vatRatePercent > 0 : Boolean(inv.vatEnabled);
   const hasVat = Boolean(isVatEnabled && sellerVatNumber);
-  const vatRatePercent = invoice.vatRatePercent !== undefined ? invoice.vatRatePercent : Math.round((invoice.vatRate || 0.15) * 100);
+  const vatRatePercent = inv.vatRatePercent !== undefined ? inv.vatRatePercent : Math.round((inv.vatRate || 0.15) * 100);
 
-  const facilityName = invoice.customer?.facilityName || invoice.facilityName || '—';
-  const facilityAddress = invoice.customer?.address || invoice.facilityAddress || '—';
-  const customerName = invoice.customer?.name || invoice.customerName || '';
-  const customerPhone = invoice.customer?.phone || invoice.customerPhone || '';
-  const commercialReg = invoice.customer?.commercialRegNumber || invoice.commercialReg || invoice.taxNumber || '';
+  const facilityName = inv.customer?.facilityName || inv.facilityName || '—';
+  const facilityAddress = inv.customer?.address || inv.facilityAddress || '—';
+  const customerName = inv.customer?.name || inv.customerName || '';
+  const customerPhone = inv.customer?.phone || inv.customerPhone || '';
+  const commercialReg = inv.customer?.commercialRegNumber || inv.commercialReg || inv.taxNumber || '';
 
-  const subtotal = (invoice.totals?.subtotal !== undefined ? invoice.totals.subtotal / 100 : invoice.subtotal) || 0;
-  const discount = (invoice.totals?.discount !== undefined ? invoice.totals.discount / 100 : invoice.discount) || 0;
-  const vatAmount = (invoice.totals?.vat !== undefined ? invoice.totals.vat / 100 : invoice.vatAmount) || 0;
-  const totalAmount = (invoice.totals?.total !== undefined ? invoice.totals.total / 100 : invoice.totalAmount) || 0;
+  const subtotal = (inv.totals?.subtotal !== undefined ? inv.totals.subtotal / 100 : inv.subtotal) || 0;
+  const discount = (inv.totals?.discount !== undefined ? inv.totals.discount / 100 : inv.discount) || 0;
+  const vatAmount = (inv.totals?.vat !== undefined ? inv.totals.vat / 100 : inv.vatAmount) || 0;
+  const totalAmount = (inv.totals?.total !== undefined ? inv.totals.total / 100 : inv.totalAmount) || 0;
 
-  const displayDate = invoice.issueDate || invoice.invoiceDate || new Date().toISOString().split('T')[0];
-  const displayStart = invoice.issueDate || invoice.startDate || displayDate;
-  const displayEnd = invoice.dueDate || invoice.endDate || 'سنة من تاريخ البدء';
-  const invoiceNum = invoice.number || invoice.invoiceNumber || (isQuote ? 'QUO-0001' : 'INV-0001');
+  const displayDate = inv.issueDate || inv.invoiceDate || new Date().toISOString().split('T')[0];
+  const displayStart = inv.issueDate || inv.startDate || displayDate;
+  const displayEnd = inv.dueDate || inv.endDate || 'سنة من تاريخ البدء';
+  const invoiceNum = inv.number || inv.invoiceNumber || (isQuote ? 'QUO-0001' : 'INV-0001');
 
   const formatCurrency = (val: number) =>
     Number(val || 0).toLocaleString('en-US', {
@@ -182,8 +198,8 @@ export const InvoicePrintableDocument: React.FC<InvoicePrintableDocumentProps> =
 
         {/* Table Rows */}
         <div className="divide-y divide-[#E5E9E8]">
-          {invoice.items && invoice.items.length > 0 ? (
-            invoice.items.map((item: any, idx: number) => {
+          {inv.items && inv.items.length > 0 ? (
+            inv.items.map((item: PrintableItem, idx: number) => {
               const uPrice = item.unitPriceHalalas !== undefined ? item.unitPriceHalalas / 100 : (item.unitPrice || 0);
               const lineTotal = Number(item.quantity || 1) * uPrice;
               return (
@@ -282,27 +298,27 @@ export const InvoicePrintableDocument: React.FC<InvoicePrintableDocumentProps> =
               خطأ: لم يتم ضبط إعدادات الفوترة البنكية (Missing billing settings)
             </div>
           )}
-          {invoice.paymentDetails && (
+          {inv.paymentDetails && (
             <div className="mt-1.5 text-[#5E6665]">
-              {invoice.paymentDetails}
+              {inv.paymentDetails}
             </div>
           )}
         </div>
-        {invoice.notes && (
+        {inv.notes && (
           <div className="text-[11px] text-[#5E6665] mt-2 italic">
-            * {invoice.notes}
+            * {inv.notes}
           </div>
         )}
       </div>
 
       {/* ───────────────── Contract Clauses / Terms (If available) ───────────────── */}
-      {Array.isArray(invoice.terms) && invoice.terms.length > 0 && (
+      {Array.isArray(inv.terms) && inv.terms.length > 0 && (
         <div className="mb-8 pt-3 border-t border-[#E5E9E8] text-xs">
           <div className="text-[10px] text-[#5E6665] font-bold tracking-widest uppercase mb-2">
             CONTRACT CLAUSES & CONDITIONS · بنود وشروط التعاقد والاشتراك
           </div>
           <div className="space-y-2 bg-[#FAFBFB] p-3.5 rounded-lg border border-[#E5E9E8]">
-            {invoice.terms.map((term: any, idx: number) => (
+            {inv.terms.map((term: PrintableTerm, idx: number) => (
               <div key={term.id || idx} className="text-[10.5px] leading-relaxed text-[#2C3333]">
                 <span className="font-bold text-[#000000]">
                   {idx + 1}. {term.title}:
