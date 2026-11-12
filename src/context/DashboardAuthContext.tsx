@@ -12,6 +12,7 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { logoutAction } from '@/server/actions/auth';
+import { updateAdminAvatarAction } from '@/server/actions/admins';
 import type { AdminUser } from '@/server/auth/session';
 
 export type DBConnectionStatus = 'connected' | 'syncing' | 'offline';
@@ -52,8 +53,15 @@ export const DashboardAuthProvider: React.FC<DashboardAuthProviderProps> = ({
   initialAdmin = null,
 }) => {
   const [admin, setAdmin] = useState<AdminUser | null>(initialAdmin);
+  const [prevInitialAdmin, setPrevInitialAdmin] = useState<AdminUser | null>(initialAdmin);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isAvatarPickerOpen, setIsAvatarPickerOpen] = useState(false);
+
+  // Synchronize state during render when initialAdmin changes from server components
+  if (initialAdmin !== prevInitialAdmin) {
+    setPrevInitialAdmin(initialAdmin);
+    setAdmin(initialAdmin);
+  }
 
   const router = useRouter();
   const params = useParams();
@@ -65,11 +73,28 @@ export const DashboardAuthProvider: React.FC<DashboardAuthProviderProps> = ({
   const handleUpdateAvatar = useCallback(
     async (avatarId: number, customUrl?: string) => {
       if (!admin) return { success: false, error: 'غير مسجل الدخول' };
-      const newAvatar = customUrl || `/avatars/animoji-${avatarId}.webp`;
-      setAdmin((prev) => (prev ? { ...prev, avatarId, avatar: newAvatar } : null));
-      return { success: true };
+      try {
+        // 1. Persist to Firestore & Audit Log via Server Action
+        const res = await updateAdminAvatarAction({ avatarId, customUrl });
+        if (!res.success) {
+          return { success: false, error: res.error || 'فشل حفظ الأفاتار في قاعدة البيانات' };
+        }
+
+        const finalAvatar = res.avatar || customUrl || `/avatars/animoji-${avatarId}.webp`;
+        const finalAvatarId = res.avatarId || avatarId;
+
+        // 2. Synchronize client-side state
+        setAdmin((prev) => (prev ? { ...prev, avatarId: finalAvatarId, avatar: finalAvatar } : null));
+
+        // 3. Trigger server components revalidation
+        router.refresh();
+        return { success: true };
+      } catch (err: unknown) {
+        const error = err instanceof Error ? err.message : 'فشل الاتصال بالخادم';
+        return { success: false, error };
+      }
     },
-    [admin]
+    [admin, router]
   );
 
   const handleLogout = useCallback(async () => {

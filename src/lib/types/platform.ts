@@ -29,7 +29,10 @@ export type AuditAction =
   | 'DELETE_TENANT'
   | 'REVOKE_SESSION'
   | 'CONVERT_LEAD'
-  | 'UPDATE_LEAD_STATUS';
+  | 'UPDATE_LEAD_STATUS'
+  | 'CREATE_INVOICE'
+  | 'SEND_INVOICE_EMAIL'
+  | 'DELETE_INVOICE';
 
 export interface RashxAdmin {
   id: string;
@@ -120,5 +123,46 @@ export interface PlatformStats {
   leadsNew: number;
   leadsConverted: number;
   updatedAt: string;
+}
+
+export interface PlatformInvoiceItem {
+  id: string;
+  description: string;
+  quantity: number;
+  unitPrice: number;
+  total: number;
+}
+
+export interface PlatformInvoice {
+  id: string;
+  invoiceNumber: string;
+  facilityName: string;
+  facilityAddress: string;
+  invoiceDate: string;
+  startDate?: string;
+  endDate?: string;
+  planName?: string;
+  dueDate?: string;
+  tenantId?: string;
+  customerName: string;
+  customerPhone?: string;
+  customerEmail?: string;
+  taxNumber?: string;
+  commercialReg?: string;
+  items: PlatformInvoiceItem[];
+  subtotal: number;
+  discount: number;
+  taxableAmount: number;
+  vatRate: number;
+  vatAmount: number;
+  totalAmount: number;
+  paymentMethod: 'cash' | 'mada' | 'apple-pay' | 'visa' | 'bank-transfer';
+  paymentDetails?: string;
+  status: 'paid' | 'unpaid' | 'draft' | 'cancelled';
+  notes?: string;
+  sentToEmail?: string;
+  sentAt?: string;
+  createdAt: string;
+  updatedAt?: string;
 }
 

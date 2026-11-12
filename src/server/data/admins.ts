@@ -40,3 +40,59 @@ export async function getAdmins(): Promise<RashxAdmin[]> {
     };
   });
 }
+
+export interface AdminProfileData {
+  name?: string;
+  title?: string;
+  avatar?: string;
+  avatarId?: number;
+}
+
+/**
+ * Fetches an individual admin profile from Firestore by UID or email.
+ * Cached with 'admins' tag to minimize Firestore reads during navigation.
+ */
+export async function getAdminProfile(
+  uid: string,
+  email: string
+): Promise<AdminProfileData | null> {
+  'use cache';
+  cacheLife('minutes');
+  cacheTag('admins');
+
+  try {
+    const docSnap = await adminDb.collection('platform_admins').doc(uid).get();
+    if (docSnap.exists) {
+      const data = docSnap.data();
+      return {
+        name: data?.name as string | undefined,
+        title: data?.title as string | undefined,
+        avatar: (data?.avatar as string) || undefined,
+        avatarId: typeof data?.avatarId === 'number' ? data.avatarId : undefined,
+      };
+    }
+
+    if (email) {
+      const querySnap = await adminDb
+        .collection('platform_admins')
+        .where('email', '==', email)
+        .limit(1)
+        .get();
+
+      if (!querySnap.empty) {
+        const data = querySnap.docs[0].data();
+        return {
+          name: data?.name as string | undefined,
+          title: data?.title as string | undefined,
+          avatar: (data?.avatar as string) || undefined,
+          avatarId: typeof data?.avatarId === 'number' ? data.avatarId : undefined,
+        };
+      }
+    }
+
+    return null;
+  } catch {
+    return null;
+  }
+}
+

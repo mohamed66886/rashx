@@ -3,6 +3,7 @@ import 'server-only';
 import { cookies, headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { adminAuth } from '@/server/firebase-admin';
+import { getAdminProfile } from '@/server/data/admins';
 
 export type PlatformRole =
   | 'super_admin'
@@ -84,7 +85,10 @@ export async function createSession(idToken: string): Promise<AdminUser> {
   });
 
   const email = decodedToken.email || '';
+  const profile = await getAdminProfile(decodedToken.uid, email).catch(() => null);
+
   const name =
+    profile?.name ||
     (decodedToken.name as string) ||
     (email === 'mohamed@rashx.org'
       ? 'م. محمد عبده رشاد البهي'
@@ -98,9 +102,9 @@ export async function createSession(idToken: string): Promise<AdminUser> {
     email,
     role,
     name,
-    title: ROLE_TITLES[role] || 'مسؤول المنظومة',
-    avatarId: (decodedToken.avatarId as number) || 1,
-    avatar: (decodedToken.picture as string) || '/avatars/animoji-1.webp',
+    title: profile?.title || ROLE_TITLES[role] || 'مسؤول المنظومة',
+    avatarId: profile?.avatarId || (decodedToken.avatarId as number) || 1,
+    avatar: profile?.avatar || (decodedToken.picture as string) || '/avatars/animoji-1.webp',
   };
 }
 
@@ -141,7 +145,10 @@ export async function getAdmin(checkRevoked: boolean = false): Promise<AdminUser
     }
 
     const email = decoded.email || '';
+    const profile = await getAdminProfile(decoded.uid, email).catch(() => null);
+
     const name =
+      profile?.name ||
       (decoded.name as string) ||
       (email === 'mohamed@rashx.org'
         ? 'م. محمد عبده رشاد البهي'
@@ -155,9 +162,9 @@ export async function getAdmin(checkRevoked: boolean = false): Promise<AdminUser
       email,
       role,
       name,
-      title: ROLE_TITLES[role] || 'مسؤول المنظومة',
-      avatarId: (decoded.avatarId as number) || 1,
-      avatar: (decoded.picture as string) || '/avatars/animoji-1.webp',
+      title: profile?.title || ROLE_TITLES[role] || 'مسؤول المنظومة',
+      avatarId: profile?.avatarId || (decoded.avatarId as number) || 1,
+      avatar: profile?.avatar || (decoded.picture as string) || '/avatars/animoji-1.webp',
     };
   } catch {
     return null;

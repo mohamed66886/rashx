@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useTransition, useOptimistic } from 'react';
+import React, { useState, useTransition, useOptimistic, useEffect, useId } from 'react';
 import {
   Building2,
   Plus,
@@ -8,8 +8,9 @@ import {
   Search,
   Trash2,
   X,
-  Sparkles,
   Loader2,
+  PauseCircle,
+  PlayCircle,
 } from 'lucide-react';
 import type { SalonTenant } from '@/lib/types/platform';
 import {
@@ -19,6 +20,13 @@ import {
   fetchTenantsPageAction,
 } from '@/server/actions/tenants';
 import { useToast } from '@/components/ui/Toast';
+
+/**
+ * Tenants management — simplified.
+ * Brand tokens only. Desktop: table. Mobile: one card per salon.
+ * The add-salon form is a proper dialog (labels, Esc to close, scroll-safe).
+ * All data logic (optimistic updates, server actions, cursor paging) is unchanged.
+ */
 
 interface TenantsClientViewProps {
   initialTenants: SalonTenant[];
@@ -31,12 +39,59 @@ type OptimisticAction =
   | { type: 'UPDATE_STATUS'; tenantId: string; status: SalonTenant['status'] }
   | { type: 'DELETE'; tenantId: string };
 
+const INITIAL_FORM = {
+  businessName: '',
+  subdomain: '',
+  ownerName: '',
+  phone: '',
+  email: '',
+  city: 'الرياض',
+  plan: 'Growth' as SalonTenant['plan'],
+  mrr: 1499,
+  branchesCount: 1,
+  status: 'active' as SalonTenant['status'],
+  zatcaPhase: 'Phase 2 Onboarded' as SalonTenant['zatcaPhase'],
+};
+
+const PLAN_PRICES: Record<SalonTenant['plan'], number> = {
+  Starter: 799,
+  Growth: 1499,
+  Enterprise: 2999,
+};
+
+const CITIES = ['الرياض', 'جدة', 'الدمام', 'مكة المكرمة', 'المدينة المنورة', 'الخبر'];
+
+const FIELD =
+  'h-11 w-full rounded-xl border border-mist-gray bg-neutral/40 px-3 text-sm text-ink transition-colors placeholder:text-ink-muted/60 focus:border-dusty-blue focus:bg-white focus:outline-none focus:ring-4 focus:ring-dusty-blue/25';
+
+function StatusBadge({ status }: { status: SalonTenant['status'] }) {
+  if (status === 'active')
+    return (
+      <span className="inline-flex items-center gap-1.5 rounded-full bg-dusty-blue/30 px-2.5 py-0.5 text-[11px] font-bold text-ink">
+        <span className="h-1.5 w-1.5 rounded-full bg-ink" aria-hidden="true" />
+        نشط
+      </span>
+    );
+  if (status === 'trial')
+    return (
+      <span className="inline-flex rounded-full bg-warm-peach/40 px-2.5 py-0.5 text-[11px] font-bold text-ink">
+        تجريبي 14 يوم
+      </span>
+    );
+  return (
+    <span className="inline-flex rounded-full bg-mist-gray px-2.5 py-0.5 text-[11px] font-bold text-ink-muted">
+      معطّل
+    </span>
+  );
+}
+
 export function TenantsClientView({
   initialTenants,
   initialNextCursor,
   initialHasMore,
 }: TenantsClientViewProps) {
   const toast = useToast();
+  const uid = useId();
   const [tenantsList, setTenantsList] = useState<SalonTenant[]>(initialTenants);
   const [nextCursor, setNextCursor] = useState<string | null>(initialNextCursor);
   const [hasMore, setHasMore] = useState(initialHasMore);
@@ -64,20 +119,17 @@ export function TenantsClientView({
     }
   );
 
-  // Form State
-  const [formData, setFormData] = useState({
-    businessName: '',
-    subdomain: '',
-    ownerName: '',
-    phone: '',
-    email: '',
-    city: 'الرياض',
-    plan: 'Growth' as SalonTenant['plan'],
-    mrr: 1499,
-    branchesCount: 1,
-    status: 'active' as SalonTenant['status'],
-    zatcaPhase: 'Phase 2 Onboarded' as SalonTenant['zatcaPhase'],
-  });
+  const [formData, setFormData] = useState(INITIAL_FORM);
+
+  // Close the dialog with Esc
+  useEffect(() => {
+    if (!showAddModal) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setShowAddModal(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [showAddModal]);
 
   const handleSubdomainAutoFill = (name: string) => {
     const slug = name
@@ -94,8 +146,7 @@ export function TenantsClientView({
   };
 
   const handlePlanChange = (plan: SalonTenant['plan']) => {
-    const mrr = plan === 'Starter' ? 799 : plan === 'Growth' ? 1499 : 2999;
-    setFormData((prev) => ({ ...prev, plan, mrr }));
+    setFormData((prev) => ({ ...prev, plan, mrr: PLAN_PRICES[plan] }));
   };
 
   const handleCreateSubmit = async (e: React.FormEvent) => {
@@ -128,19 +179,7 @@ export function TenantsClientView({
           const finalTenant = { ...optimisticNewTenant, id: res.data.id };
           setTenantsList((prev) => [finalTenant, ...prev.filter((t) => t.id !== tempId)]);
           toast.success('تم توليد النطاق وتفعيل الصالون بنجاح');
-          setFormData({
-            businessName: '',
-            subdomain: '',
-            ownerName: '',
-            phone: '',
-            email: '',
-            city: 'الرياض',
-            plan: 'Growth',
-            mrr: 1499,
-            branchesCount: 1,
-            status: 'active',
-            zatcaPhase: 'Phase 2 Onboarded',
-          });
+          setFormData(INITIAL_FORM);
         } else {
           toast.error(res.error || 'تعذر إنشاء المنشأة في قاعدة البيانات');
         }
@@ -157,9 +196,7 @@ export function TenantsClientView({
       try {
         const res = await updateTenantStatus({ tenantId, status });
         if (res.success) {
-          setTenantsList((prev) =>
-            prev.map((t) => (t.id === tenantId ? { ...t, status } : t))
-          );
+          setTenantsList((prev) => prev.map((t) => (t.id === tenantId ? { ...t, status } : t)));
           toast.success('تم تحديث حالة الصالون');
         } else {
           toast.error(res.error || 'تعذر تحديث الحالة');
@@ -206,243 +243,276 @@ export function TenantsClientView({
     }
   };
 
+  const q = searchQuery.toLowerCase();
   const filtered = optimisticTenants.filter(
     (t) =>
-      t.businessName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      t.subdomain.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      t.ownerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      t.city.toLowerCase().includes(searchQuery.toLowerCase())
+      t.businessName.toLowerCase().includes(q) ||
+      t.subdomain.toLowerCase().includes(q) ||
+      t.ownerName.toLowerCase().includes(q) ||
+      t.city.toLowerCase().includes(q)
+  );
+
+  const subdomainLink = (t: SalonTenant) => (
+    <a
+      href={`https://${t.subdomain}.rashx.org`}
+      target="_blank"
+      rel="noreferrer"
+      dir="ltr"
+      className="inline-flex items-center gap-1 font-mono text-[11px] font-bold text-ink underline decoration-dusty-blue decoration-2 underline-offset-4 transition-colors hover:decoration-warm-peach"
+    >
+      <span>{t.subdomain}.rashx.org</span>
+      <ExternalLink className="h-3 w-3 shrink-0" aria-hidden="true" />
+    </a>
+  );
+
+  const actions = (t: SalonTenant) => (
+    <div className="flex items-center gap-1.5">
+      {t.status === 'active' ? (
+        <button
+          type="button"
+          disabled={isPending}
+          onClick={() => handleStatusChange(t.id, 'suspended')}
+          className="inline-flex h-8 items-center gap-1 rounded-lg px-2.5 text-[11px] font-bold text-ink transition-colors hover:bg-warm-peach/40 disabled:opacity-50"
+        >
+          <PauseCircle className="h-3.5 w-3.5" aria-hidden="true" />
+          إيقاف
+        </button>
+      ) : (
+        <button
+          type="button"
+          disabled={isPending}
+          onClick={() => handleStatusChange(t.id, 'active')}
+          className="inline-flex h-8 items-center gap-1 rounded-lg px-2.5 text-[11px] font-bold text-ink transition-colors hover:bg-dusty-blue/30 disabled:opacity-50"
+        >
+          <PlayCircle className="h-3.5 w-3.5" aria-hidden="true" />
+          تفعيل
+        </button>
+      )}
+      <button
+        type="button"
+        disabled={isPending}
+        onClick={() => handleDelete(t.id)}
+        aria-label={`حذف ${t.businessName}`}
+        className="grid h-8 w-8 place-items-center rounded-lg text-ink-muted transition-colors hover:bg-warm-peach/40 hover:text-ink disabled:opacity-50"
+      >
+        <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+      </button>
+    </div>
   );
 
   return (
-    <div className="space-y-6 animate-fadeIn">
-      {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-3xl bg-white border border-[#E5E9E8] shadow-xs">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <div className="w-8 h-8 rounded-xl bg-[#91B8C0]/20 flex items-center justify-center">
-              <Building2 className="w-4 h-4 text-[#91B8C0]" />
-            </div>
-            <h1 className="text-xl font-black text-[#0D1514]">
-              إدارة الصالونات والمنشآت المشتركة (Tenants)
-            </h1>
-          </div>
-          <p className="text-xs text-[#5E6665]">
-            توليد النطاقات الفرعية المخصصة (subdomain.rashx.org)، متابعة الاشتراكات، وحالة الربط الزكوي.
+    <div dir="rtl" className="space-y-5 sm:space-y-6">
+      {/* ============================== Header ============================== */}
+      <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-xl font-extrabold text-ink sm:text-2xl">الصالونات والمنشآت</h1>
+          <p className="mt-1 text-sm text-ink-muted">
+            إضافة الصالونات وتوليد نطاقاتها الفرعية، ومتابعة الاشتراكات والحالة.
           </p>
         </div>
 
         <button
           type="button"
           onClick={() => setShowAddModal(true)}
-          className="px-4 py-2.5 rounded-2xl bg-[#0D1514] hover:bg-[#1A2524] text-white text-xs font-bold flex items-center gap-2 shadow-xs transition-colors cursor-pointer shrink-0"
+          className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-2xl bg-warm-peach px-5 text-sm font-bold text-ink transition-colors hover:bg-warm-peach/80"
         >
-          <Plus className="w-4 h-4 text-[#91B8C0]" />
-          <span>إضافة صالون ونطاق جديد</span>
+          <Plus className="h-4 w-4 stroke-[2.5]" aria-hidden="true" />
+          <span>إضافة صالون</span>
         </button>
-      </div>
+      </header>
 
-      {/* Filter and Search Bar */}
+      {/* ============================== Search ============================== */}
       <div className="flex items-center justify-between gap-4">
-        <div className="relative flex-1 max-w-md">
-          <Search className="w-4 h-4 text-[#5E6665] absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+        <div className="relative max-w-md flex-1">
+          <Search
+            className="pointer-events-none absolute inset-y-0 start-3.5 my-auto h-4 w-4 text-ink-muted"
+            aria-hidden="true"
+          />
           <input
-            type="text"
+            type="search"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="بحث بالاسم، النطاق الفرعي، المالك، أو المدينة..."
-            className="w-full pr-9 pl-4 py-2.5 rounded-2xl bg-white border border-[#E5E9E8] text-xs text-[#0D1514] focus:outline-none focus:border-[#91B8C0]"
+            placeholder="بحث بالاسم أو النطاق أو المالك أو المدينة"
+            aria-label="بحث في الصالونات"
+            className={`${FIELD} ps-10`}
           />
         </div>
 
-        <div className="text-xs font-bold text-[#5E6665]">
-          إجمالي المنشآت: <strong className="text-[#0D1514]">{filtered.length}</strong>
+        <div className="shrink-0 text-xs font-bold text-ink-muted">
+          <strong className="text-ink">{filtered.length}</strong> منشأة
         </div>
       </div>
 
-      {/* Tenants Table */}
-      <div className="bg-white rounded-3xl border border-[#E5E9E8] overflow-hidden shadow-xs">
-        <div className="overflow-x-auto">
-          <table className="w-full text-right text-xs">
-            <thead className="bg-[#F8FAFB] text-[#5E6665] font-bold border-b border-[#E5E9E8]">
-              <tr>
-                <th className="py-3.5 px-4">الصالون / المركز</th>
-                <th className="py-3.5 px-4">النطاق الفرعي المستقل</th>
-                <th className="py-3.5 px-4">المالك والاتصال</th>
-                <th className="py-3.5 px-4">المدينة والفروع</th>
-                <th className="py-3.5 px-4">الباقة وقيمة الاشتراك</th>
-                <th className="py-3.5 px-4">الربط الزكوي (ZATCA)</th>
-                <th className="py-3.5 px-4">الحالة</th>
-                <th className="py-3.5 px-4 text-center">إجراءات</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#E5E9E8]">
-              {filtered.length === 0 ? (
-                <tr>
-                  <td colSpan={8} className="py-8 text-center text-xs text-ink-muted">
-                    لا توجد صالونات مطابقة للبحث
-                  </td>
-                </tr>
-              ) : (
-                filtered.map((tenant) => (
-                  <tr key={tenant.id} className="hover:bg-[#FDFEFE] transition-colors">
-                    <td className="py-3.5 px-4">
-                      <div className="font-bold text-[#0D1514]">{tenant.businessName}</div>
-                      <div className="text-[10px] text-[#5E6665] font-mono">ID: {tenant.id}</div>
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <a
-                        href={`https://${tenant.subdomain}.rashx.org`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="font-mono text-[11px] font-bold text-[#91B8C0] hover:underline inline-flex items-center gap-1"
-                        dir="ltr"
-                      >
-                        <span>{tenant.subdomain}.rashx.org</span>
-                        <ExternalLink className="w-3 h-3" />
-                      </a>
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <div className="font-semibold text-[#0D1514]">{tenant.ownerName}</div>
-                      <div className="text-[10px] text-[#5E6665]" dir="ltr">
-                        {tenant.phone}
+      {/* ============================== List ============================== */}
+      <section className="overflow-hidden rounded-2xl border border-neutral bg-base sm:rounded-3xl">
+        {filtered.length === 0 ? (
+          <div className="p-10 text-center">
+            <div className="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-2xl bg-dusty-blue/30 text-ink">
+              <Building2 className="h-6 w-6" aria-hidden="true" />
+            </div>
+            <p className="text-sm font-bold text-ink">لا توجد صالونات مطابقة للبحث</p>
+          </div>
+        ) : (
+          <>
+            {/* Mobile: cards */}
+            <ul className="divide-y divide-neutral md:hidden">
+              {filtered.map((t) => (
+                <li key={t.id} className="space-y-3 p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="truncate text-sm font-bold text-ink">{t.businessName}</div>
+                      <div className="truncate text-[11px] text-ink-muted">
+                        {t.ownerName} • {t.city} • {t.branchesCount} فروع
                       </div>
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <div className="font-medium text-[#0D1514]">{tenant.city}</div>
-                      <div className="text-[10px] text-[#5E6665]">{tenant.branchesCount} فروع</div>
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <div className="font-black text-[#0D1514]">{tenant.mrr} ر.س / شهرياً</div>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#F0C5AE]/20 text-[#8F593E]">
-                        {tenant.plan}
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-                        {tenant.zatcaPhase}
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4">
-                      {tenant.status === 'active' && (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-bold text-[10px]">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                          <span>نشط</span>
-                        </span>
-                      )}
-                      {tenant.status === 'trial' && (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 font-bold text-[10px]">
-                          <span>تجريبي 14 يوم</span>
-                        </span>
-                      )}
-                      {tenant.status === 'suspended' && (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 font-bold text-[10px]">
-                          <span>معطّل</span>
-                        </span>
-                      )}
-                    </td>
-                    <td className="py-3.5 px-4 text-center">
-                      <div className="flex items-center justify-center gap-1.5">
-                        {tenant.status === 'active' ? (
-                          <button
-                            type="button"
-                            disabled={isPending}
-                            onClick={() => handleStatusChange(tenant.id, 'suspended')}
-                            className="px-2 py-1 rounded-lg text-amber-600 hover:bg-amber-50 text-[10px] font-bold transition-colors cursor-pointer disabled:opacity-50"
-                          >
-                            إيقاف
-                          </button>
-                        ) : (
-                          <button
-                            type="button"
-                            disabled={isPending}
-                            onClick={() => handleStatusChange(tenant.id, 'active')}
-                            className="px-2 py-1 rounded-lg text-emerald-600 hover:bg-emerald-50 text-[10px] font-bold transition-colors cursor-pointer disabled:opacity-50"
-                          >
-                            تفعيل
-                          </button>
-                        )}
+                    </div>
+                    <StatusBadge status={t.status} />
+                  </div>
 
-                        <button
-                          type="button"
-                          disabled={isPending}
-                          onClick={() => handleDelete(tenant.id)}
-                          className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 transition-colors cursor-pointer disabled:opacity-50"
-                          title="حذف المنشأة"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    </td>
+                  <div>{subdomainLink(t)}</div>
+
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="font-extrabold text-ink">{t.mrr} ر.س / شهرياً</span>
+                    <span className="rounded-md bg-warm-peach/30 px-2 py-0.5 text-[10px] font-bold text-ink">
+                      {t.plan}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between gap-2 border-t border-neutral pt-3">
+                    <span className="text-[11px] text-ink-muted" dir="ltr">
+                      {t.phone}
+                    </span>
+                    {actions(t)}
+                  </div>
+                </li>
+              ))}
+            </ul>
+
+            {/* Desktop: table */}
+            <div className="hidden overflow-x-auto md:block">
+              <table className="w-full text-start text-xs">
+                <thead className="bg-neutral/40 font-bold text-ink-muted">
+                  <tr>
+                    <th scope="col" className="px-4 py-3.5 text-start">الصالون</th>
+                    <th scope="col" className="px-4 py-3.5 text-start">النطاق الفرعي</th>
+                    <th scope="col" className="px-4 py-3.5 text-start">المالك</th>
+                    <th scope="col" className="hidden px-4 py-3.5 text-start lg:table-cell">المدينة</th>
+                    <th scope="col" className="px-4 py-3.5 text-start">الباقة</th>
+                    <th scope="col" className="hidden px-4 py-3.5 text-start xl:table-cell">ZATCA</th>
+                    <th scope="col" className="px-4 py-3.5 text-start">الحالة</th>
+                    <th scope="col" className="px-4 py-3.5 text-start">إجراءات</th>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                </thead>
+                <tbody className="divide-y divide-neutral">
+                  {filtered.map((t) => (
+                    <tr key={t.id} className="transition-colors hover:bg-neutral/20">
+                      <td className="px-4 py-3.5 font-bold text-ink">{t.businessName}</td>
+                      <td className="px-4 py-3.5">{subdomainLink(t)}</td>
+                      <td className="px-4 py-3.5">
+                        <div className="font-semibold text-ink">{t.ownerName}</div>
+                        <div className="text-[10px] text-ink-muted" dir="ltr">
+                          {t.phone}
+                        </div>
+                      </td>
+                      <td className="hidden px-4 py-3.5 lg:table-cell">
+                        <div className="font-medium text-ink">{t.city}</div>
+                        <div className="text-[10px] text-ink-muted">{t.branchesCount} فروع</div>
+                      </td>
+                      <td className="px-4 py-3.5">
+                        <div className="font-extrabold text-ink">{t.mrr} ر.س</div>
+                        <span className="mt-0.5 inline-block rounded-md bg-warm-peach/30 px-2 py-0.5 text-[10px] font-bold text-ink">
+                          {t.plan}
+                        </span>
+                      </td>
+                      <td className="hidden px-4 py-3.5 text-[11px] text-ink-muted xl:table-cell">
+                        {t.zatcaPhase}
+                      </td>
+                      <td className="px-4 py-3.5">
+                        <StatusBadge status={t.status} />
+                      </td>
+                      <td className="px-4 py-3.5">{actions(t)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
 
-        {/* Cursor Pagination Load More */}
         {hasMore && (
-          <div className="p-4 border-t border-[#E5E9E8] bg-[#F8FAFB] flex justify-center">
+          <div className="flex justify-center border-t border-neutral bg-neutral/20 p-4">
             <button
               type="button"
               onClick={handleLoadMore}
               disabled={isLoadingMore}
-              className="px-5 py-2 rounded-2xl bg-white border border-[#E5E9E8] text-xs font-bold text-[#0D1514] hover:bg-neutral-50 flex items-center gap-2 cursor-pointer shadow-xs disabled:opacity-60"
+              className="inline-flex h-10 items-center gap-2 rounded-2xl border border-mist-gray bg-white px-5 text-xs font-bold text-ink transition-colors hover:border-ink disabled:opacity-60"
             >
               {isLoadingMore ? (
                 <>
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  <span>جاري تحميل المزيد...</span>
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
+                  <span>جاري التحميل...</span>
                 </>
               ) : (
-                <span>تحميل المزيد من الصالونات</span>
+                <span>تحميل المزيد</span>
               )}
             </button>
           </div>
         )}
-      </div>
+      </section>
 
-      {/* Provisioning Modal */}
+      {/* ============================ Add dialog ============================ */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-[#E5E9E8] animate-scaleUp max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between pb-4 border-b border-[#E5E9E8] mb-4">
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-[#91B8C0]" />
-                <h3 className="text-lg font-black text-[#0D1514]">إضافة صالون وتوليد نطاق فرعي جديد</h3>
-              </div>
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-ink/60 sm:items-center sm:p-4"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setShowAddModal(false);
+          }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={`${uid}-title`}
+            className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-white p-5 sm:rounded-3xl sm:p-7"
+          >
+            <div className="mb-5 flex items-center justify-between gap-3">
+              <h2 id={`${uid}-title`} className="text-lg font-extrabold text-ink">
+                إضافة صالون جديد
+              </h2>
               <button
                 type="button"
                 onClick={() => setShowAddModal(false)}
-                className="p-1.5 rounded-lg text-[#5E6665] hover:bg-[#F5F8F8]"
+                aria-label="إغلاق"
+                className="grid h-9 w-9 place-items-center rounded-full text-ink-muted transition-colors hover:bg-mist-gray hover:text-ink"
               >
-                <X className="w-5 h-5" />
+                <X className="h-5 w-5" aria-hidden="true" />
               </button>
             </div>
 
-            <form onSubmit={handleCreateSubmit} className="space-y-4 text-xs">
+            <form onSubmit={handleCreateSubmit} className="space-y-4">
               <div>
-                <label className="block font-bold text-[#0D1514] mb-1">اسم الصالون أو المركز *</label>
+                <label htmlFor={`${uid}-name`} className="mb-1.5 block text-xs font-bold text-ink">
+                  اسم الصالون أو المركز *
+                </label>
                 <input
+                  id={`${uid}-name`}
                   type="text"
                   required
                   value={formData.businessName}
                   onChange={(e) => handleSubdomainAutoFill(e.target.value)}
-                  placeholder="مثال: صالون النخبة الذهبية"
-                  className="w-full px-3 py-2.5 rounded-xl bg-[#F8FAFB] border border-[#E5E9E8] focus:border-[#91B8C0] focus:bg-white text-xs text-[#0D1514]"
+                  placeholder="مثال: صالون النخبة"
+                  className={FIELD}
                 />
               </div>
 
               <div>
-                <label className="block font-bold text-[#0D1514] mb-1">
-                  النطاق الفرعي المطلوب (Subdomain) *
+                <label htmlFor={`${uid}-sub`} className="mb-1.5 block text-xs font-bold text-ink">
+                  النطاق الفرعي *
                 </label>
-                <div className="flex items-center rounded-xl bg-[#F8FAFB] border border-[#E5E9E8] overflow-hidden focus-within:border-[#91B8C0] focus-within:bg-white">
-                  <span className="px-3 text-[#5E6665] font-mono select-none" dir="ltr">
-                    .rashx.org
-                  </span>
+                <div
+                  dir="ltr"
+                  className="flex h-11 items-center overflow-hidden rounded-xl border border-mist-gray bg-neutral/40 transition-colors focus-within:border-dusty-blue focus-within:bg-white focus-within:ring-4 focus-within:ring-dusty-blue/25"
+                >
                   <input
+                    id={`${uid}-sub`}
                     type="text"
                     required
                     value={formData.subdomain}
@@ -453,57 +523,68 @@ export function TenantsClientView({
                       })
                     }
                     placeholder="al-nukhba"
-                    className="w-full px-3 py-2.5 text-xs text-[#0D1514] text-left font-mono focus:outline-none"
-                    dir="ltr"
+                    className="h-full min-w-0 flex-1 bg-transparent px-3 font-mono text-sm text-ink focus:outline-none"
                   />
+                  <span className="select-none px-3 font-mono text-xs text-ink-muted">.rashx.org</span>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
-                  <label className="block font-bold text-[#0D1514] mb-1">اسم المالك / المدير *</label>
+                  <label htmlFor={`${uid}-owner`} className="mb-1.5 block text-xs font-bold text-ink">
+                    اسم المالك / المدير *
+                  </label>
                   <input
+                    id={`${uid}-owner`}
                     type="text"
                     required
                     value={formData.ownerName}
                     onChange={(e) => setFormData({ ...formData, ownerName: e.target.value })}
-                    placeholder="الاسم الكريم"
-                    className="w-full px-3 py-2.5 rounded-xl bg-[#F8FAFB] border border-[#E5E9E8] focus:border-[#91B8C0] text-xs text-[#0D1514]"
+                    className={FIELD}
                   />
                 </div>
                 <div>
-                  <label className="block font-bold text-[#0D1514] mb-1">رقم الجوال *</label>
+                  <label htmlFor={`${uid}-phone`} className="mb-1.5 block text-xs font-bold text-ink">
+                    رقم الجوال *
+                  </label>
                   <input
+                    id={`${uid}-phone`}
                     type="tel"
                     required
+                    inputMode="tel"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     placeholder="05XXXXXXXX"
                     dir="ltr"
-                    className="w-full px-3 py-2.5 rounded-xl bg-[#F8FAFB] border border-[#E5E9E8] focus:border-[#91B8C0] text-xs text-[#0D1514] text-right"
+                    className={`${FIELD} text-start`}
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-[#0D1514] mb-1">المدينة *</label>
+                  <label htmlFor={`${uid}-city`} className="mb-1.5 block text-xs font-bold text-ink">
+                    المدينة
+                  </label>
                   <select
+                    id={`${uid}-city`}
                     value={formData.city}
                     onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                    className="w-full px-3 py-2.5 rounded-xl bg-[#F8FAFB] border border-[#E5E9E8] text-xs text-[#0D1514]"
+                    className={FIELD}
                   >
-                    <option value="الرياض">الرياض</option>
-                    <option value="جدة">جدة</option>
-                    <option value="الدمام">الدمام</option>
-                    <option value="مكة المكرمة">مكة المكرمة</option>
-                    <option value="المدينة المنورة">المدينة المنورة</option>
-                    <option value="الخبر">الخبر</option>
+                    {CITIES.map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div>
-                  <label className="block font-bold text-[#0D1514] mb-1">عدد الفروع</label>
+                  <label htmlFor={`${uid}-branches`} className="mb-1.5 block text-xs font-bold text-ink">
+                    عدد الفروع
+                  </label>
                   <input
+                    id={`${uid}-branches`}
                     type="number"
                     min="1"
                     max="50"
@@ -511,46 +592,50 @@ export function TenantsClientView({
                     onChange={(e) =>
                       setFormData({ ...formData, branchesCount: parseInt(e.target.value, 10) || 1 })
                     }
-                    className="w-full px-3 py-2.5 rounded-xl bg-[#F8FAFB] border border-[#E5E9E8] text-xs text-[#0D1514]"
+                    className={FIELD}
                   />
                 </div>
               </div>
 
-              <div>
-                <label className="block font-bold text-[#0D1514] mb-1">باقة الاشتراك</label>
+              <fieldset>
+                <legend className="mb-1.5 text-xs font-bold text-ink">باقة الاشتراك</legend>
                 <div className="grid grid-cols-3 gap-2">
-                  {(['Starter', 'Growth', 'Enterprise'] as SalonTenant['plan'][]).map((p) => (
-                    <button
-                      key={p}
-                      type="button"
-                      onClick={() => handlePlanChange(p)}
-                      className={`p-2.5 rounded-xl border text-center transition-all cursor-pointer ${
-                        formData.plan === p
-                          ? 'border-[#0D1514] bg-[#0D1514] text-white shadow-xs'
-                          : 'border-[#E5E9E8] bg-[#F8FAFB] text-[#0D1514] hover:border-[#91B8C0]'
-                      }`}
-                    >
-                      <div className="font-bold">{p}</div>
-                      <div className="text-[10px] opacity-80">
-                        {p === 'Starter' ? '799' : p === 'Growth' ? '1,499' : '2,999'} ر.س
-                      </div>
-                    </button>
-                  ))}
+                  {(Object.keys(PLAN_PRICES) as SalonTenant['plan'][]).map((p) => {
+                    const selected = formData.plan === p;
+                    return (
+                      <button
+                        key={p}
+                        type="button"
+                        aria-pressed={selected}
+                        onClick={() => handlePlanChange(p)}
+                        className={`rounded-xl border p-2.5 text-center transition-colors ${
+                          selected
+                            ? 'border-ink bg-dusty-blue/30 text-ink'
+                            : 'border-mist-gray bg-white text-ink hover:border-ink/50'
+                        }`}
+                      >
+                        <div className="text-xs font-bold">{p}</div>
+                        <div className="text-[10px] text-ink-muted">
+                          {PLAN_PRICES[p].toLocaleString('en-US')} ر.س
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
-              </div>
+              </fieldset>
 
-              <div className="pt-4 border-t border-[#E5E9E8] flex items-center gap-3">
+              <div className="flex items-center gap-3 border-t border-neutral pt-4">
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="flex-1 py-3 px-4 rounded-xl bg-[#0D1514] hover:bg-[#1A2524] text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer shadow-md transition-colors disabled:opacity-60"
+                  className="h-12 flex-1 rounded-2xl bg-warm-peach text-sm font-bold text-ink transition-colors hover:bg-warm-peach/80 disabled:opacity-60"
                 >
-                  {isPending ? 'جاري الحفظ...' : 'توليد النطاق وتفعيل المنشأة'}
+                  {isPending ? 'جاري الحفظ...' : 'إضافة وتفعيل الصالون'}
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="px-4 py-3 rounded-xl bg-[#F5F8F8] text-[#0D1514] font-bold text-xs cursor-pointer"
+                  className="h-12 rounded-2xl bg-mist-gray/60 px-5 text-sm font-bold text-ink transition-colors hover:bg-mist-gray"
                 >
                   إلغاء
                 </button>
@@ -562,4 +647,3 @@ export function TenantsClientView({
     </div>
   );
 }
-

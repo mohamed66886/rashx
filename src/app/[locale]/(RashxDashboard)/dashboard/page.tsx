@@ -3,15 +3,13 @@ import Link from 'next/link';
 import {
   Building2,
   TrendingUp,
-  Globe,
+  CheckCircle2,
   UserPlus,
-  ShieldCheck,
-  Sparkles,
   Plus,
+  Receipt,
   ExternalLink,
   Database,
   ChevronRight,
-  ArrowLeft,
   Inbox,
 } from 'lucide-react';
 import { getTenantsPage } from '@/server/data/tenants';
@@ -33,43 +31,28 @@ import { OverviewRefreshButton } from '@/components/dashboard/overview/OverviewR
 
 export const instant = false;
 
-const delay = (ms: number): React.CSSProperties => ({ animationDelay: `${ms}ms` });
+/**
+ * Platform overview — simplified.
+ * Header with the two main actions, four numbers, then the latest tenants and
+ * the latest leads. Brand tokens only. Data loading is unchanged.
+ */
 
 interface MetricProps {
   icon: React.ReactNode;
-  iconBg: string;
+  tone: string;
   title: string;
   value: string | number;
   hint?: string;
-  badge?: React.ReactNode;
-  delayMs: number;
 }
 
-function Metric({ icon, iconBg, title, value, hint, badge, delayMs }: MetricProps) {
+function Metric({ icon, tone, title, value, hint }: MetricProps) {
   return (
-    <div
-      style={delay(delayMs)}
-      className="animate-rx-fade-up flex flex-col gap-2 p-3.5 sm:p-4 lg:p-5 rounded-2xl border border-neutral bg-base transition-[border-color,box-shadow] duration-200 ease-smooth hover:border-primary/60 hover:shadow-md"
-    >
-      <div className="flex items-start justify-between gap-2">
-        <div
-          className={`grid place-items-center w-9 h-9 lg:w-10 lg:h-10 shrink-0 rounded-xl text-ink ${iconBg}`}
-        >
-          {icon}
-        </div>
-        {badge}
-      </div>
-
+    <div className="flex flex-col gap-3 rounded-2xl border border-neutral bg-base p-4 lg:p-5">
+      <div className={`grid h-9 w-9 place-items-center rounded-xl text-ink ${tone}`}>{icon}</div>
       <div className="min-w-0">
-        <div className="text-[11px] lg:text-xs font-bold text-ink-muted leading-snug line-clamp-2">
-          {title}
-        </div>
-        <div className="mt-0.5 text-lg sm:text-xl lg:text-2xl font-black text-ink tracking-tight truncate">
-          {value}
-        </div>
-        {hint && (
-          <div className="mt-0.5 text-[10px] lg:text-[11px] text-ink-muted truncate">{hint}</div>
-        )}
+        <div className="text-[11px] font-bold leading-snug text-ink-muted lg:text-xs">{title}</div>
+        <div className="mt-0.5 truncate text-xl font-extrabold text-ink lg:text-2xl">{value}</div>
+        {hint && <div className="mt-0.5 truncate text-[11px] text-ink-muted">{hint}</div>}
       </div>
     </div>
   );
@@ -99,16 +82,18 @@ export default async function PlatformOverviewPage({ params }: PlatformOverviewP
   const totalTenantsCount = stats.tenantsTotal;
   const totalLeadsCount = stats.leadsTotal;
 
+  const sar = isAr ? 'ر.س' : 'SAR';
+
   const subdomainLink = (t: SalonTenant) => (
     <a
       href={`https://${t.subdomain}.rashx.org`}
       target="_blank"
       rel="noreferrer"
-      className="inline-flex items-center gap-1 font-mono text-[11px] font-bold text-ink underline decoration-primary decoration-2 underline-offset-4 hover:decoration-warm-peach transition-colors"
       dir="ltr"
+      className="inline-flex items-center gap-1 font-mono text-[11px] font-bold text-ink underline decoration-primary decoration-2 underline-offset-4 transition-colors hover:decoration-warm-peach"
     >
       <span>{t.subdomain}.rashx.org</span>
-      <ExternalLink className="w-3 h-3 shrink-0" />
+      <ExternalLink className="h-3 w-3 shrink-0" aria-hidden="true" />
     </a>
   );
 
@@ -124,281 +109,138 @@ export default async function PlatformOverviewPage({ params }: PlatformOverviewP
     );
 
   return (
-    <div className="space-y-4 sm:space-y-6 lg:space-y-8">
-      {/* ================================================================ */}
-      {/* 1. WELCOME BANNER                                                 */}
-      {/* ================================================================ */}
-      <section
-        style={delay(0)}
-        className="animate-rx-fade-up relative overflow-hidden rounded-2xl sm:rounded-3xl bg-primary text-ink p-5 sm:p-6 lg:p-8"
-      >
-        <span
-          aria-hidden="true"
-          className="absolute -top-16 -end-16 w-32 h-32 sm:w-36 sm:h-36 rounded-full bg-warm-peach"
-        />
-        <span
-          aria-hidden="true"
-          className="absolute top-3 end-12 sm:top-4 sm:end-20 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-base"
-        />
-
-        <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-5 lg:gap-8">
-          <div className="min-w-0">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 mb-3 rounded-full bg-base text-ink text-[10px] sm:text-[11px] font-bold">
-              <Sparkles className="w-3.5 h-3.5 shrink-0" />
-              <span className="truncate">
-                {isAr
-                  ? 'لوحة القيادة المركزية • admin.rashx.org'
-                  : 'RashX Central HQ • admin.rashx.org'}
-              </span>
-            </span>
-
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight text-ink">
-              {isAr
-                ? `أهلاً بك، ${admin?.name || 'المشرف'} 👋`
-                : `Welcome, ${admin?.name || 'Admin'} 👋`}
-            </h1>
-            <p className="mt-1 text-xs sm:text-sm text-ink/80">
-              {admin?.title || (isAr ? 'المشرف العام' : 'Super Admin')} •{' '}
-              {isAr
-                ? 'التحكم المركزي في الصالونات والنطاقات وقاعدة البيانات'
-                : 'Centralized control of tenants, subdomains & database'}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 min-[420px]:grid-cols-2 sm:flex sm:flex-wrap items-center gap-2.5 sm:gap-3 shrink-0">
-            <Link href={`/${locale}/dashboard/tenants?action=new`} className="block">
-              <Button
-                variant="outline"
-                size="md"
-                leftIcon={<Plus className="w-4 h-4 stroke-[2.5]" />}
-                className="w-full sm:w-auto bg-ink text-base border-ink hover:bg-ink/85 font-black text-xs"
-              >
-                {isAr ? 'توليد صالون ونطاق جديد' : 'Provision New Salon'}
-              </Button>
-            </Link>
-
-            <Link href={`/${locale}/dashboard/database`} className="block">
-              <Button
-                variant="outline"
-                size="md"
-                leftIcon={<Database className="w-4 h-4" />}
-                className="w-full sm:w-auto bg-base text-ink border-base hover:bg-warm-peach hover:border-warm-peach font-bold text-xs"
-              >
-                {isAr ? 'فحص قاعدة بيانات فايربيز' : 'Inspect Firestore DB'}
-              </Button>
-            </Link>
-          </div>
+    <div className="space-y-5 sm:space-y-6 lg:space-y-8">
+      {/* ============================== Header ============================== */}
+      <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-xl font-extrabold text-ink sm:text-2xl lg:text-3xl">
+            {isAr ? `أهلاً ${admin?.name || 'بك'}` : `Welcome, ${admin?.name || 'Admin'}`}
+          </h1>
+          <p className="mt-1 text-sm text-ink-muted">
+            {isAr ? 'نظرة سريعة على المنصة اليوم.' : 'A quick look at the platform today.'}
+          </p>
         </div>
-      </section>
 
-      {/* ================================================================ */}
-      {/* 2. METRICS                                                        */}
-      {/* ================================================================ */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+        <div className="grid grid-cols-1 gap-2.5 min-[420px]:grid-cols-3 md:flex md:shrink-0">
+          <Link href={`/${locale}/dashboard/invoices`} className="block">
+            <Button
+              variant="outline"
+              size="md"
+              leftIcon={<Receipt className="h-4 w-4" />}
+              className="w-full font-bold md:w-auto text-ink"
+            >
+              {isAr ? 'إصدار فاتورة' : 'New invoice'}
+            </Button>
+          </Link>
+
+          <Link href={`/${locale}/dashboard/tenants?action=new`} className="block">
+            <Button
+              variant="primary"
+              size="md"
+              leftIcon={<Plus className="h-4 w-4 stroke-[2.5]" />}
+              className="w-full font-bold md:w-auto"
+            >
+              {isAr ? 'إضافة صالون جديد' : 'Add salon'}
+            </Button>
+          </Link>
+
+          <Link href={`/${locale}/dashboard/database`} className="block">
+            <Button
+              variant="outline"
+              size="md"
+              leftIcon={<Database className="h-4 w-4" />}
+              className="w-full font-bold md:w-auto"
+            >
+              {isAr ? 'قاعدة البيانات' : 'Database'}
+            </Button>
+          </Link>
+        </div>
+      </header>
+
+      {/* ============================== Metrics ============================== */}
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <Metric
-          delayMs={60}
-          icon={<Building2 className="w-[18px] h-[18px]" />}
-          iconBg="bg-primary"
-          title={isAr ? 'المنشآت المسجلة' : 'Registered Salons'}
+          icon={<Building2 className="h-[18px] w-[18px]" aria-hidden="true" />}
+          tone="bg-primary"
+          title={isAr ? 'المنشآت المسجلة' : 'Registered salons'}
           value={totalTenantsCount}
-          hint={
-            isAr ? `${activeTenantsCount} نشط في الخدمة` : `${activeTenantsCount} active tenants`
-          }
         />
         <Metric
-          delayMs={110}
-          icon={<TrendingUp className="w-[18px] h-[18px]" />}
-          iconBg="bg-warm-peach"
-          title={isAr ? 'الإيراد الشهري (MRR)' : 'Monthly Revenue (MRR)'}
-          value={`${totalMRR.toLocaleString(isAr ? 'ar-SA' : 'en-US')} ${isAr ? 'ر.س' : 'SAR'}`}
-          hint={isAr ? 'اشتراكات الصالونات النشطة' : 'Active salon subscriptions'}
+          icon={<CheckCircle2 className="h-[18px] w-[18px]" aria-hidden="true" />}
+          tone="bg-neutral"
+          title={isAr ? 'المنشآت النشطة' : 'Active salons'}
+          value={activeTenantsCount}
         />
         <Metric
-          delayMs={160}
-          icon={<Globe className="w-[18px] h-[18px]" />}
-          iconBg="bg-neutral"
-          title={isAr ? 'النطاقات الفرعية' : 'Custom Subdomains'}
-          value={totalTenantsCount}
-          hint="*.rashx.org"
+          icon={<TrendingUp className="h-[18px] w-[18px]" aria-hidden="true" />}
+          tone="bg-warm-peach"
+          title={isAr ? 'الإيراد الشهري (MRR)' : 'Monthly revenue (MRR)'}
+          value={`${totalMRR.toLocaleString(isAr ? 'ar-SA' : 'en-US')} ${sar}`}
         />
         <Metric
-          delayMs={210}
-          icon={<ShieldCheck className="w-[18px] h-[18px]" />}
-          iconBg="bg-emerald-100"
-          title={isAr ? 'الفوترة المركزية (ZATCA)' : 'Central Invoicing (ZATCA)'}
-          value="Phase 2"
-          hint={isAr ? 'ربط وتشفير إلكتروني مركزي' : 'Central encrypted integration'}
-          badge={
-            <Badge variant="success" size="sm" dot>
-              {isAr ? 'معتمد' : 'Certified'}
-            </Badge>
-          }
+          icon={<UserPlus className="h-[18px] w-[18px]" aria-hidden="true" />}
+          tone="bg-primary/60"
+          title={isAr ? 'طلبات الانضمام' : 'Inbound leads'}
+          value={totalLeadsCount}
         />
       </div>
 
-      {/* ================================================================ */}
-      {/* 3. LEADS / TENANTS / DB                                           */}
-      {/* ================================================================ */}
-      <div className="space-y-4 sm:space-y-6 lg:space-y-0 lg:grid lg:grid-cols-3 lg:grid-rows-[auto_1fr] lg:gap-6">
-        {/* Inbound leads */}
-        <section
-          style={delay(240)}
-          className="animate-rx-fade-up rounded-2xl lg:rounded-3xl border border-neutral bg-base overflow-hidden lg:col-start-3 lg:row-start-1"
-        >
-          <div className="flex items-center justify-between gap-3 p-4 sm:p-5 lg:p-6 pb-3 sm:pb-3 lg:pb-3">
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className="grid place-items-center w-9 h-9 shrink-0 rounded-xl bg-primary text-ink">
-                <UserPlus className="w-4 h-4" />
-              </div>
-              <h2 className="text-sm font-black text-ink truncate">
-                {isAr ? 'طلبات الانضمام (Leads)' : 'Inbound Leads'}
-              </h2>
-            </div>
-            <Badge variant="primary" size="sm">
-              {totalLeadsCount} {isAr ? 'طلبات' : 'Leads'}
-            </Badge>
-          </div>
-
-          <p className="hidden sm:block px-5 lg:px-6 pb-3 text-xs text-ink-muted leading-relaxed">
-            {isAr
-              ? 'طلبات أصحاب الصالونات الواردة من الموقع الرسمي أو روبوت الواتساب:'
-              : 'Salon requests submitted via the landing page or WhatsApp bot:'}
-          </p>
-
-          <div className="px-4 sm:px-5 lg:px-6 pb-4">
-            {leads.length === 0 ? (
-              <div className="text-center py-8 text-xs text-ink-muted">
-                <Inbox className="w-8 h-8 mx-auto mb-2 text-ink-muted" />
-                <span>{isAr ? 'لا توجد طلبات واردة جديدة حالياً' : 'No new leads found'}</span>
-              </div>
-            ) : (
-              <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory -mx-4 px-4 pb-1 sm:mx-0 sm:px-0 sm:pb-0 sm:grid sm:grid-cols-2 sm:overflow-visible md:grid-cols-3 lg:grid-cols-1">
-                {leads.slice(0, 3).map((lead, index) => (
-                  <div
-                    key={lead.id}
-                    style={delay(280 + index * 50)}
-                    className="animate-rx-fade-up min-w-[78%] snap-start sm:min-w-0 p-3.5 rounded-2xl bg-neutral/30 border border-neutral text-xs transition-colors duration-200 hover:border-primary"
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="min-w-0">
-                        <div className="font-bold text-ink truncate">{lead.salonName}</div>
-                        <div className="text-[11px] text-ink-muted mt-0.5 truncate">
-                          {lead.ownerName} • {lead.city}
-                        </div>
-                        <div className="text-[11px] font-mono font-bold text-ink mt-1" dir="ltr">
-                          {lead.phone}
-                        </div>
-                      </div>
-                      <Badge variant={lead.status === 'new' ? 'primary' : 'neutral'} size="sm">
-                        {lead.status === 'new'
-                          ? isAr
-                            ? 'جديد'
-                            : 'New'
-                          : isAr
-                          ? 'قيد التواصل'
-                          : 'In Touch'}
-                      </Badge>
-                    </div>
-
-                    <div className="mt-3 pt-2 border-t border-neutral flex items-center justify-between gap-2">
-                      <span className="text-[10px] text-ink-muted truncate">{lead.source}</span>
-                      <Link
-                        href={`/${locale}/dashboard/tenants?action=new&name=${encodeURIComponent(
-                          lead.salonName
-                        )}&owner=${encodeURIComponent(lead.ownerName)}&phone=${encodeURIComponent(
-                          lead.phone
-                        )}&city=${encodeURIComponent(lead.city)}`}
-                        className="shrink-0 flex items-center gap-1 text-[10px] font-bold text-ink underline decoration-primary decoration-2 underline-offset-4"
-                      >
-                        <span>{isAr ? 'تحويل لمنشأة' : 'Convert'}</span>
-                        <ArrowLeft className="w-3 h-3 ltr:rotate-180" />
-                      </Link>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="p-3 sm:p-4 bg-neutral/20 border-t border-neutral">
-            <Link href={`/${locale}/dashboard/leads`} className="block">
-              <Button variant="ghost" size="sm" fullWidth className="text-xs font-bold text-ink">
-                {isAr ? 'عرض سجل طلبات الانضمام الكامل' : 'View All Inbound Leads'}
-              </Button>
-            </Link>
-          </div>
-        </section>
-
+      {/* ============================ Tenants + leads ============================ */}
+      <div className="grid grid-cols-1 gap-5 sm:gap-6 lg:grid-cols-3">
         {/* Tenants */}
-        <section
-          style={delay(300)}
-          className="animate-rx-fade-up rounded-2xl lg:rounded-3xl border border-neutral bg-base overflow-hidden lg:col-span-2 lg:col-start-1 lg:row-span-2 lg:row-start-1"
-        >
+        <section className="overflow-hidden rounded-2xl border border-neutral bg-base lg:col-span-2 lg:rounded-3xl">
           <div className="flex items-center justify-between gap-3 p-4 sm:p-5 lg:p-6">
-            <div className="min-w-0">
-              <h2 className="text-sm sm:text-base lg:text-lg font-black text-ink leading-snug">
-                {isAr ? 'الصالونات المسجلة' : 'Registered Tenants'} ({totalTenantsCount})
-              </h2>
-              <p className="hidden sm:block mt-1 text-xs text-ink-muted">
-                {isAr ? 'البيانات الحية من مجموعة ' : 'Live data from collection '}
-                <code className="bg-neutral/60 px-1 py-0.5 rounded text-ink font-mono">tenants</code>
-              </p>
-            </div>
+            <h2 className="text-sm font-extrabold text-ink sm:text-base lg:text-lg">
+              {isAr ? 'أحدث الصالونات' : 'Latest salons'}
+            </h2>
 
-            <div className="flex items-center gap-1.5 shrink-0">
+            <div className="flex shrink-0 items-center gap-1.5">
               <OverviewRefreshButton isAr={isAr} />
-
               <Link href={`/${locale}/dashboard/tenants`}>
                 <Button
                   variant="ghost"
                   size="sm"
-                  rightIcon={<ChevronRight className="w-4 h-4 ltr:rotate-180" />}
+                  rightIcon={<ChevronRight className="h-4 w-4 rtl:rotate-180" />}
                 >
-                  {isAr ? 'إدارة المنشآت' : 'Manage Tenants'}
+                  {isAr ? 'عرض الكل' : 'View all'}
                 </Button>
               </Link>
             </div>
           </div>
 
           {tenants.length === 0 ? (
-            <div className="p-8 sm:p-12 text-center">
-              <div className="grid place-items-center w-14 h-14 mx-auto mb-3 rounded-2xl bg-primary text-ink">
-                <Building2 className="w-7 h-7" />
+            <div className="border-t border-neutral p-8 text-center sm:p-12">
+              <div className="mx-auto mb-3 grid h-14 w-14 place-items-center rounded-2xl bg-primary text-ink">
+                <Building2 className="h-7 w-7" aria-hidden="true" />
               </div>
-              <h3 className="font-bold text-sm text-ink mb-1">
-                {isAr
-                  ? 'لا توجد صالونات مسجلة في قاعدة البيانات حالياً'
-                  : 'No salons registered in database yet'}
+              <h3 className="mb-1 text-sm font-bold text-ink">
+                {isAr ? 'لا توجد صالونات مسجلة بعد' : 'No salons registered yet'}
               </h3>
-              <p className="text-xs text-ink-muted max-w-sm mx-auto mb-4">
+              <p className="mx-auto mb-4 max-w-sm text-xs text-ink-muted">
                 {isAr
-                  ? 'ابدأ بإضافة أول صالون مشترك في راش إكس لتوليد نطاقه الفرعي وتفعيله على الفور.'
-                  : 'Get started by creating your first salon tenant to provision a custom subdomain.'}
+                  ? 'أضف أول صالون ليتم إنشاء نطاقه الفرعي وتفعيله.'
+                  : 'Add the first salon to create and activate its subdomain.'}
               </p>
               <Link href={`/${locale}/dashboard/tenants?action=new`}>
                 <Button
                   variant="primary"
                   size="sm"
-                  leftIcon={<Plus className="w-4 h-4 stroke-[2.5]" />}
+                  leftIcon={<Plus className="h-4 w-4 stroke-[2.5]" />}
                 >
-                  {isAr ? 'إضافة أول صالون الآن' : 'Add First Salon Now'}
+                  {isAr ? 'إضافة صالون' : 'Add salon'}
                 </Button>
               </Link>
             </div>
           ) : (
             <>
-              {/* Mobile: card list */}
-              <ul className="md:hidden divide-y divide-neutral border-t border-neutral">
-                {tenants.map((t, index) => (
-                  <li
-                    key={t.id}
-                    style={delay(340 + Math.min(index, 8) * 40)}
-                    className="animate-rx-fade-up p-4 space-y-2.5"
-                  >
+              {/* Mobile: cards */}
+              <ul className="divide-y divide-neutral border-t border-neutral md:hidden">
+                {tenants.map((t) => (
+                  <li key={t.id} className="space-y-2.5 p-4">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <div className="font-bold text-ink text-sm truncate">{t.businessName}</div>
-                        <div className="text-[11px] text-ink-muted truncate">
+                        <div className="truncate text-sm font-bold text-ink">{t.businessName}</div>
+                        <div className="truncate text-[11px] text-ink-muted">
                           {t.ownerName} • {t.city}
                         </div>
                       </div>
@@ -408,16 +250,16 @@ export default async function PlatformOverviewPage({ params }: PlatformOverviewP
                     <div>{subdomainLink(t)}</div>
 
                     <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-2 min-w-0">
-                        <span className="font-mono font-bold text-ink text-xs">
-                          {t.mrr} {isAr ? 'ر.س' : 'SAR'}
+                      <div className="flex min-w-0 items-center gap-2">
+                        <span className="font-mono text-xs font-bold text-ink">
+                          {t.mrr} {sar}
                         </span>
                         <Badge variant="secondary" size="sm">
-                          {isAr ? `باقة ${t.plan}` : `${t.plan} Plan`}
+                          {isAr ? `باقة ${t.plan}` : `${t.plan} plan`}
                         </Badge>
                       </div>
                       <Link href={`/${locale}/dashboard/tenants`}>
-                        <Button variant="outline" size="sm" className="text-[11px] px-3 h-8">
+                        <Button variant="outline" size="sm" className="h-8 px-3 text-[11px]">
                           {isAr ? 'إدارة' : 'Manage'}
                         </Button>
                       </Link>
@@ -431,9 +273,9 @@ export default async function PlatformOverviewPage({ params }: PlatformOverviewP
                 <Table bordered={false}>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>{isAr ? 'المنشأة والمالك' : 'Salon & Owner'}</TableHead>
+                      <TableHead>{isAr ? 'الصالون والمالك' : 'Salon & owner'}</TableHead>
                       <TableHead>{isAr ? 'النطاق الفرعي' : 'Subdomain'}</TableHead>
-                      <TableHead className="hidden lg:table-cell">{isAr ? 'المدينة' : 'City'}</TableHead>
+                      <TableHead className="hidden xl:table-cell">{isAr ? 'المدينة' : 'City'}</TableHead>
                       <TableHead>{isAr ? 'الباقة والاشتراك' : 'Plan & MRR'}</TableHead>
                       <TableHead>{isAr ? 'الحالة' : 'Status'}</TableHead>
                       <TableHead align="center" className="hidden lg:table-cell">
@@ -445,29 +287,25 @@ export default async function PlatformOverviewPage({ params }: PlatformOverviewP
                     {tenants.map((t) => (
                       <TableRow key={t.id}>
                         <TableCell>
-                          <div className="font-bold text-ink text-xs">{t.businessName}</div>
+                          <div className="text-xs font-bold text-ink">{t.businessName}</div>
                           <div className="text-[10px] text-ink-muted">{t.ownerName}</div>
                         </TableCell>
                         <TableCell>{subdomainLink(t)}</TableCell>
-                        <TableCell className="hidden lg:table-cell text-ink-muted text-xs">
+                        <TableCell className="hidden text-xs text-ink-muted xl:table-cell">
                           {t.city}
                         </TableCell>
                         <TableCell>
-                          <div className="font-bold text-ink text-xs font-mono">
-                            {t.mrr} {isAr ? 'ر.س' : 'SAR'}
+                          <div className="font-mono text-xs font-bold text-ink">
+                            {t.mrr} {sar}
                           </div>
                           <Badge variant="secondary" size="sm" className="mt-0.5">
-                            {isAr ? `باقة ${t.plan}` : `${t.plan} Plan`}
+                            {isAr ? `باقة ${t.plan}` : `${t.plan} plan`}
                           </Badge>
                         </TableCell>
                         <TableCell>{statusBadge(t)}</TableCell>
                         <TableCell align="center" className="hidden lg:table-cell">
                           <Link href={`/${locale}/dashboard/tenants`}>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="text-[10px] px-2.5 py-1 h-7"
-                            >
+                            <Button variant="outline" size="sm" className="h-7 px-2.5 py-1 text-[10px]">
                               {isAr ? 'إدارة' : 'Manage'}
                             </Button>
                           </Link>
@@ -481,47 +319,74 @@ export default async function PlatformOverviewPage({ params }: PlatformOverviewP
           )}
         </section>
 
-        {/* Database session */}
-        <section
-          style={delay(360)}
-          className="animate-rx-fade-up rounded-2xl lg:rounded-3xl border border-neutral bg-base p-4 sm:p-5 lg:p-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between lg:flex-col lg:items-stretch lg:col-start-3 lg:row-start-2"
-        >
-          <div className="min-w-0">
-            <div className="flex items-center gap-2.5 mb-2">
-              <div className="grid place-items-center w-9 h-9 shrink-0 rounded-xl bg-primary text-ink">
-                <Database className="w-4 h-4" />
-              </div>
-              <div className="flex items-center gap-2 min-w-0">
-                <span className="text-xs font-black text-ink truncate">
-                  {isAr ? 'قاعدة بيانات Firebase Firestore' : 'Firebase Firestore Live DB'}
-                </span>
-                <span className="w-2 h-2 shrink-0 rounded-full bg-emerald-500 animate-pulse" />
-              </div>
-            </div>
-
-            <div className="font-mono text-sm font-bold text-ink break-all" dir="ltr">
-              {process.env.FIREBASE_PROJECT_ID ? `${process.env.FIREBASE_PROJECT_ID}.firebaseapp.com` : 'Firestore Cloud Database'}
-            </div>
-            <p className="mt-1.5 text-[11px] text-ink-muted leading-relaxed">
-              {isAr ? 'المسؤول الحالي: ' : 'Current session: '}
-              <strong className="text-ink">{admin?.name}</strong>
-              {isAr ? ' • الجلسة موثقة في ' : ' • active session in '}
-              <code className="bg-neutral/60 px-1 py-0.5 rounded text-ink font-mono">
-                admin_sessions
-              </code>
-            </p>
+        {/* Leads */}
+        <section className="flex flex-col overflow-hidden rounded-2xl border border-neutral bg-base lg:rounded-3xl">
+          <div className="flex items-center justify-between gap-3 p-4 sm:p-5 lg:p-6">
+            <h2 className="text-sm font-extrabold text-ink sm:text-base lg:text-lg">
+              {isAr ? 'أحدث طلبات الانضمام' : 'Latest leads'}
+            </h2>
+            <Badge variant="primary" size="sm">
+              {totalLeadsCount}
+            </Badge>
           </div>
 
-          <Link href={`/${locale}/dashboard/database`} className="block shrink-0">
-            <Button
-              variant="outline"
-              size="sm"
-              rightIcon={<ArrowLeft className="w-3.5 h-3.5 ltr:rotate-180" />}
-              className="w-full md:w-auto lg:w-full text-xs font-bold"
-            >
-              {isAr ? 'فتح مركز فحص قاعدة البيانات' : 'Open DB Health Console'}
-            </Button>
-          </Link>
+          <div className="flex-1 border-t border-neutral px-4 pb-4 pt-4 sm:px-5 lg:px-6">
+            {leads.length === 0 ? (
+              <div className="py-8 text-center text-xs text-ink-muted">
+                <Inbox className="mx-auto mb-2 h-8 w-8" aria-hidden="true" />
+                <span>{isAr ? 'لا توجد طلبات جديدة' : 'No new leads'}</span>
+              </div>
+            ) : (
+              <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+                {leads.slice(0, 3).map((lead) => (
+                  <li
+                    key={lead.id}
+                    className="rounded-2xl border border-neutral bg-neutral/30 p-3.5 text-xs transition-colors hover:border-primary"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <div className="truncate font-bold text-ink">{lead.salonName}</div>
+                        <div className="mt-0.5 truncate text-[11px] text-ink-muted">
+                          {lead.ownerName} • {lead.city}
+                        </div>
+                        <div dir="ltr" className="mt-1 text-start font-mono text-[11px] font-bold text-ink">
+                          {lead.phone}
+                        </div>
+                      </div>
+                      <Badge variant={lead.status === 'new' ? 'primary' : 'neutral'} size="sm">
+                        {lead.status === 'new'
+                          ? isAr ? 'جديد' : 'New'
+                          : isAr ? 'قيد التواصل' : 'In touch'}
+                      </Badge>
+                    </div>
+
+                    <div className="mt-3 flex items-center justify-between gap-2 border-t border-neutral pt-2">
+                      <span className="truncate text-[10px] text-ink-muted">{lead.source}</span>
+                      <Link
+                        href={`/${locale}/dashboard/tenants?action=new&name=${encodeURIComponent(
+                          lead.salonName
+                        )}&owner=${encodeURIComponent(lead.ownerName)}&phone=${encodeURIComponent(
+                          lead.phone
+                        )}&city=${encodeURIComponent(lead.city)}`}
+                        className="flex shrink-0 items-center gap-1 text-[10px] font-bold text-ink underline decoration-primary decoration-2 underline-offset-4"
+                      >
+                        <span>{isAr ? 'تحويل لمنشأة' : 'Convert'}</span>
+                        <ChevronRight className="h-3 w-3 rtl:rotate-180" aria-hidden="true" />
+                      </Link>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          <div className="border-t border-neutral bg-neutral/20 p-3 sm:p-4">
+            <Link href={`/${locale}/dashboard/leads`} className="block">
+              <Button variant="ghost" size="sm" fullWidth className="text-xs font-bold text-ink">
+                {isAr ? 'عرض كل الطلبات' : 'View all leads'}
+              </Button>
+            </Link>
+          </div>
         </section>
       </div>
     </div>

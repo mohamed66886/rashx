@@ -2,6 +2,7 @@ import {
   LayoutDashboard,
   Building2,
   CreditCard,
+  Receipt,
   UserPlus,
   Database,
   Users,
@@ -38,6 +39,13 @@ export function getPlatformNavItems(locale: string): PlatformNavItem[] {
       titleEn: 'Subscriptions & MRR',
       href: `/${locale}/dashboard/subscriptions`,
       icon: CreditCard,
+    },
+    {
+      title: 'إصدار الفواتير الضريبية (Invoices)',
+      titleEn: 'Tax Invoices & Billing',
+      href: `/${locale}/dashboard/invoices`,
+      icon: Receipt,
+      badge: 'ZATCA',
     },
     {
       title: 'طلبات الانضمام والعروض (Leads)',
