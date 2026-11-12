@@ -2,6 +2,7 @@
 
 import crypto from 'crypto';
 import { after } from 'next/server';
+import { headers } from 'next/headers';
 import { updateTag } from 'next/cache';
 import { FieldValue } from 'firebase-admin/firestore';
 import { adminDb, getAdminStorageBucket } from '@/server/firebase-admin';
@@ -36,12 +37,29 @@ import type {
 } from '@/lib/types/billing';
 import { halalasToSar } from '@/lib/types/billing';
 
-function getSiteUrl(): string {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
-  if (!siteUrl || !siteUrl.trim()) {
-    throw new Error('NEXT_PUBLIC_SITE_URL environment variable is required');
+async function getSiteUrl(): Promise<string> {
+  const envUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  if (envUrl && envUrl.trim()) {
+    return envUrl.trim().replace(/\/$/, '');
   }
-  return siteUrl.replace(/\/$/, '');
+
+  try {
+    const headersList = await headers();
+    const host = headersList.get('x-forwarded-host') || headersList.get('host');
+    const proto =
+      headersList.get('x-forwarded-proto') || (host?.includes('localhost') ? 'http' : 'https');
+    if (host) {
+      return `${proto}://${host}`.replace(/\/$/, '');
+    }
+  } catch {
+    // headers() might not be available in non-request contexts
+  }
+
+  if (process.env.NODE_ENV !== 'production') {
+    return 'http://localhost:3000';
+  }
+
+  return 'https://rashx.org';
 }
 
 export interface InvoiceActionResponse<T = unknown> {
@@ -792,143 +810,170 @@ export async function sendInvoiceAction(
 ): Promise<InvoiceActionResponse<{ signingUrl: string }>> {
   const admin = await requireAdmin(['super_admin', 'platform_engineer', 'sales_director']);
 
-  const invoiceRef = adminDb.collection('platform_invoices').doc(invoiceId);
-  const doc = await invoiceRef.get();
-  if (!doc.exists) {
-    return { success: false, error: 'المستند غير موجود' };
-  }
+  try {
+    const invoiceRef = adminDb.collection('platform_invoices').doc(invoiceId);
+    let doc = await invoiceRef.get();
+    if (!doc.exists) {
+      return { success: false, error: 'المستند غير موجود' };
+    }
 
-  const data = doc.data()!;
-  // Check status: issued or sent only
-  if (data.status !== 'issued' && data.status !== 'sent') {
-    return {
-      success: false,
-      error: `لا يمكن إرسال المستند في حالته الحالية (${data.status}). الإرسال متاح للمستندات المصدرة أو المرسلة فقط.`,
-    };
-  }
+    let data = doc.data()!;
 
-  const targetEmail = recipientEmail || data.customer?.email;
-  if (!targetEmail || !targetEmail.trim()) {
-    return {
-      success: false,
-      error: 'البريد الإلكتروني للمستلم مطلوب لإتمام عملية الإرسال',
-    };
-  }
-
-  // 1. Generate 32-byte random token
-  const token = crypto.randomBytes(32).toString('hex');
-  const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
-  const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(); // 30 days
-
-  // 2. Build signing URL with getSiteUrl() and invoice locale
-  const siteUrl = getSiteUrl();
-  const locale = data.locale === 'en' ? 'en' : 'ar';
-  const signingUrl = `${siteUrl}/${locale}/sign/${invoiceId}.${token}`;
-
-  // 3. Atomically update invoice document & stats
-  const batch = adminDb.batch();
-  batch.update(invoiceRef, {
-    status: 'sent',
-    'signing.tokenHash': tokenHash,
-    'signing.expiresAt': expiresAt,
-    'signing.sentTo': targetEmail.trim(),
-    'signing.sentAt': FieldValue.serverTimestamp(),
-    'signing.emailFailed': false,
-    updatedAt: FieldValue.serverTimestamp(),
-  });
-
-  if (data.status !== 'sent') {
-    const statsRef = adminDb.collection('stats').doc('invoices');
-    batch.set(
-      statsRef,
-      {
-        [`${data.status}Count`]: FieldValue.increment(-1),
-        [`counts.${data.status}`]: FieldValue.increment(-1),
-        sentCount: FieldValue.increment(1),
-        'counts.sent': FieldValue.increment(1),
-        updatedAt: FieldValue.serverTimestamp(),
-      },
-      { merge: true }
-    );
-  }
-
-  await batch.commit();
-
-  updateTag('invoices');
-  updateTag('invoice-stats');
-  updateTag(`invoice:${invoiceId}`);
-
-  // 4. Send via after() so the action returns fast
-  after(async () => {
-    try {
-      // Load stored PDF
-      let pdfBuffer: Buffer | null = null;
-      if (data.pdf?.path) {
-        try {
-          const bucket = getAdminStorageBucket();
-          const [buf] = await bucket.file(data.pdf.path).download();
-          pdfBuffer = buf;
-        } catch (err) {
-          console.warn('[sendInvoiceAction] Failed to load PDF from storage:', err);
-        }
+    // If still in draft, auto-issue it before sending
+    if (data.status === 'draft') {
+      const issueResult = await issueInvoice({ invoiceId });
+      if (!issueResult.success) {
+        return {
+          success: false,
+          error: `تعذر إصدار المستند قبل الإرسال: ${issueResult.error || 'يرجى استكمال بيانات الفاتورة وإعدادات البائع'}`,
+        };
       }
+      doc = await invoiceRef.get();
+      data = doc.data()!;
+    } else if (data.status !== 'issued' && data.status !== 'sent') {
+      return {
+        success: false,
+        error: `لا يمكن إرسال المستند في حالته الحالية (${data.status}). الإرسال متاح للمستندات المصدرة أو المرسلة فقط.`,
+      };
+    }
 
-      // If PDF missing in storage, generate on the fly
-      if (!pdfBuffer) {
-        const fullInvoice = await getInvoice(invoiceId);
-        if (fullInvoice) {
-          const gen = await generateInvoicePdf(fullInvoice);
-          pdfBuffer = gen.buffer;
+    const targetEmail = recipientEmail || data.customer?.email;
+    if (!targetEmail || !targetEmail.trim()) {
+      return {
+        success: false,
+        error: 'البريد الإلكتروني للمستلم مطلوب لإتمام عملية الإرسال',
+      };
+    }
+
+    // 1. Generate 32-byte random token
+    const token = crypto.randomBytes(32).toString('hex');
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(); // 30 days
+
+    // 2. Build signing URL with getSiteUrl() and invoice locale
+    const siteUrl = await getSiteUrl();
+    const locale = data.locale === 'en' ? 'en' : 'ar';
+    const signingUrl = `${siteUrl}/${locale}/sign/${invoiceId}.${token}`;
+
+    // 3. Atomically update invoice document & stats
+    const batch = adminDb.batch();
+    batch.update(invoiceRef, {
+      status: 'sent',
+      'signing.tokenHash': tokenHash,
+      'signing.expiresAt': expiresAt,
+      'signing.sentTo': targetEmail.trim(),
+      'signing.sentAt': FieldValue.serverTimestamp(),
+      'signing.emailFailed': false,
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+
+    if (data.status !== 'sent') {
+      const statsRef = adminDb.collection('stats').doc('invoices');
+      batch.set(
+        statsRef,
+        {
+          [`${data.status}Count`]: FieldValue.increment(-1),
+          [`counts.${data.status}`]: FieldValue.increment(-1),
+          sentCount: FieldValue.increment(1),
+          'counts.sent': FieldValue.increment(1),
+          updatedAt: FieldValue.serverTimestamp(),
+        },
+        { merge: true }
+      );
+    }
+
+    await batch.commit();
+
+    updateTag('invoices');
+    updateTag('invoice-stats');
+    updateTag(`invoice:${invoiceId}`);
+
+    // 4. Send via after() so the action returns fast
+    after(async () => {
+      try {
+        // Load stored PDF
+        let pdfBuffer: Buffer | null = null;
+        if (data.pdf?.path) {
+          try {
+            const bucket = getAdminStorageBucket();
+            const [buf] = await bucket.file(data.pdf.path).download();
+            pdfBuffer = buf;
+          } catch (err) {
+            console.warn('[sendInvoiceAction] Failed to load PDF from storage:', err);
+          }
         }
-      }
 
-      const rawBilling = await getBillingSettings();
-      const totals = data.totals || {};
+        // If PDF missing in storage, generate on the fly
+        if (!pdfBuffer) {
+          const fullInvoice = await getInvoice(invoiceId);
+          if (fullInvoice) {
+            const gen = await generateInvoicePdf(fullInvoice);
+            pdfBuffer = gen.buffer;
+          }
+        }
 
-      const res = await sendInvoiceEmail({
-        to: targetEmail.trim(),
-        invoiceNumber: data.number || `RX-${doc.id.slice(-4).toUpperCase()}`,
-        docKind: data.docKind,
-        vatEnabled: Number(data.vatRatePercent) > 0,
-        vatRate: Number(data.vatRatePercent) / 100,
-        facilityName: data.customer?.facilityName || '—',
-        facilityAddress: data.customer?.address,
-        invoiceDate: data.issueDate,
-        startDate: data.issueDate,
-        endDate: data.dueDate,
-        customerName: data.customer?.name,
-        customerPhone: data.customer?.phone,
-        taxNumber: data.customer?.commercialRegNumber,
-        items: Array.isArray(data.items)
-          ? data.items.map((it: Record<string, unknown>) => ({
-              description: String(it.description || ''),
-              quantity: Number(it.quantity) || 1,
-              unitPrice: halalasToSar(Number(it.unitPriceHalalas) || 0),
-              total: Number(it.quantity || 1) * halalasToSar(Number(it.unitPriceHalalas) || 0),
-            }))
-          : [],
-        subtotal: halalasToSar(totals.subtotal || 0),
-        discount: halalasToSar(totals.discount || 0),
-        vatAmount: halalasToSar(totals.vat || 0),
-        totalAmount: halalasToSar(totals.total || 0),
-        paymentDetails: data.paymentDetails,
-        billingSettings: toBillingSettings(rawBilling),
-        signingUrl,
-        locale,
-        pdfBuffer: pdfBuffer || undefined,
-      });
+        const rawBilling = await getBillingSettings();
+        const totals = data.totals || {};
 
-      if (res.ok) {
-        await invoiceRef.collection('events').doc().set({
-          type: 'email_sent',
-          at: FieldValue.serverTimestamp(),
-          by: admin.email,
-          meta: {
-            to: targetEmail.trim(),
-            messageId: res.messageId,
-          },
+        const res = await sendInvoiceEmail({
+          to: targetEmail.trim(),
+          invoiceNumber: data.number || `RX-${doc.id.slice(-4).toUpperCase()}`,
+          docKind: data.docKind,
+          vatEnabled: Number(data.vatRatePercent) > 0,
+          vatRate: Number(data.vatRatePercent) / 100,
+          facilityName: data.customer?.facilityName || '—',
+          facilityAddress: data.customer?.address,
+          invoiceDate: data.issueDate,
+          startDate: data.issueDate,
+          endDate: data.dueDate,
+          customerName: data.customer?.name,
+          customerPhone: data.customer?.phone,
+          taxNumber: data.customer?.commercialRegNumber,
+          items: Array.isArray(data.items)
+            ? data.items.map((it: Record<string, unknown>) => ({
+                description: String(it.description || ''),
+                quantity: Number(it.quantity) || 1,
+                unitPrice: halalasToSar(Number(it.unitPriceHalalas) || 0),
+                total: Number(it.quantity || 1) * halalasToSar(Number(it.unitPriceHalalas) || 0),
+              }))
+            : [],
+          subtotal: halalasToSar(totals.subtotal || 0),
+          discount: halalasToSar(totals.discount || 0),
+          vatAmount: halalasToSar(totals.vat || 0),
+          totalAmount: halalasToSar(totals.total || 0),
+          paymentDetails: data.paymentDetails,
+          billingSettings: toBillingSettings(rawBilling),
+          signingUrl,
+          locale,
+          pdfBuffer: pdfBuffer || undefined,
         });
-      } else {
+
+        if (res.ok) {
+          await invoiceRef.collection('events').doc().set({
+            type: 'email_sent',
+            at: FieldValue.serverTimestamp(),
+            by: admin.email,
+            meta: {
+              to: targetEmail.trim(),
+              messageId: res.messageId,
+            },
+          });
+        } else {
+          await invoiceRef.update({ 'signing.emailFailed': true });
+          await invoiceRef.collection('events').doc().set({
+            type: 'email_failed',
+            at: FieldValue.serverTimestamp(),
+            by: admin.email,
+            meta: {
+              to: targetEmail.trim(),
+              error: res.error || 'Failed to send',
+            },
+          });
+          updateTag(`invoice:${invoiceId}`);
+        }
+      } catch (bgErr: unknown) {
+        const errorMsg = bgErr instanceof Error ? bgErr.message : 'Unknown send failure';
+        console.error('[sendInvoiceAction] after() background error:', bgErr);
         await invoiceRef.update({ 'signing.emailFailed': true });
         await invoiceRef.collection('events').doc().set({
           type: 'email_failed',
@@ -936,44 +981,46 @@ export async function sendInvoiceAction(
           by: admin.email,
           meta: {
             to: targetEmail.trim(),
-            error: res.error || 'Failed to send',
+            error: errorMsg,
           },
         });
         updateTag(`invoice:${invoiceId}`);
       }
-    } catch (bgErr: unknown) {
-      const errorMsg = bgErr instanceof Error ? bgErr.message : 'Unknown send failure';
-      console.error('[sendInvoiceAction] after() background error:', bgErr);
-      await invoiceRef.update({ 'signing.emailFailed': true });
-      await invoiceRef.collection('events').doc().set({
-        type: 'email_failed',
-        at: FieldValue.serverTimestamp(),
-        by: admin.email,
-        meta: {
-          to: targetEmail.trim(),
-          error: errorMsg,
-        },
-      });
-      updateTag(`invoice:${invoiceId}`);
-    }
-  });
+    });
 
-  return {
-    success: true,
-    data: { signingUrl },
-  };
+    return {
+      success: true,
+      data: { signingUrl },
+    };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'فشل في إرسال المستند عبر البريد';
+    console.error('[sendInvoiceAction] Error:', err);
+    return {
+      success: false,
+      error: message,
+    };
+  }
 }
 
 export async function sendInvoiceEmailAction(input: {
   invoiceId: string;
   recipientEmail: string;
 }): Promise<InvoiceActionResponse<{ messageId?: string; signingUrl?: string }>> {
-  const result = await sendInvoiceAction(input.invoiceId, input.recipientEmail);
-  return {
-    success: result.success,
-    error: result.error,
-    data: result.data,
-  };
+  try {
+    const result = await sendInvoiceAction(input.invoiceId, input.recipientEmail);
+    return {
+      success: result.success,
+      error: result.error,
+      data: result.data,
+    };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'حدث خطأ غير متوقع أثناء إرسال البريد';
+    console.error('[sendInvoiceEmailAction] Error:', err);
+    return {
+      success: false,
+      error: message,
+    };
+  }
 }
 
 export async function generateSigningLinkAction(
@@ -981,38 +1028,47 @@ export async function generateSigningLinkAction(
 ): Promise<InvoiceActionResponse<{ signingUrl: string }>> {
   await requireAdmin(['super_admin', 'platform_engineer', 'sales_director']);
 
-  const invoiceRef = adminDb.collection('platform_invoices').doc(invoiceId);
-  const doc = await invoiceRef.get();
-  if (!doc.exists) {
-    return { success: false, error: 'المستند غير موجود' };
+  try {
+    const invoiceRef = adminDb.collection('platform_invoices').doc(invoiceId);
+    const doc = await invoiceRef.get();
+    if (!doc.exists) {
+      return { success: false, error: 'المستند غير موجود' };
+    }
+
+    const data = doc.data()!;
+    if (data.status === 'cancelled') {
+      return { success: false, error: 'لا يمكن إنشاء رابط توقيع لمستند ملغى.' };
+    }
+
+    const token = crypto.randomBytes(32).toString('hex');
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+
+    const siteUrl = await getSiteUrl();
+    const locale = data.locale === 'en' ? 'en' : 'ar';
+    const signingUrl = `${siteUrl}/${locale}/sign/${invoiceId}.${token}`;
+
+    await invoiceRef.update({
+      'signing.tokenHash': tokenHash,
+      'signing.expiresAt': expiresAt,
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+
+    updateTag('invoices');
+    updateTag(`invoice:${invoiceId}`);
+
+    return {
+      success: true,
+      data: { signingUrl },
+    };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'فشل في توليد رابط التوقيع';
+    console.error('[generateSigningLinkAction] Error:', err);
+    return {
+      success: false,
+      error: message,
+    };
   }
-
-  const data = doc.data()!;
-  if (data.status === 'cancelled') {
-    return { success: false, error: 'لا يمكن إنشاء رابط توقيع لمستند ملغى.' };
-  }
-
-  const token = crypto.randomBytes(32).toString('hex');
-  const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
-  const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
-
-  const siteUrl = getSiteUrl();
-  const locale = data.locale === 'en' ? 'en' : 'ar';
-  const signingUrl = `${siteUrl}/${locale}/sign/${invoiceId}.${token}`;
-
-  await invoiceRef.update({
-    'signing.tokenHash': tokenHash,
-    'signing.expiresAt': expiresAt,
-    updatedAt: FieldValue.serverTimestamp(),
-  });
-
-  updateTag('invoices');
-  updateTag(`invoice:${invoiceId}`);
-
-  return {
-    success: true,
-    data: { signingUrl },
-  };
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -1383,7 +1439,7 @@ export async function rejectSignedFile(
   if (targetEmail) {
     after(async () => {
       try {
-        const siteUrl = getSiteUrl();
+        const siteUrl = await getSiteUrl();
         // Generate or refresh signing link
         const newToken = crypto.randomBytes(32).toString('hex');
         const newTokenHash = crypto.createHash('sha256').update(newToken).digest('hex');

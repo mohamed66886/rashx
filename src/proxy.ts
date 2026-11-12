@@ -69,12 +69,13 @@ export function proxy(request: NextRequest) {
     }
   }
 
-  // Protect /dashboard root if accessed without locale prefix
+  // Protect and redirect /dashboard root if accessed without locale prefix
   if (pathname === '/dashboard' || pathname.startsWith('/dashboard/')) {
     const isLoginPage = pathname === '/dashboard/login';
     if (!isLoginPage && !sessionCookie) {
       return NextResponse.redirect(new URL(`/${preferredLocale}/dashboard/login`, request.url));
     }
+    return NextResponse.redirect(new URL(`/${preferredLocale}${pathname}`, request.url));
   }
 
   // Root path redirect to default Arabic locale /ar for main domain

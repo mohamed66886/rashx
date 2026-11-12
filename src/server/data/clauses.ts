@@ -22,11 +22,9 @@ export async function getClauses(includeInactive = false): Promise<ContractClaus
     query = query.where('active', '==', true);
   }
 
-  query = query.orderBy('order', 'asc');
-
   const snapshot = await query.get();
 
-  return snapshot.docs.map((doc) => {
+  const clauses = snapshot.docs.map((doc) => {
     const data = doc.data();
     return {
       id: doc.id,
@@ -39,6 +37,10 @@ export async function getClauses(includeInactive = false): Promise<ContractClaus
       updatedAt: data.updatedAt ? toIsoString(data.updatedAt) : undefined,
     };
   });
+
+  // Sort by order ascending in-memory (collection contains ~6-10 clauses total)
+  // to avoid requiring a composite index on (active ASC, order ASC).
+  return clauses.sort((a, b) => a.order - b.order);
 }
 
 /**

@@ -15,9 +15,8 @@ interface InvoiceDetailsPageProps {
 }
 
 export default async function InvoiceDetailsPage({ params }: InvoiceDetailsPageProps) {
-  await requireAdmin(['super_admin', 'platform_engineer', 'sales_director']);
-
-  const { id } = await params;
+  const { locale, id } = await params;
+  await requireAdmin(['super_admin', 'platform_engineer', 'sales_director'], { locale });
 
   const [invoice, events, rawBilling] = await Promise.all([
     getInvoice(id),

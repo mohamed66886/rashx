@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { cookies, headers } from 'next/headers';
+import { connection } from 'next/server';
 import { redirect } from 'next/navigation';
 import { adminAuth } from '@/server/firebase-admin';
 import { getAdminProfile } from '@/server/data/admins';
@@ -98,10 +99,22 @@ export async function createSession(idToken: string): Promise<AdminUser> {
  * Read the session cookie from request headers, verify it with Firebase Admin SDK,
  * and return the authenticated admin user or null.
  *
+ * IMPORTANT: Callers MUST await connection() before calling this function to prevent
+ * Firebase's verifySessionCookie (which uses Date.now()) from running during PPR prerender.
+ *
  * @param checkRevoked Whether to check token revocation against Firebase Auth API.
  * Default false for fast page renders; true for Server Actions.
  */
 export async function getAdmin(checkRevoked: boolean = false): Promise<AdminUser | null> {
+  // Guard: ensure we are inside a real HTTP request, not a prerender pass.
+  // connection() throws in prerender contexts; if it throws we return null immediately
+  // so Firebase's Date.now() usage never executes during static generation.
+  try {
+    await connection();
+  } catch {
+    return null;
+  }
+
   try {
     const cookieStore = await cookies();
     const sessionCookie = cookieStore.get(SESSION_COOKIE_NAME)?.value;
@@ -115,10 +128,20 @@ export async function getAdmin(checkRevoked: boolean = false): Promise<AdminUser
       decoded = await adminAuth.verifySessionCookie(sessionCookie, checkRevoked);
     } catch {
       if (process.env.NODE_ENV !== 'production') {
-        decoded = await adminAuth.verifyIdToken(sessionCookie);
+        try {
+          decoded = await adminAuth.verifyIdToken(sessionCookie);
+        } catch {
+          if (checkRevoked) {
+            decoded = await adminAuth.verifySessionCookie(sessionCookie, false).catch(() => null);
+          }
+        }
       } else {
         return null;
       }
+    }
+
+    if (!decoded) {
+      return null;
     }
 
     const role = decoded.role as PlatformRole | undefined;
@@ -182,6 +205,8 @@ export async function requireAdmin(
   const locale = options?.locale || detectedLocale;
   const checkRevoked = options?.checkRevoked ?? isAction;
 
+  // getAdmin() calls connection() internally to prevent Firebase's Date.now() from running
+  // during PPR prerender. No need to call it here separately.
   const admin = await getAdmin(checkRevoked);
 
   if (!admin) {

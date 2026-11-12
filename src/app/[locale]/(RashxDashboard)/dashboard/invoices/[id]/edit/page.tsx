@@ -16,9 +16,9 @@ interface EditInvoicePageProps {
 }
 
 export default async function EditInvoicePage({ params }: EditInvoicePageProps) {
-  await requireAdmin(['super_admin', 'platform_engineer', 'sales_director']);
+  const { locale, id } = await params;
+  await requireAdmin(['super_admin', 'platform_engineer', 'sales_director'], { locale });
 
-  const { id } = await params;
   const invoice = await getInvoice(id);
 
   if (!invoice) {
@@ -27,7 +27,7 @@ export default async function EditInvoicePage({ params }: EditInvoicePageProps) 
 
   // Only drafts can be modified
   if (invoice.status !== 'draft') {
-    redirect(`/dashboard/invoices/${id}`);
+    redirect(`/${locale}/dashboard/invoices/${id}`);
   }
 
   const [rawBilling, clauses] = await Promise.all([

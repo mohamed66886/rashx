@@ -198,8 +198,41 @@ export async function getInvoice(id: string): Promise<PlatformInvoice | null> {
         }
       : undefined,
     status: (data.status as InvoiceStatus) || 'draft',
-    signing: data.signing || undefined,
-    pdf: data.pdf || undefined,
+    selectedClauseIds: Array.isArray(data.selectedClauseIds) ? data.selectedClauseIds : [],
+    locale: (data.locale as 'ar' | 'en') || 'ar',
+    signing: data.signing
+      ? {
+          tokenHash: data.signing.tokenHash,
+          expiresAt: data.signing.expiresAt ? toIsoString(data.signing.expiresAt) : undefined,
+          sentTo: data.signing.sentTo,
+          sentAt: data.signing.sentAt ? toIsoString(data.signing.sentAt) : undefined,
+          viewedAt: data.signing.viewedAt ? toIsoString(data.signing.viewedAt) : undefined,
+          signedAt: data.signing.signedAt ? toIsoString(data.signing.signedAt) : undefined,
+          reviewedBy: data.signing.reviewedBy,
+          rejectReason: data.signing.rejectReason,
+          rejectedAt: data.signing.rejectedAt ? toIsoString(data.signing.rejectedAt) : undefined,
+          emailFailed: Boolean(data.signing.emailFailed),
+          files: Array.isArray(data.signing.files)
+            ? data.signing.files.map((f: Record<string, unknown>) => ({
+                id: f.id ? String(f.id) : undefined,
+                name: String(f.name || ''),
+                path: String(f.path || ''),
+                size: typeof f.size === 'number' ? f.size : undefined,
+                mimeType: f.mimeType ? String(f.mimeType) : undefined,
+                sha256: f.sha256 ? String(f.sha256) : undefined,
+                uploadedAt: toIsoString(f.uploadedAt),
+                uploaderIp: f.uploaderIp ? String(f.uploaderIp) : undefined,
+                uploaderUserAgent: f.uploaderUserAgent ? String(f.uploaderUserAgent) : undefined,
+              }))
+            : [],
+        }
+      : undefined,
+    pdf: data.pdf
+      ? {
+          path: String(data.pdf.path || ''),
+          sha256: data.pdf.sha256 ? String(data.pdf.sha256) : undefined,
+        }
+      : undefined,
     createdAt: toIsoString(data.createdAt),
     updatedAt: toIsoString(data.updatedAt || data.createdAt),
     createdBy: data.createdBy || '',
@@ -302,21 +335,49 @@ export async function getInvoiceEvents(id: string): Promise<InvoiceEvent[]> {
   cacheLife('minutes');
   cacheTag('invoices', `invoice:${id}`, `invoice-events:${id}`);
 
-  const snapshot = await adminDb
-    .collection('platform_invoices')
-    .doc(id)
-    .collection('events')
-    .orderBy('at', 'asc')
-    .get();
+  let snapshot: FirebaseFirestore.QuerySnapshot;
+  try {
+    snapshot = await adminDb
+      .collection('platform_invoices')
+      .doc(id)
+      .collection('events')
+      .orderBy('at', 'asc')
+      .get();
+  } catch (err) {
+    console.warn(`[getInvoiceEvents] orderBy('at', 'asc') failed for invoice ${id}, falling back:`, err);
+    snapshot = await adminDb
+      .collection('platform_invoices')
+      .doc(id)
+      .collection('events')
+      .get();
+  }
 
-  return snapshot.docs.map((doc) => {
+  const events = snapshot.docs.map((doc) => {
     const data = doc.data();
+    let safeMeta: Record<string, unknown> | undefined = undefined;
+    if (data.meta && typeof data.meta === 'object') {
+      try {
+        safeMeta = JSON.parse(
+          JSON.stringify(data.meta, (_key, val) => {
+            if (val && typeof val === 'object' && 'toDate' in val) {
+              return toIsoString(val);
+            }
+            return val;
+          })
+        );
+      } catch {
+        safeMeta = undefined;
+      }
+    }
+
     return {
       id: doc.id,
       type: String(data.type || 'UNKNOWN'),
       at: toIsoString(data.at),
       by: String(data.by || 'system'),
-      meta: (data.meta as Record<string, unknown>) || undefined,
+      meta: safeMeta,
     };
   });
+
+  return events.sort((a, b) => new Date(a.at).getTime() - new Date(b.at).getTime());
 }
