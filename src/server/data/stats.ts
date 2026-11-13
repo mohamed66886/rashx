@@ -1,7 +1,7 @@
 import 'server-only';
 
 import { cacheLife, cacheTag } from 'next/cache';
-import { adminDb } from '@/server/firebase-admin';
+import { getAdminDb } from '@/server/firebase-admin';
 import { toIsoString } from '@/server/data/utils';
 import type { PlatformStats } from '@/lib/types/platform';
 
@@ -27,7 +27,7 @@ export async function getPlatformStats(): Promise<PlatformStats> {
   cacheLife('minutes');
   cacheTag('stats');
 
-  const doc = await adminDb.collection('stats').doc('platform').get();
+  const doc = await getAdminDb().collection('stats').doc('platform').get();
   if (!doc.exists) {
     return DEFAULT_STATS;
   }

@@ -2,7 +2,7 @@
 
 import { updateTag } from 'next/cache';
 import { FieldValue } from 'firebase-admin/firestore';
-import { adminDb } from '@/server/firebase-admin';
+import { getAdminDb } from '@/server/firebase-admin';
 import { requireAdmin } from '@/server/auth/session';
 import type { ContractClause } from '@/lib/types/billing';
 import {
@@ -33,16 +33,17 @@ export async function saveClauseAction(
   }
 
   const data = validation.data;
+  const db = getAdminDb();
   const clauseRef = data.id
-    ? adminDb.collection('contract_clauses').doc(data.id)
-    : adminDb.collection('contract_clauses').doc();
+    ? db.collection('contract_clauses').doc(data.id)
+    : db.collection('contract_clauses').doc();
   const clauseId = clauseRef.id;
 
   try {
     const existingDoc = data.id ? await clauseRef.get() : null;
     const isNew = !existingDoc || !existingDoc.exists;
 
-    const batch = adminDb.batch();
+    const batch = db.batch();
 
     // 1. Set Clause Document
     batch.set(
@@ -61,7 +62,7 @@ export async function saveClauseAction(
     );
 
     // 2. Audit Log
-    const auditRef = adminDb.collection('platform_audit_logs').doc();
+    const auditRef = db.collection('platform_audit_logs').doc();
     batch.set(auditRef, {
       adminId: admin.uid,
       adminEmail: admin.email,
@@ -124,7 +125,8 @@ export async function deleteClauseAction(
   }
 
   const { clauseId } = validation.data;
-  const clauseRef = adminDb.collection('contract_clauses').doc(clauseId);
+  const db = getAdminDb();
+  const clauseRef = db.collection('contract_clauses').doc(clauseId);
 
   try {
     const doc = await clauseRef.get();
@@ -143,13 +145,13 @@ export async function deleteClauseAction(
       };
     }
 
-    const batch = adminDb.batch();
+    const batch = db.batch();
 
     // 1. Delete Doc
     batch.delete(clauseRef);
 
     // 2. Audit Log
-    const auditRef = adminDb.collection('platform_audit_logs').doc();
+    const auditRef = db.collection('platform_audit_logs').doc();
     batch.set(auditRef, {
       adminId: admin.uid,
       adminEmail: admin.email,
@@ -200,17 +202,18 @@ export async function reorderClausesAction(
   }
 
   try {
-    const batch = adminDb.batch();
+    const db = getAdminDb();
+    const batch = db.batch();
 
     orderedIds.forEach((id, index) => {
-      const ref = adminDb.collection('contract_clauses').doc(id);
+      const ref = db.collection('contract_clauses').doc(id);
       batch.update(ref, {
         order: index + 1,
         updatedAt: FieldValue.serverTimestamp(),
       });
     });
 
-    const auditRef = adminDb.collection('platform_audit_logs').doc();
+    const auditRef = db.collection('platform_audit_logs').doc();
     batch.set(auditRef, {
       adminId: admin.uid,
       adminEmail: admin.email,

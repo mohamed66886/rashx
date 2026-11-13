@@ -2,7 +2,7 @@
 
 import React, { useState, useTransition, useRef } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useDashboardHref } from '@/lib/dashboard-links';
 import {
   FileText,
   Printer,
@@ -59,8 +59,7 @@ export function InvoiceDetailsClientView({
   events: initialEvents,
   billingSettings,
 }: InvoiceDetailsClientViewProps) {
-  const router = useRouter();
-
+  const dHref = useDashboardHref();
   const [invoice, setInvoice] = useState<PlatformInvoice>(initialInvoice);
   const [events] = useState<InvoiceEvent[]>(initialEvents);
 
@@ -140,7 +139,6 @@ export function InvoiceDetailsClientView({
         if (invoice.status === 'issued') {
           setInvoice((prev) => ({ ...prev, status: 'sent' }));
         }
-        router.refresh();
       } else {
         setStatusMessage({
           type: 'error',
@@ -176,7 +174,6 @@ export function InvoiceDetailsClientView({
             type: 'success',
             text: 'تم تحديث حالة الفاتورة إلى "مدفوعة" بنجاح.',
           });
-          router.refresh();
         } else {
           setStatusMessage({
             type: 'error',
@@ -215,7 +212,6 @@ export function InvoiceDetailsClientView({
             type: 'success',
             text: 'تم إلغاء المستند وتوثيق سبب الإلغاء بنجاح.',
           });
-          router.refresh();
         } else {
           setStatusMessage({
             type: 'error',
@@ -254,7 +250,6 @@ export function InvoiceDetailsClientView({
             type: 'success',
             text: 'تم اعتماد وتوثيق العقد والمستند بنجاح.',
           });
-          router.refresh();
         } else {
           setStatusMessage({
             type: 'error',
@@ -295,7 +290,6 @@ export function InvoiceDetailsClientView({
             type: 'success',
             text: 'تم رفض النسخة وإعادة حالة المستند إلى "مرسل" وإشعار العميل بالبريد.',
           });
-          router.refresh();
         } else {
           setStatusMessage({
             type: 'error',
@@ -354,7 +348,6 @@ export function InvoiceDetailsClientView({
               ],
             },
           }));
-          router.refresh();
         } else {
           setStatusMessage({
             type: 'error',
@@ -458,7 +451,7 @@ export function InvoiceDetailsClientView({
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Link
-              href="/dashboard/invoices"
+              href={dHref('/invoices')}
               className="w-9 h-9 rounded-xl bg-neutral-100 hover:bg-neutral-200 flex items-center justify-center text-neutral-600 transition-colors"
             >
               <ArrowRight className="w-4 h-4" />
@@ -489,7 +482,7 @@ export function InvoiceDetailsClientView({
           <div className="flex flex-wrap items-center gap-2">
             {/* If Draft: Edit Button */}
             {invoice.status === 'draft' && (
-              <Link href={`/dashboard/invoices/${invoice.id}/edit`}>
+              <Link href={dHref(`/invoices/${invoice.id}/edit`)}>
                 <Button
                   variant="outline"
                   className="text-xs font-bold gap-1.5 h-9 border-[#29545c] text-[#29545c]"

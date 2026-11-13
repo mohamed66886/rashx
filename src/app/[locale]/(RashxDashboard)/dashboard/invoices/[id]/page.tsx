@@ -5,7 +5,6 @@ import { getInvoice, getInvoiceEvents } from '@/server/data/invoices';
 import { getBillingSettings, toBillingSettings } from '@/server/data/billing-settings';
 import { InvoiceDetailsClientView } from '@/components/dashboard/invoices/InvoiceDetailsClientView';
 
-export const instant = false;
 
 interface InvoiceDetailsPageProps {
   params: Promise<{

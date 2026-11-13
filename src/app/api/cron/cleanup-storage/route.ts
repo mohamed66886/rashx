@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
-import { adminDb, getAdminStorageBucket } from '@/server/firebase-admin';
+import { getAdminDb, getAdminStorageBucket } from '@/server/firebase-admin';
 
 export const instant = false;
 
@@ -76,7 +76,7 @@ export async function GET(req: NextRequest) {
         let registeredPaths = invoiceFilesCache.get(invoiceId);
         if (!registeredPaths) {
           registeredPaths = new Set<string>();
-          const invoiceDoc = await adminDb.collection('platform_invoices').doc(invoiceId).get();
+          const invoiceDoc = await getAdminDb().collection('platform_invoices').doc(invoiceId).get();
           if (invoiceDoc.exists) {
             const signingFiles = invoiceDoc.data()?.signing?.files;
             if (Array.isArray(signingFiles)) {

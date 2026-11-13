@@ -4,7 +4,7 @@ All platform data access must strictly follow these rules:
 
 ### 1. Server-Only Firestore Access
 - The browser must **NEVER** interact directly with Firestore.
-- All Firestore queries and mutations execute exclusively on the server using the **Firebase Admin SDK** (`adminDb`, `adminAuth`).
+- All Firestore queries and mutations execute exclusively on the server using the **Firebase Admin SDK** (`getAdminDb()`, `getAdminAuth()`).
 - Every data access file starts with `import 'server-only';`.
 
 ### 2. Read Layer (`src/server/data/*.ts`)

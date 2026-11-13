@@ -5,7 +5,7 @@ import { after } from 'next/server';
 import { headers } from 'next/headers';
 import { updateTag } from 'next/cache';
 import { FieldValue } from 'firebase-admin/firestore';
-import { adminDb, getAdminStorageBucket } from '@/server/firebase-admin';
+import { getAdminDb, getAdminStorageBucket } from '@/server/firebase-admin';
 import { requireAdmin } from '@/server/auth/session';
 import { computeTotals } from '@/server/invoices/compute-totals';
 import { getBillingSettings, toBillingSettings } from '@/server/data/billing-settings';
@@ -101,8 +101,8 @@ export async function saveDraftInvoice(
   const totals = computeTotals(normalizedItems, data.discountHalalas, data.vatRatePercent);
 
   const invoiceRef = data.id
-    ? adminDb.collection('platform_invoices').doc(data.id)
-    : adminDb.collection('platform_invoices').doc();
+    ? getAdminDb().collection('platform_invoices').doc(data.id)
+    : getAdminDb().collection('platform_invoices').doc();
   const invoiceId = invoiceRef.id;
 
   try {
@@ -129,7 +129,7 @@ export async function saveDraftInvoice(
       }
     }
 
-    const batch = adminDb.batch();
+    const batch = getAdminDb().batch();
 
     // 1. Invoice Document
     batch.set(
@@ -171,7 +171,7 @@ export async function saveDraftInvoice(
     });
 
     // 3. Audit Log
-    const auditRef = adminDb.collection('platform_audit_logs').doc();
+    const auditRef = getAdminDb().collection('platform_audit_logs').doc();
     batch.set(auditRef, {
       adminId: admin.uid,
       adminEmail: admin.email,
@@ -186,7 +186,7 @@ export async function saveDraftInvoice(
 
     // 4. Stats Increment on stats/invoices
     if (isNew) {
-      const statsRef = adminDb.collection('stats').doc('invoices');
+      const statsRef = getAdminDb().collection('stats').doc('invoices');
       batch.set(
         statsRef,
         {
@@ -268,7 +268,7 @@ export async function issueInvoice(
   }
 
   const { invoiceId, selectedClauseIds: overrideClauseIds } = validation.data;
-  const invoiceRef = adminDb.collection('platform_invoices').doc(invoiceId);
+  const invoiceRef = getAdminDb().collection('platform_invoices').doc(invoiceId);
 
   // ─────────────────────────────────────────────────────────────
   // Phase 1: Atomic draft claim + sequential number allocation in ONE transaction
@@ -277,7 +277,7 @@ export async function issueInvoice(
   let invoiceNumber: string;
 
   try {
-    const claimResult = await adminDb.runTransaction(async (transaction) => {
+    const claimResult = await getAdminDb().runTransaction(async (transaction) => {
       const invoiceDoc = await transaction.get(invoiceRef);
       if (!invoiceDoc.exists) {
         throw new Error('المستند المطلوب غير موجود في قاعدة البيانات');
@@ -295,7 +295,7 @@ export async function issueInvoice(
       if (!assignedNumber) {
         const docKind = (data.docKind as InvoiceDocKind) || 'contract_invoice';
         const billingDoc = await transaction.get(
-          adminDb.collection('platform_settings').doc('billing')
+          getAdminDb().collection('platform_settings').doc('billing')
         );
         const billingData = billingDoc.data();
         const prefix =
@@ -304,7 +304,7 @@ export async function issueInvoice(
             : billingData?.invoicePrefix || 'INV';
 
         const year = new Date().getFullYear();
-        const counterRef = adminDb.collection('counters').doc(`invoices-${year}`);
+        const counterRef = getAdminDb().collection('counters').doc(`invoices-${year}`);
         const counterDoc = await transaction.get(counterRef);
         const currentCount = Number(counterDoc.data()?.lastNumber) || 0;
         const next = currentCount + 1;
@@ -433,7 +433,7 @@ export async function issueInvoice(
     // ─────────────────────────────────────────────────────────────
     // Phase 3: Finalize to 'issued' via atomic WriteBatch
     // ─────────────────────────────────────────────────────────────
-    const batch = adminDb.batch();
+    const batch = getAdminDb().batch();
 
     batch.update(invoiceRef, {
       number: invoiceNumber,
@@ -462,7 +462,7 @@ export async function issueInvoice(
     });
 
     // Audit Log
-    const auditRef = adminDb.collection('platform_audit_logs').doc();
+    const auditRef = getAdminDb().collection('platform_audit_logs').doc();
     batch.set(auditRef, {
       adminId: admin.uid,
       adminEmail: admin.email,
@@ -476,7 +476,7 @@ export async function issueInvoice(
     });
 
     // Stats on stats/invoices
-    const statsRef = adminDb.collection('stats').doc('invoices');
+    const statsRef = getAdminDb().collection('stats').doc('invoices');
     const invoiceTotalHalalas = Number(totals.total) || 0;
     batch.set(
       statsRef,
@@ -552,7 +552,7 @@ export async function cancelInvoice(
   }
 
   const { invoiceId, reason } = validation.data;
-  const invoiceRef = adminDb.collection('platform_invoices').doc(invoiceId);
+  const invoiceRef = getAdminDb().collection('platform_invoices').doc(invoiceId);
 
   try {
     const invoiceDoc = await invoiceRef.get();
@@ -573,7 +573,7 @@ export async function cancelInvoice(
       };
     }
 
-    const batch = adminDb.batch();
+    const batch = getAdminDb().batch();
 
     // 1. Update Invoice Doc
     batch.update(invoiceRef, {
@@ -596,7 +596,7 @@ export async function cancelInvoice(
     });
 
     // 3. Audit Log
-    const auditRef = adminDb.collection('platform_audit_logs').doc();
+    const auditRef = getAdminDb().collection('platform_audit_logs').doc();
     batch.set(auditRef, {
       adminId: admin.uid,
       adminEmail: admin.email,
@@ -611,7 +611,7 @@ export async function cancelInvoice(
     });
 
     // 4. Update Stats
-    const statsRef = adminDb.collection('stats').doc('invoices');
+    const statsRef = getAdminDb().collection('stats').doc('invoices');
     const invoiceTotalHalalas = Number(invoiceData.totals?.total) || 0;
     const statsUpdate: Record<string, unknown> = {
       cancelledCount: FieldValue.increment(1),
@@ -676,7 +676,7 @@ export async function markPaid(
   }
 
   const { invoiceId, paymentMethod, reference } = validation.data;
-  const invoiceRef = adminDb.collection('platform_invoices').doc(invoiceId);
+  const invoiceRef = getAdminDb().collection('platform_invoices').doc(invoiceId);
 
   try {
     const invoiceDoc = await invoiceRef.get();
@@ -704,7 +704,7 @@ export async function markPaid(
       };
     }
 
-    const batch = adminDb.batch();
+    const batch = getAdminDb().batch();
 
     // 1. Update Invoice Doc
     batch.update(invoiceRef, {
@@ -729,7 +729,7 @@ export async function markPaid(
     });
 
     // 3. Audit Log
-    const auditRef = adminDb.collection('platform_audit_logs').doc();
+    const auditRef = getAdminDb().collection('platform_audit_logs').doc();
     batch.set(auditRef, {
       adminId: admin.uid,
       adminEmail: admin.email,
@@ -744,7 +744,7 @@ export async function markPaid(
     });
 
     // 4. Update Stats
-    const statsRef = adminDb.collection('stats').doc('invoices');
+    const statsRef = getAdminDb().collection('stats').doc('invoices');
     const invoiceTotalHalalas = Number(invoiceData.totals?.total) || 0;
     const statsUpdate: Record<string, unknown> = {
       paidCount: FieldValue.increment(1),
@@ -811,7 +811,7 @@ export async function sendInvoiceAction(
   const admin = await requireAdmin(['super_admin', 'platform_engineer', 'sales_director']);
 
   try {
-    const invoiceRef = adminDb.collection('platform_invoices').doc(invoiceId);
+    const invoiceRef = getAdminDb().collection('platform_invoices').doc(invoiceId);
     let doc = await invoiceRef.get();
     if (!doc.exists) {
       return { success: false, error: 'المستند غير موجود' };
@@ -856,7 +856,7 @@ export async function sendInvoiceAction(
     const signingUrl = `${siteUrl}/${locale}/sign/${invoiceId}.${token}`;
 
     // 3. Atomically update invoice document & stats
-    const batch = adminDb.batch();
+    const batch = getAdminDb().batch();
     batch.update(invoiceRef, {
       status: 'sent',
       'signing.tokenHash': tokenHash,
@@ -868,7 +868,7 @@ export async function sendInvoiceAction(
     });
 
     if (data.status !== 'sent') {
-      const statsRef = adminDb.collection('stats').doc('invoices');
+      const statsRef = getAdminDb().collection('stats').doc('invoices');
       batch.set(
         statsRef,
         {
@@ -1029,7 +1029,7 @@ export async function generateSigningLinkAction(
   await requireAdmin(['super_admin', 'platform_engineer', 'sales_director']);
 
   try {
-    const invoiceRef = adminDb.collection('platform_invoices').doc(invoiceId);
+    const invoiceRef = getAdminDb().collection('platform_invoices').doc(invoiceId);
     const doc = await invoiceRef.get();
     if (!doc.exists) {
       return { success: false, error: 'المستند غير موجود' };
@@ -1086,7 +1086,7 @@ export async function issueAndSendInvoiceAction(
   let targetEmail = input.recipientEmail;
 
   if (!targetEmail) {
-    const doc = await adminDb.collection('platform_invoices').doc(invoiceId).get();
+    const doc = await getAdminDb().collection('platform_invoices').doc(invoiceId).get();
     targetEmail = doc.data()?.customer?.email;
   }
 
@@ -1133,7 +1133,7 @@ export async function searchTenantsForInvoiceAction(
   const term = (query || '').trim().toLowerCase();
   if (!term || term.length < 2) return [];
 
-  const snap = await adminDb.collection('tenants').limit(50).get();
+  const snap = await getAdminDb().collection('tenants').limit(50).get();
   const results: TenantAutocompleteItem[] = [];
 
   for (const doc of snap.docs) {
@@ -1177,7 +1177,7 @@ export async function uploadSignedFileAction(input: {
   const admin = await requireAdmin(['super_admin', 'platform_engineer', 'sales_director']);
   const { invoiceId, fileName, fileBase64, contentType = 'application/pdf' } = input;
 
-  const invoiceRef = adminDb.collection('platform_invoices').doc(invoiceId);
+  const invoiceRef = getAdminDb().collection('platform_invoices').doc(invoiceId);
   const doc = await invoiceRef.get();
   if (!doc.exists) {
     return { success: false, error: 'المستند غير موجود' };
@@ -1206,7 +1206,7 @@ export async function uploadSignedFileAction(input: {
     uploadedAt: new Date().toISOString(),
   };
 
-  const batch = adminDb.batch();
+  const batch = getAdminDb().batch();
   batch.update(invoiceRef, {
     status: 'uploaded',
     'signing.files': FieldValue.arrayUnion(fileEntry),
@@ -1223,7 +1223,7 @@ export async function uploadSignedFileAction(input: {
   });
 
   // Audit log
-  const auditRef = adminDb.collection('platform_audit_logs').doc();
+  const auditRef = getAdminDb().collection('platform_audit_logs').doc();
   batch.set(auditRef, {
     action: 'INVOICE_SIGNED_FILE_UPLOADED',
     actorEmail: admin.email,
@@ -1267,7 +1267,7 @@ export async function approveSignedFile(
   }
 
   const { invoiceId } = validation.data;
-  const invoiceRef = adminDb.collection('platform_invoices').doc(invoiceId);
+  const invoiceRef = getAdminDb().collection('platform_invoices').doc(invoiceId);
   const doc = await invoiceRef.get();
   if (!doc.exists) {
     return { success: false, error: 'المستند غير موجود' };
@@ -1284,7 +1284,7 @@ export async function approveSignedFile(
   }
 
   const nowIso = new Date().toISOString();
-  const batch = adminDb.batch();
+  const batch = getAdminDb().batch();
 
   // 1. Update invoice
   batch.update(invoiceRef, {
@@ -1308,7 +1308,7 @@ export async function approveSignedFile(
   });
 
   // 3. Audit Log
-  const auditRef = adminDb.collection('platform_audit_logs').doc();
+  const auditRef = getAdminDb().collection('platform_audit_logs').doc();
   batch.set(auditRef, {
     adminId: admin.uid,
     adminEmail: admin.email,
@@ -1323,7 +1323,7 @@ export async function approveSignedFile(
   });
 
   // 4. Update Stats
-  const statsRef = adminDb.collection('stats').doc('invoices');
+  const statsRef = getAdminDb().collection('stats').doc('invoices');
   batch.set(
     statsRef,
     {
@@ -1361,7 +1361,7 @@ export async function rejectSignedFile(
   }
 
   const { invoiceId, reason } = validation.data;
-  const invoiceRef = adminDb.collection('platform_invoices').doc(invoiceId);
+  const invoiceRef = getAdminDb().collection('platform_invoices').doc(invoiceId);
   const doc = await invoiceRef.get();
   if (!doc.exists) {
     return { success: false, error: 'المستند غير موجود' };
@@ -1375,7 +1375,7 @@ export async function rejectSignedFile(
   }
 
   const nowIso = new Date().toISOString();
-  const batch = adminDb.batch();
+  const batch = getAdminDb().batch();
 
   // 1. Update invoice back to 'sent'
   batch.update(invoiceRef, {
@@ -1400,7 +1400,7 @@ export async function rejectSignedFile(
   });
 
   // 3. Audit Log
-  const auditRef = adminDb.collection('platform_audit_logs').doc();
+  const auditRef = getAdminDb().collection('platform_audit_logs').doc();
   batch.set(auditRef, {
     adminId: admin.uid,
     adminEmail: admin.email,
@@ -1415,7 +1415,7 @@ export async function rejectSignedFile(
   });
 
   // 4. Update Stats: uploaded -> sent
-  const statsRef = adminDb.collection('stats').doc('invoices');
+  const statsRef = getAdminDb().collection('stats').doc('invoices');
   batch.set(
     statsRef,
     {

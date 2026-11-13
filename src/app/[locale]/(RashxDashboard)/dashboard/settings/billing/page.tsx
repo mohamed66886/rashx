@@ -3,7 +3,6 @@ import { requireAdmin } from '@/server/auth/session';
 import { getBillingSettings } from '@/server/data/billing-settings';
 import { BillingSettingsClientView } from '@/components/dashboard/settings/BillingSettingsClientView';
 
-export const instant = false;
 
 interface BillingSettingsPageProps {
   params: Promise<{

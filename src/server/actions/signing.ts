@@ -5,7 +5,7 @@ import path from 'path';
 import { headers } from 'next/headers';
 import { updateTag } from 'next/cache';
 import { FieldValue } from 'firebase-admin/firestore';
-import { adminDb, getAdminStorageBucket } from '@/server/firebase-admin';
+import { getAdminDb, getAdminStorageBucket } from '@/server/firebase-admin';
 import type { InvoiceSigningFile, InvoiceStatus } from '@/lib/types/billing';
 import { verifySigningToken } from '@/server/signing/verify';
 import { sendSignedUploadNotificationEmail } from '@/server/email/mailer';
@@ -32,11 +32,11 @@ async function checkFirestoreRateLimit(
   windowMs: number = 60 * 60 * 1000
 ): Promise<boolean> {
   const cleanKey = key.replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 100);
-  const docRef = adminDb.collection('rate_limits').doc(cleanKey);
+  const docRef = getAdminDb().collection('rate_limits').doc(cleanKey);
   const now = Date.now();
 
   try {
-    return await adminDb.runTransaction(async (tx) => {
+    return await getAdminDb().runTransaction(async (tx) => {
       const snap = await tx.get(docRef);
       if (!snap.exists) {
         tx.set(docRef, {
@@ -99,8 +99,8 @@ export async function recordViewAction(fullToken: string): Promise<{ success: bo
   const userAgent = headerList.get('user-agent') || 'unknown';
   const nowIso = new Date().toISOString();
 
-  const invoiceRef = adminDb.collection('platform_invoices').doc(invoiceId);
-  const batch = adminDb.batch();
+  const invoiceRef = getAdminDb().collection('platform_invoices').doc(invoiceId);
+  const batch = getAdminDb().batch();
 
   const updateFields: Record<string, unknown> = {
     'signing.viewedAt': nowIso,
@@ -109,7 +109,7 @@ export async function recordViewAction(fullToken: string): Promise<{ success: bo
 
   if (invoice.status === 'sent') {
     updateFields.status = 'viewed';
-    const statsRef = adminDb.collection('stats').doc('invoices');
+    const statsRef = getAdminDb().collection('stats').doc('invoices');
     batch.set(
       statsRef,
       {
@@ -324,11 +324,11 @@ export async function confirmUploadAction(
     uploaderUserAgent: userAgent,
   };
 
-  const invoiceRef = adminDb.collection('platform_invoices').doc(invoiceId);
+  const invoiceRef = getAdminDb().collection('platform_invoices').doc(invoiceId);
 
   // 5. Update Status & Stats inside a single Firestore Transaction
   try {
-    await adminDb.runTransaction(async (tx) => {
+    await getAdminDb().runTransaction(async (tx) => {
       const snap = await tx.get(invoiceRef);
       if (!snap.exists) {
         throw new Error('المستند المطلوب غير موجود.');
@@ -368,7 +368,7 @@ export async function confirmUploadAction(
 
       // Update stats atomically using the status read inside transaction
       if (currentStatus !== 'uploaded') {
-        const statsRef = adminDb.collection('stats').doc('invoices');
+        const statsRef = getAdminDb().collection('stats').doc('invoices');
         tx.set(
           statsRef,
           {

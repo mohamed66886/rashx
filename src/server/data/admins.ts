@@ -1,7 +1,7 @@
 import 'server-only';
 
 import { cacheLife, cacheTag } from 'next/cache';
-import { adminDb } from '@/server/firebase-admin';
+import { getAdminDb } from '@/server/firebase-admin';
 import { toIsoString } from '@/server/data/utils';
 import type { RashxAdmin } from '@/lib/types/platform';
 
@@ -16,7 +16,7 @@ export async function getAdmins(): Promise<RashxAdmin[]> {
   cacheLife('minutes');
   cacheTag('admins');
 
-  const snapshot = await adminDb
+  const snapshot = await getAdminDb()
     .collection('platform_admins')
     .orderBy('createdAt', 'desc')
     .get();
@@ -49,6 +49,35 @@ export interface AdminProfileData {
 }
 
 /**
+ * Fetches an individual admin profile from Firestore by UID.
+ * Cached per-admin with 'admin:${uid}' tag to minimize Firestore reads during navigation.
+ */
+export async function getAdminProfileCached(
+  uid: string
+): Promise<AdminProfileData | null> {
+  'use cache';
+  cacheLife('minutes');
+  cacheTag(`admin:${uid}`);
+
+  try {
+    const db = getAdminDb();
+    const docSnap = await db.collection('platform_admins').doc(uid).get();
+    if (docSnap.exists) {
+      const data = docSnap.data();
+      return {
+        name: data?.name as string | undefined,
+        title: data?.title as string | undefined,
+        avatar: (data?.avatar as string) || undefined,
+        avatarId: typeof data?.avatarId === 'number' ? data.avatarId : undefined,
+      };
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Fetches an individual admin profile from Firestore by UID or email.
  * Cached with 'admins' tag to minimize Firestore reads during navigation.
  */
@@ -61,7 +90,8 @@ export async function getAdminProfile(
   cacheTag('admins');
 
   try {
-    const docSnap = await adminDb.collection('platform_admins').doc(uid).get();
+    const db = getAdminDb();
+    const docSnap = await db.collection('platform_admins').doc(uid).get();
     if (docSnap.exists) {
       const data = docSnap.data();
       return {
@@ -73,7 +103,7 @@ export async function getAdminProfile(
     }
 
     if (email) {
-      const querySnap = await adminDb
+      const querySnap = await db
         .collection('platform_admins')
         .where('email', '==', email)
         .limit(1)

@@ -8,7 +8,6 @@ import {
 import { getAdmins } from '@/server/data/admins';
 import { requireAdmin } from '@/server/auth/session';
 
-export const instant = false;
 
 export default async function AdminsManagementPage() {
   await requireAdmin(['super_admin', 'platform_engineer']);

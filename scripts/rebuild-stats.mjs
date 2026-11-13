@@ -31,7 +31,14 @@ for (const envFile of envFiles) {
 
 function formatPrivateKey(key) {
   if (!key) return undefined;
-  return key.replace(/\\n/g, '\n');
+  let formatted = key.trim();
+  while (
+    (formatted.startsWith('"') && formatted.endsWith('"')) ||
+    (formatted.startsWith("'") && formatted.endsWith("'"))
+  ) {
+    formatted = formatted.slice(1, -1).trim();
+  }
+  return formatted.replace(/\r/g, '').replace(/\\n/g, '\n');
 }
 
 function getAdminFirestore() {

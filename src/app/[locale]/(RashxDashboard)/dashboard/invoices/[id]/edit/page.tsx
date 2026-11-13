@@ -6,7 +6,6 @@ import { getBillingSettings, toBillingSettings } from '@/server/data/billing-set
 import { getClauses } from '@/server/data/clauses';
 import { InvoiceEditorClientView } from '@/components/dashboard/invoices/InvoiceEditorClientView';
 
-export const instant = false;
 
 interface EditInvoicePageProps {
   params: Promise<{

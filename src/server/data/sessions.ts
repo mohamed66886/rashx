@@ -1,7 +1,7 @@
 import 'server-only';
 
 import { cacheLife, cacheTag } from 'next/cache';
-import { adminDb } from '@/server/firebase-admin';
+import { getAdminDb } from '@/server/firebase-admin';
 import { toIsoString } from '@/server/data/utils';
 
 export interface AdminSessionRecord {
@@ -24,7 +24,7 @@ export async function getAdminSessions(): Promise<AdminSessionRecord[]> {
   cacheLife('minutes');
   cacheTag('sessions');
 
-  const snap = await adminDb
+  const snap = await getAdminDb()
     .collection('admin_sessions')
     .orderBy('createdAt', 'desc')
     .limit(50)

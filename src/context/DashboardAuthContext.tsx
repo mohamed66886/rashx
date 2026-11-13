@@ -100,14 +100,13 @@ export const DashboardAuthProvider: React.FC<DashboardAuthProviderProps> = ({
   const handleLogout = useCallback(async () => {
     setIsLoading(true);
     try {
-      await logoutAction();
+      await logoutAction(locale);
     } catch {
       // logoutAction performs a server redirect
     } finally {
       setAdmin(null);
       setIsLoading(false);
       router.replace(`/${locale}/dashboard/login`);
-      router.refresh();
     }
   }, [locale, router]);
 

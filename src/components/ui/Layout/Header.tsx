@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useParams } from 'next/navigation';
 import { Menu, X, Bell, ArrowUpRight } from 'lucide-react';
 import { Button } from '../Button';
 import { Avatar, AvatarStatus } from '../Avatar';
@@ -93,12 +93,6 @@ const DEFAULT_MARKETING_LINKS: HeaderNavLink[] = [
   { label: 'تواصل معنا', href: '#contact' },
 ];
 
-const DEFAULT_APP_LINKS: HeaderNavLink[] = [
-  { label: 'لوحة التحكم', href: '/dashboard' },
-  { label: 'الفواتير', href: '/invoices' },
-  { label: 'العملاء', href: '/customers' },
-  { label: 'التقارير', href: '/reports' },
-];
 
 /* =========================================================================
    MAIN COMPONENT: Header
@@ -125,6 +119,8 @@ export const Header: React.FC<HeaderProps> = ({
   className = '',
 }) => {
   const pathname = usePathname() ?? '';
+  const params = useParams();
+  const locale = (params?.locale as string) || 'ar';
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [prevPathname, setPrevPathname] = useState(pathname);
 
@@ -146,9 +142,16 @@ export const Header: React.FC<HeaderProps> = ({
     };
   }, [isMobileMenuOpen]);
 
+  const defaultAppLinks: HeaderNavLink[] = [
+    { label: 'لوحة التحكم', href: `/${locale}/dashboard` },
+    { label: 'الفواتير', href: '/invoices' },
+    { label: 'العملاء', href: '/customers' },
+    { label: 'التقارير', href: '/reports' },
+  ];
+
   // Resolve links according to variant
   const links =
-    navLinks || (variant === 'marketing' ? DEFAULT_MARKETING_LINKS : DEFAULT_APP_LINKS);
+    navLinks || (variant === 'marketing' ? DEFAULT_MARKETING_LINKS : defaultAppLinks);
 
   const defaultUserMenuItems: DropdownButtonItem[] = [
     {

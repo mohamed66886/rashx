@@ -4,6 +4,7 @@ import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { AlertTriangle, RefreshCw, LayoutDashboard } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { useDashboardHref } from '@/lib/dashboard-links';
 
 export default function DashboardError({
   error,
@@ -12,6 +13,7 @@ export default function DashboardError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const dHref = useDashboardHref();
   useEffect(() => {
     // Log unexpected dashboard errors to the console
     console.error('Dashboard Error Boundary caught an exception:', error);
@@ -47,7 +49,7 @@ export default function DashboardError({
           <span>إعادة المحاولة</span>
         </Button>
 
-        <Link href="/ar/dashboard">
+        <Link href={dHref()}>
           <Button variant="outline" className="gap-2">
             <LayoutDashboard className="w-4 h-4" />
             <span>العودة للرئيسية</span>

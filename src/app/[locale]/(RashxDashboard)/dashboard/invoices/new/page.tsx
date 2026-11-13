@@ -4,7 +4,6 @@ import { getBillingSettings, toBillingSettings } from '@/server/data/billing-set
 import { getClauses } from '@/server/data/clauses';
 import { InvoiceEditorClientView } from '@/components/dashboard/invoices/InvoiceEditorClientView';
 
-export const instant = false;
 
 export default async function NewInvoicePage() {
   await requireAdmin(['super_admin', 'platform_engineer', 'sales_director']);

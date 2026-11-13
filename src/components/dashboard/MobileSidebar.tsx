@@ -30,6 +30,7 @@ interface MobileSidebarProps {
   onToggle?: () => void;
   onLogoutRequest: () => void;
   uploadedInvoicesCount?: number;
+  invoicesBadge?: React.ReactNode;
 }
 
 /**
@@ -46,6 +47,7 @@ export function MobileSidebar({
   onToggle,
   onLogoutRequest,
   uploadedInvoicesCount,
+  invoicesBadge,
 }: MobileSidebarProps) {
   const { admin, openAvatarPicker } = useDashboardAuth();
   const pathname = usePathname();
@@ -238,11 +240,13 @@ export function MobileSidebar({
                 </div>
 
                 <div className="flex items-center gap-1.5 shrink-0">
-                  {item.badge && (
+                  {item.href.endsWith('/dashboard/invoices') && invoicesBadge !== undefined ? (
+                    invoicesBadge
+                  ) : item.badge ? (
                     <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-warm-peach text-ink">
                       {item.badge}
                     </span>
-                  )}
+                  ) : null}
                   {chevron}
                 </div>
               </Link>

@@ -4,6 +4,7 @@ import React, { useState, useTransition, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useDashboardHref } from '@/lib/dashboard-links';
 import {
   FileText,
   Save,
@@ -80,6 +81,7 @@ export function InvoiceEditorClientView({
   isEdit = false,
 }: InvoiceEditorClientViewProps) {
   const router = useRouter();
+  const dHref = useDashboardHref();
 
   // Document Kind
   const [docKind, setDocKind] = useState<InvoiceDocKind>(
@@ -351,7 +353,7 @@ export function InvoiceEditorClientView({
 
         const res = await saveDraftInvoice(payload);
         if (res.success && res.data) {
-          router.push(`/dashboard/invoices/${res.data.id}`);
+          router.push(dHref(`/invoices/${res.data.id}`));
         } else {
           setFormError(res.error || 'فشل في حفظ المسودة.');
         }
@@ -411,7 +413,7 @@ export function InvoiceEditorClientView({
           : await issueInvoice({ invoiceId, selectedClauseIds: Array.from(selectedClauseIds) });
 
         if (res.success && res.data) {
-          router.push(`/dashboard/invoices/${invoiceId}`);
+          router.push(dHref(`/invoices/${invoiceId}`));
         } else {
           setFormError(res.error || 'فشل في إصدار المستند.');
         }
@@ -468,7 +470,7 @@ export function InvoiceEditorClientView({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 sm:p-5 rounded-2xl border border-[#E5E9E8] shadow-2xs">
         <div className="flex items-center gap-3">
           <Link
-            href="/dashboard/invoices"
+            href={dHref('/invoices')}
             className="w-9 h-9 rounded-xl bg-neutral-100 hover:bg-neutral-200 flex items-center justify-center text-neutral-600 transition-colors"
           >
             <ArrowRight className="w-4 h-4" />

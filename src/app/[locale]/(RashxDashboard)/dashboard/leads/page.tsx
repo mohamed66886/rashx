@@ -3,7 +3,6 @@ import { requireAdmin } from '@/server/auth/session';
 import { getLeadsPage } from '@/server/data/leads';
 import { LeadsClientView } from '@/components/dashboard/leads/LeadsClientView';
 
-export const instant = false;
 
 interface LeadsPipelinePageProps {
   params: Promise<{ locale: string }>;

@@ -1,7 +1,7 @@
 import 'server-only';
 
 import crypto from 'crypto';
-import { adminDb } from '@/server/firebase-admin';
+import { getAdminDb } from '@/server/firebase-admin';
 import type { PlatformInvoice, InvoiceSigningFile } from '@/lib/types/billing';
 import { toIsoString } from '@/server/data/utils';
 
@@ -47,7 +47,7 @@ export async function verifySigningToken(fullToken: string): Promise<VerifyToken
   const invoiceId = fullToken.substring(0, dotIndex);
   const rawToken = fullToken.substring(dotIndex + 1);
 
-  const docSnap = await adminDb.collection('platform_invoices').doc(invoiceId).get();
+  const docSnap = await getAdminDb().collection('platform_invoices').doc(invoiceId).get();
   if (!docSnap.exists) {
     return { valid: false, error: 'not_found' };
   }

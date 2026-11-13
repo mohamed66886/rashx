@@ -1,10 +1,11 @@
 import 'server-only';
 
+import { cache } from 'react';
 import { cookies, headers } from 'next/headers';
 import { connection } from 'next/server';
 import { redirect } from 'next/navigation';
-import { adminAuth } from '@/server/firebase-admin';
-import { getAdminProfile } from '@/server/data/admins';
+import { getAdminAuth } from '@/server/firebase-admin';
+import { getAdminProfileCached } from '@/server/data/admins';
 
 export type PlatformRole =
   | 'super_admin'
@@ -48,7 +49,7 @@ const ROLE_TITLES: Record<PlatformRole, string> = {
 export async function createSession(idToken: string): Promise<AdminUser> {
   let decodedToken: FirebaseFirestore.DocumentData | null = null;
   try {
-    decodedToken = await adminAuth.verifyIdToken(idToken);
+    decodedToken = await getAdminAuth().verifyIdToken(idToken);
   } catch (err: unknown) {
     if (process.env.NODE_ENV !== 'production' && idToken) {
       try {
@@ -89,7 +90,7 @@ export async function createSession(idToken: string): Promise<AdminUser> {
 
   let sessionCookie: string;
   try {
-    sessionCookie = await adminAuth.createSessionCookie(idToken, {
+    sessionCookie = await getAdminAuth().createSessionCookie(idToken, {
       expiresIn: SESSION_EXPIRY_MS,
     });
   } catch (cookieErr) {
@@ -110,7 +111,7 @@ export async function createSession(idToken: string): Promise<AdminUser> {
   });
 
   const email = decodedToken.email || '';
-  const profile = await getAdminProfile(decodedToken.uid, email).catch(() => null);
+  const profile = await getAdminProfileCached(decodedToken.uid).catch(() => null);
 
   const name =
     profile?.name ||
@@ -133,13 +134,12 @@ export async function createSession(idToken: string): Promise<AdminUser> {
  * Read the session cookie from request headers, verify it with Firebase Admin SDK,
  * and return the authenticated admin user or null.
  *
- * IMPORTANT: Callers MUST await connection() before calling this function to prevent
- * Firebase's verifySessionCookie (which uses Date.now()) from running during PPR prerender.
+ * Wrapped in React cache() so it evaluates once per request pass keyed by checkRevoked.
  *
  * @param checkRevoked Whether to check token revocation against Firebase Auth API.
  * Default false for fast page renders; true for Server Actions.
  */
-export async function getAdmin(checkRevoked: boolean = false): Promise<AdminUser | null> {
+export const getAdmin = cache(async (checkRevoked: boolean = false): Promise<AdminUser | null> => {
   // Guard: ensure we are inside a real HTTP request, not a prerender pass.
   // connection() throws in prerender contexts; if it throws we return null immediately
   // so Firebase's Date.now() usage never executes during static generation.
@@ -159,11 +159,11 @@ export async function getAdmin(checkRevoked: boolean = false): Promise<AdminUser
 
     let decoded;
     try {
-      decoded = await adminAuth.verifySessionCookie(sessionCookie, checkRevoked);
+      decoded = await getAdminAuth().verifySessionCookie(sessionCookie, checkRevoked);
     } catch {
       if (process.env.NODE_ENV !== 'production') {
         try {
-          decoded = await adminAuth.verifyIdToken(sessionCookie);
+          decoded = await getAdminAuth().verifyIdToken(sessionCookie);
         } catch {
           try {
             const parts = sessionCookie.split('.');
@@ -185,7 +185,7 @@ export async function getAdmin(checkRevoked: boolean = false): Promise<AdminUser
             // ignore
           }
           if (!decoded && checkRevoked) {
-            decoded = await adminAuth.verifySessionCookie(sessionCookie, false).catch(() => null);
+            decoded = await getAdminAuth().verifySessionCookie(sessionCookie, false).catch(() => null);
           }
         }
       } else {
@@ -204,7 +204,7 @@ export async function getAdmin(checkRevoked: boolean = false): Promise<AdminUser
     }
 
     const email = decoded.email || '';
-    const profile = await getAdminProfile(decoded.uid, email).catch(() => null);
+    const profile = await getAdminProfileCached(decoded.uid).catch(() => null);
 
     const name =
       profile?.name ||
@@ -224,7 +224,7 @@ export async function getAdmin(checkRevoked: boolean = false): Promise<AdminUser
   } catch {
     return null;
   }
-}
+});
 
 export interface RequireAdminOptions {
   checkRevoked?: boolean;
@@ -281,9 +281,9 @@ export async function destroySession(): Promise<void> {
     const cookieStore = await cookies();
     const sessionCookie = cookieStore.get(SESSION_COOKIE_NAME)?.value;
     if (sessionCookie) {
-      const decoded = await adminAuth.verifySessionCookie(sessionCookie, false).catch(() => null);
+      const decoded = await getAdminAuth().verifySessionCookie(sessionCookie, false).catch(() => null);
       if (decoded?.sub) {
-        await adminAuth.revokeRefreshTokens(decoded.sub).catch(() => {});
+        await getAdminAuth().revokeRefreshTokens(decoded.sub).catch(() => {});
       }
     }
     cookieStore.delete(SESSION_COOKIE_NAME);

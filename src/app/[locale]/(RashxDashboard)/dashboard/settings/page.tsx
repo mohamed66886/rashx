@@ -2,7 +2,6 @@ import React from 'react';
 import { requireAdmin } from '@/server/auth/session';
 import { SettingsClientView } from '@/components/dashboard/settings/SettingsClientView';
 
-export const instant = false;
 
 export default async function PlatformSettingsPage() {
   await requireAdmin(['super_admin', 'platform_engineer']);

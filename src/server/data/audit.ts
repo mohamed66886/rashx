@@ -1,7 +1,7 @@
 import 'server-only';
 
 import { cacheLife, cacheTag } from 'next/cache';
-import { adminDb } from '@/server/firebase-admin';
+import { getAdminDb } from '@/server/firebase-admin';
 import { toIsoString } from '@/server/data/utils';
 import type { PlatformAuditLog, PaginatedResult } from '@/lib/types/platform';
 
@@ -23,13 +23,14 @@ export async function getAuditLogsPage({
   cacheLife('minutes');
   cacheTag('audit');
 
-  let query: FirebaseFirestore.Query = adminDb
+  const db = getAdminDb();
+  let query: FirebaseFirestore.Query = db
     .collection('platform_audit_logs')
     .orderBy('timestamp', 'desc')
     .limit(limit + 1);
 
   if (cursor) {
-    const cursorSnap = await adminDb.collection('platform_audit_logs').doc(cursor).get();
+    const cursorSnap = await db.collection('platform_audit_logs').doc(cursor).get();
     if (cursorSnap.exists) {
       query = query.startAfter(cursorSnap);
     }

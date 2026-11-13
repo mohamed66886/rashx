@@ -1,7 +1,7 @@
 import 'server-only';
 
 import { cacheLife, cacheTag } from 'next/cache';
-import { adminDb } from '@/server/firebase-admin';
+import { getAdminDb } from '@/server/firebase-admin';
 import { toIsoString } from '@/server/data/utils';
 import type { PlatformLead, PaginatedResult, LeadStatus } from '@/lib/types/platform';
 
@@ -25,7 +25,7 @@ export async function getLeadsPage({
   cacheLife('minutes');
   cacheTag('leads');
 
-  let query: FirebaseFirestore.Query = adminDb.collection('leads');
+  let query: FirebaseFirestore.Query = getAdminDb().collection('leads');
 
   if (status) {
     query = query.where('status', '==', status);
@@ -34,7 +34,7 @@ export async function getLeadsPage({
   query = query.orderBy('submittedAt', 'desc').limit(limit + 1);
 
   if (cursor) {
-    const cursorSnap = await adminDb.collection('leads').doc(cursor).get();
+    const cursorSnap = await getAdminDb().collection('leads').doc(cursor).get();
     if (cursorSnap.exists) {
       query = query.startAfter(cursorSnap);
     }

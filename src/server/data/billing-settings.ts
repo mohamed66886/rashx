@@ -1,7 +1,7 @@
 import 'server-only';
 
 import { cacheLife, cacheTag } from 'next/cache';
-import { adminDb, getAdminStorageBucket } from '@/server/firebase-admin';
+import { getAdminDb, getAdminStorageBucket } from '@/server/firebase-admin';
 import { toIsoString } from '@/server/data/utils';
 import type { PlatformBillingSettings, BillingSettings } from '@/lib/types/platform';
 
@@ -14,7 +14,7 @@ export async function getBillingSettings(): Promise<PlatformBillingSettings | nu
   cacheLife('hours');
   cacheTag('billing-settings');
 
-  const doc = await adminDb.collection('platform_settings').doc('billing').get();
+  const doc = await getAdminDb().collection('platform_settings').doc('billing').get();
   if (!doc.exists) {
     return null;
   }

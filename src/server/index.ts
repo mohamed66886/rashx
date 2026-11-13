@@ -8,7 +8,7 @@ import 'server-only';
  *
  * 1. Server-Only Firestore Access:
  *    The browser must NEVER talk to Firestore directly. All operations run on
- *    the server via Firebase Admin SDK (`adminDb`).
+ *    the server via Firebase Admin SDK (`getAdminDb()`).
  *
  * 2. Strict Read Conventions (`src/server/data/*.ts`):
  *    - Must declare `'use cache';`

@@ -6,7 +6,6 @@ import { getAuditLogsPage } from '@/server/data/audit';
 import { getAdminSessions } from '@/server/data/sessions';
 import { DatabaseClientView } from '@/components/dashboard/database/DatabaseClientView';
 
-export const instant = false;
 
 export default async function PlatformDatabaseInspectorPage() {
   await requireAdmin(['super_admin', 'platform_engineer']);

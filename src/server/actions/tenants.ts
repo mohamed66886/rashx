@@ -3,7 +3,7 @@
 import { updateTag } from 'next/cache';
 import { FieldValue } from 'firebase-admin/firestore';
 import { z } from 'zod';
-import { adminDb } from '@/server/firebase-admin';
+import { getAdminDb } from '@/server/firebase-admin';
 import { requireAdmin } from '@/server/auth/session';
 
 const createTenantSchema = z.object({
@@ -63,7 +63,7 @@ export async function createTenant(input: CreateTenantInput): Promise<ActionResp
   const data = validation.data;
   const cleanSubdomain = data.subdomain.toLowerCase();
   const tenantId = `tnt_${cleanSubdomain}`;
-  const tenantRef = adminDb.collection('tenants').doc(tenantId);
+  const tenantRef = getAdminDb().collection('tenants').doc(tenantId);
 
   // 1. Server-side tenant subdomain uniqueness check
   const existingDoc = await tenantRef.get();
@@ -74,7 +74,7 @@ export async function createTenant(input: CreateTenantInput): Promise<ActionResp
     };
   }
 
-  const existingByQuery = await adminDb
+  const existingByQuery = await getAdminDb()
     .collection('tenants')
     .where('subdomain', '==', cleanSubdomain)
     .limit(1)
@@ -89,7 +89,7 @@ export async function createTenant(input: CreateTenantInput): Promise<ActionResp
 
   try {
     // 2. Atomic WriteBatch: Tenant + Audit Log + Stats Hook
-    const batch = adminDb.batch();
+    const batch = getAdminDb().batch();
 
     batch.set(tenantRef, {
       id: tenantId,
@@ -108,7 +108,7 @@ export async function createTenant(input: CreateTenantInput): Promise<ActionResp
       updatedAt: FieldValue.serverTimestamp(),
     });
 
-    const auditRef = adminDb.collection('platform_audit_logs').doc();
+    const auditRef = getAdminDb().collection('platform_audit_logs').doc();
     batch.set(auditRef, {
       adminId: admin.uid,
       adminEmail: admin.email,
@@ -125,7 +125,7 @@ export async function createTenant(input: CreateTenantInput): Promise<ActionResp
     });
 
     // 3. Platform stats aggregation update
-    const statsRef = adminDb.collection('stats').doc('platform');
+    const statsRef = getAdminDb().collection('stats').doc('platform');
     const statusField =
       data.status === 'active'
         ? 'tenantsActive'
@@ -180,7 +180,7 @@ export async function updateTenantStatus(
   }
 
   const { tenantId, status } = validation.data;
-  const tenantRef = adminDb.collection('tenants').doc(tenantId);
+  const tenantRef = getAdminDb().collection('tenants').doc(tenantId);
   const tenantSnap = await tenantRef.get();
 
   if (!tenantSnap.exists) {
@@ -188,14 +188,14 @@ export async function updateTenantStatus(
   }
 
   try {
-    const batch = adminDb.batch();
+    const batch = getAdminDb().batch();
 
     batch.update(tenantRef, {
       status,
       updatedAt: FieldValue.serverTimestamp(),
     });
 
-    const auditRef = adminDb.collection('platform_audit_logs').doc();
+    const auditRef = getAdminDb().collection('platform_audit_logs').doc();
     batch.set(auditRef, {
       adminId: admin.uid,
       adminEmail: admin.email,
@@ -210,7 +210,7 @@ export async function updateTenantStatus(
 
     const oldStatus = tenantSnap.data()?.status as 'active' | 'trial' | 'suspended' | undefined;
     if (oldStatus !== status) {
-      const statsRef = adminDb.collection('stats').doc('platform');
+      const statsRef = getAdminDb().collection('stats').doc('platform');
       const statsUpdate: Record<string, unknown> = {
         updatedAt: FieldValue.serverTimestamp(),
       };
@@ -260,7 +260,7 @@ export async function deleteTenant(input: DeleteTenantInput): Promise<ActionResp
   }
 
   const { tenantId } = validation.data;
-  const tenantRef = adminDb.collection('tenants').doc(tenantId);
+  const tenantRef = getAdminDb().collection('tenants').doc(tenantId);
   const tenantSnap = await tenantRef.get();
 
   if (!tenantSnap.exists) {
@@ -270,11 +270,11 @@ export async function deleteTenant(input: DeleteTenantInput): Promise<ActionResp
   const tenantData = tenantSnap.data();
 
   try {
-    const batch = adminDb.batch();
+    const batch = getAdminDb().batch();
 
     batch.delete(tenantRef);
 
-    const auditRef = adminDb.collection('platform_audit_logs').doc();
+    const auditRef = getAdminDb().collection('platform_audit_logs').doc();
     batch.set(auditRef, {
       adminId: admin.uid,
       adminEmail: admin.email,
@@ -291,7 +291,7 @@ export async function deleteTenant(input: DeleteTenantInput): Promise<ActionResp
     const oldStatus = tenantData?.status as 'active' | 'trial' | 'suspended' | undefined;
     const oldMrr = Number(tenantData?.mrr) || 0;
 
-    const statsRef = adminDb.collection('stats').doc('platform');
+    const statsRef = getAdminDb().collection('stats').doc('platform');
     const statsUpdate: Record<string, unknown> = {
       tenantsTotal: FieldValue.increment(-1),
       mrrTotal: FieldValue.increment(-oldMrr),

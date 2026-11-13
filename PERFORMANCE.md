@@ -14,6 +14,7 @@ Every platform read function in `src/server/data/*` uses Next.js 16 `'use cache'
 | **`tenants`** | Tenant accounts & subscriptions | `getTenantsPage()`, `getTenant()` | `createTenant`, `updateTenantStatus`, `deleteTenant` |
 | **`leads`** | Inbound sales pipeline & demo leads | `getLeadsPage()`, `getLead()` | `updateLeadStatus`, `convertLead` |
 | **`admins`** | Platform HQ staff directory | `getAdmins()` | Role updates, account promotions (`set-admin-claim.mjs`) |
+| **`admin:${uid}`** | Individual admin user profile | `getAdminProfileCached(uid)` | `updateAdminAvatarAction` |
 | **`audit`** | Immutable system audit log trail | `getAuditLogsPage()` | Automatically written by every mutating Server Action |
 | **`sessions`** | Active administrative sessions | `getAdminSessions()` | `revokeAdminSessionAction`, session expiry |
 | **`invoices`** | Platform invoices & quotes collection list | `getInvoicesPage()` | `saveDraftInvoice`, `issueInvoice`, `sendInvoiceAction`, `cancelInvoice`, `markPaid`, `approveSignedFile`, `rejectSignedFile` |
@@ -94,17 +95,20 @@ Firestore requires composite indexes whenever a query combines `where` filters w
 
 ---
 
-## 3. Serverless Function & Database Region Topology
+## 3. Region & Serverless Function Topology
 
-Serverless functions that communicate with Firestore benefit from executing in the Vercel data center closest to your Firestore cluster to minimize network round-trip time.
+Serverless functions that communicate with the Firebase Admin SDK benefit significantly from executing in the Vercel data center closest to your Google Cloud Firestore cluster (e.g. Frankfurt `fra1` / `europe-west3`, Doha `doh1` / `me-central1`, or Washington DC `iad1` / `us-east4`) to minimize TCP and TLS round-trip latencies during database queries.
 
-By default, `vercel.json` omits the `regions` setting to use Vercel's default or dashboard-configured function region:
+To avoid deployment misconfigurations before production verification, `vercel.json` intentionally does not hardcode a `regions` key at this stage, delegating region selection to Vercel's environment settings or project dashboard:
+
 ```json
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs"
 }
 ```
+
+Once the production Google Cloud Firestore region is confirmed in Firebase Console, set the matching Vercel region (e.g. `"regions": ["fra1"]` for Frankfurt or `"regions": ["iad1"]` for US-East) in `vercel.json` to co-locate compute and data.
 
 ---
 

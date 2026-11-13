@@ -1,7 +1,7 @@
 import 'server-only';
 
 import { cacheLife, cacheTag } from 'next/cache';
-import { adminDb } from '@/server/firebase-admin';
+import { getAdminDb } from '@/server/firebase-admin';
 import { toIsoString } from '@/server/data/utils';
 import type { SalonTenant, PaginatedResult } from '@/lib/types/platform';
 
@@ -25,7 +25,7 @@ export async function getTenantsPage({
   cacheLife('minutes');
   cacheTag('tenants');
 
-  let query: FirebaseFirestore.Query = adminDb.collection('tenants');
+  let query: FirebaseFirestore.Query = getAdminDb().collection('tenants');
 
   if (status) {
     query = query.where('status', '==', status);
@@ -34,7 +34,7 @@ export async function getTenantsPage({
   query = query.orderBy('createdAt', 'desc').limit(limit + 1);
 
   if (cursor) {
-    const cursorSnap = await adminDb.collection('tenants').doc(cursor).get();
+    const cursorSnap = await getAdminDb().collection('tenants').doc(cursor).get();
     if (cursorSnap.exists) {
       query = query.startAfter(cursorSnap);
     }
@@ -82,7 +82,7 @@ export async function getTenant(id: string): Promise<SalonTenant | null> {
   cacheLife('minutes');
   cacheTag('tenants');
 
-  const doc = await adminDb.collection('tenants').doc(id).get();
+  const doc = await getAdminDb().collection('tenants').doc(id).get();
   if (!doc.exists) {
     return null;
   }

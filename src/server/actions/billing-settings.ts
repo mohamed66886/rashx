@@ -2,7 +2,7 @@
 
 import { updateTag } from 'next/cache';
 import { FieldValue } from 'firebase-admin/firestore';
-import { adminDb } from '@/server/firebase-admin';
+import { getAdminDb } from '@/server/firebase-admin';
 import { requireAdmin } from '@/server/auth/session';
 import { purgeBillingAssetsCache } from '@/server/data/billing-settings';
 import type { PlatformBillingSettings } from '@/lib/types/platform';
@@ -30,10 +30,11 @@ export async function saveBillingSettingsAction(
   }
 
   const data = validation.data;
-  const settingsRef = adminDb.collection('platform_settings').doc('billing');
+  const db = getAdminDb();
+  const settingsRef = db.collection('platform_settings').doc('billing');
 
   try {
-    const batch = adminDb.batch();
+    const batch = db.batch();
 
     // 1. Set billing settings document
     batch.set(
@@ -65,7 +66,7 @@ export async function saveBillingSettingsAction(
     );
 
     // 2. Write Audit Log
-    const auditRef = adminDb.collection('platform_audit_logs').doc();
+    const auditRef = db.collection('platform_audit_logs').doc();
     batch.set(auditRef, {
       adminId: admin.uid || 'admin',
       adminEmail: admin.email || 'admin',

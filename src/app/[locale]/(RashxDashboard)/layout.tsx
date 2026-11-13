@@ -2,8 +2,6 @@ import React from 'react';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { LOCALES, Locale, isSupportedLocale, getDirection } from '@/i18n/config';
-import { DashboardAuthProvider } from '@/context/DashboardAuthContext';
-import { getAdmin } from '@/server/auth/session';
 
 export const instant = false;
 
@@ -54,12 +52,10 @@ export default async function DashboardRootLayout({
 
   const locale = rawLocale as Locale;
   const dir = getDirection(locale);
-  const admin = await getAdmin();
 
   return (
     <div lang={locale} dir={dir} className="min-h-screen bg-[#F8FAFB] text-[#0D1514] font-sans antialiased selection:bg-[#91B8C0]/30 selection:text-black">
-      <DashboardAuthProvider initialAdmin={admin}>{children}</DashboardAuthProvider>
+      {children}
     </div>
   );
 }
-

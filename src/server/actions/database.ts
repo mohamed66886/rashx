@@ -1,7 +1,8 @@
 'use server';
 
+import { updateTag } from 'next/cache';
 import { requireAdmin } from '@/server/auth/session';
-import { adminDb } from '@/server/firebase-admin';
+import { getAdminDb } from '@/server/firebase-admin';
 
 export async function checkDbHealthAction(): Promise<{
   success: boolean;
@@ -11,7 +12,7 @@ export async function checkDbHealthAction(): Promise<{
   await requireAdmin();
   const start = Date.now();
   try {
-    await adminDb.collection('platform_admins').limit(1).get();
+    await getAdminDb().collection('platform_admins').limit(1).get();
     const latencyMs = Date.now() - start;
     return {
       success: true,
@@ -33,7 +34,7 @@ export async function revokeAdminSessionAction(
 ): Promise<{ success: boolean; error?: string }> {
   const admin = await requireAdmin(['super_admin', 'platform_engineer']);
   try {
-    const sessionRef = adminDb.collection('admin_sessions').doc(sessionId);
+    const sessionRef = getAdminDb().collection('admin_sessions').doc(sessionId);
     await sessionRef.set(
       {
         isActive: false,
@@ -42,6 +43,7 @@ export async function revokeAdminSessionAction(
       },
       { merge: true }
     );
+    updateTag('sessions');
     return { success: true };
   } catch (err: unknown) {
     const error = err instanceof Error ? err : new Error(String(err));

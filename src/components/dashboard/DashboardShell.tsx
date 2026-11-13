@@ -25,9 +25,15 @@ interface DashboardShellProps {
   admin: AdminUser;
   locale: string;
   uploadedInvoicesCount?: number;
+  invoicesBadge?: React.ReactNode;
 }
 
-export function DashboardShell({ children, locale, uploadedInvoicesCount }: DashboardShellProps) {
+export function DashboardShell({
+  children,
+  locale,
+  uploadedInvoicesCount,
+  invoicesBadge,
+}: DashboardShellProps) {
   const { logout } = useDashboardAuth();
   const isAr = locale === 'ar';
 
@@ -55,6 +61,7 @@ export function DashboardShell({ children, locale, uploadedInvoicesCount }: Dash
         <DesktopSidebar
           onLogoutRequest={() => setShowLogoutConfirm(true)}
           uploadedInvoicesCount={uploadedInvoicesCount}
+          invoicesBadge={invoicesBadge}
         />
         <MobileSidebar
           isOpen={mobileMenuOpen}
@@ -63,6 +70,7 @@ export function DashboardShell({ children, locale, uploadedInvoicesCount }: Dash
           onToggle={() => setMobileMenuOpen((open) => !open)}
           onLogoutRequest={() => setShowLogoutConfirm(true)}
           uploadedInvoicesCount={uploadedInvoicesCount}
+          invoicesBadge={invoicesBadge}
         />
 
         {/* Main container */}

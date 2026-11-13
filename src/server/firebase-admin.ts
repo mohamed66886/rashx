@@ -5,14 +5,30 @@ import { getAuth, type Auth } from 'firebase-admin/auth';
 import { getFirestore, type Firestore } from 'firebase-admin/firestore';
 import { getStorage, type Storage } from 'firebase-admin/storage';
 
-function formatPrivateKey(key?: string): string | undefined {
+export function formatPrivateKey(key?: string): string | undefined {
   if (!key) return undefined;
-  return key.replace(/\\n/g, '\n');
+  let formatted = key.trim();
+  while (
+    (formatted.startsWith('"') && formatted.endsWith('"')) ||
+    (formatted.startsWith("'") && formatted.endsWith("'"))
+  ) {
+    formatted = formatted.slice(1, -1).trim();
+  }
+  return formatted.replace(/\r/g, '').replace(/\\n/g, '\n');
 }
 
-function getFirebaseAdminApp(): App {
+let adminAppInstance: App | null = null;
+let adminAuthInstance: Auth | null = null;
+let adminDbInstance: Firestore | null = null;
+let adminStorageInstance: Storage | null = null;
+
+export function getAdminApp(): App {
+  if (adminAppInstance) {
+    return adminAppInstance;
+  }
   if (getApps().length > 0) {
-    return getApp();
+    adminAppInstance = getApp();
+    return adminAppInstance;
   }
 
   const projectId = process.env.FIREBASE_PROJECT_ID;
@@ -20,7 +36,7 @@ function getFirebaseAdminApp(): App {
   const privateKey = formatPrivateKey(process.env.FIREBASE_PRIVATE_KEY);
 
   if (projectId && clientEmail && privateKey) {
-    return initializeApp({
+    adminAppInstance = initializeApp({
       credential: cert({
         projectId,
         clientEmail,
@@ -28,35 +44,46 @@ function getFirebaseAdminApp(): App {
       }),
       projectId,
     });
+    return adminAppInstance;
   }
 
-  const isProduction = process.env.NODE_ENV === 'production';
-  const isBuildPhase = process.env.NEXT_PHASE === 'phase-production-build';
+  const missing: string[] = [];
+  if (!projectId) missing.push('FIREBASE_PROJECT_ID');
+  if (!clientEmail) missing.push('FIREBASE_CLIENT_EMAIL');
+  if (!privateKey) missing.push('FIREBASE_PRIVATE_KEY');
 
-  if (isProduction && !isBuildPhase) {
-    const missing: string[] = [];
-    if (!projectId) missing.push('FIREBASE_PROJECT_ID');
-    if (!clientEmail) missing.push('FIREBASE_CLIENT_EMAIL');
-    if (!privateKey) missing.push('FIREBASE_PRIVATE_KEY');
-    throw new Error(
-      `[Firebase Admin] Missing required credentials in production: ${missing.join(', ')}. Configure FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY in your environment.`
-    );
-  }
-
-  return initializeApp(projectId ? { projectId } : {});
+  throw new Error(
+    `[Firebase Admin] Missing required credentials: ${missing.join(', ')}. Configure FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY in your environment.`
+  );
 }
 
-const adminApp = getFirebaseAdminApp();
-export const adminAuth: Auth = getAuth(adminApp);
-export const adminDb: Firestore = getFirestore(adminApp);
-export const adminStorage: Storage = getStorage(adminApp);
+export function getAdminAuth(): Auth {
+  if (!adminAuthInstance) {
+    adminAuthInstance = getAuth(getAdminApp());
+  }
+  return adminAuthInstance;
+}
+
+export function getAdminDb(): Firestore {
+  if (!adminDbInstance) {
+    adminDbInstance = getFirestore(getAdminApp());
+  }
+  return adminDbInstance;
+}
+
+export function getAdminStorage(): Storage {
+  if (!adminStorageInstance) {
+    adminStorageInstance = getStorage(getAdminApp());
+  }
+  return adminStorageInstance;
+}
 
 export function getAdminStorageBucket() {
   const bucketName =
     process.env.FIREBASE_STORAGE_BUCKET ||
     process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ||
     (process.env.FIREBASE_PROJECT_ID ? `${process.env.FIREBASE_PROJECT_ID}.firebasestorage.app` : undefined);
-  return adminStorage.bucket(bucketName);
+  return getAdminStorage().bucket(bucketName);
 }
 
-export { adminApp };
+export type { App, Auth, Firestore, Storage };

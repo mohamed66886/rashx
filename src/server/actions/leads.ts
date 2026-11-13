@@ -3,7 +3,7 @@
 import { updateTag } from 'next/cache';
 import { FieldValue } from 'firebase-admin/firestore';
 import { z } from 'zod';
-import { adminDb } from '@/server/firebase-admin';
+import { getAdminDb } from '@/server/firebase-admin';
 import { requireAdmin } from '@/server/auth/session';
 import type { ActionResponse } from './tenants';
 import type { LeadStatus } from '@/lib/types/platform';
@@ -48,7 +48,7 @@ export async function updateLeadStatus(
   }
 
   const { leadId, status } = validation.data;
-  const leadRef = adminDb.collection('leads').doc(leadId);
+  const leadRef = getAdminDb().collection('leads').doc(leadId);
   const leadSnap = await leadRef.get();
 
   if (!leadSnap.exists) {
@@ -56,14 +56,14 @@ export async function updateLeadStatus(
   }
 
   try {
-    const batch = adminDb.batch();
+    const batch = getAdminDb().batch();
 
     batch.update(leadRef, {
       status,
       updatedAt: FieldValue.serverTimestamp(),
     });
 
-    const auditRef = adminDb.collection('platform_audit_logs').doc();
+    const auditRef = getAdminDb().collection('platform_audit_logs').doc();
     batch.set(auditRef, {
       adminId: admin.uid,
       adminEmail: admin.email,
@@ -78,7 +78,7 @@ export async function updateLeadStatus(
 
     const oldStatus = leadSnap.data()?.status as LeadStatus | undefined;
     if (oldStatus !== status) {
-      const statsRef = adminDb.collection('stats').doc('platform');
+      const statsRef = getAdminDb().collection('stats').doc('platform');
       const statsUpdate: Record<string, unknown> = {
         updatedAt: FieldValue.serverTimestamp(),
       };
@@ -128,7 +128,7 @@ export async function convertLead(
   }
 
   const { leadId, subdomain, plan, mrr, city } = validation.data;
-  const leadRef = adminDb.collection('leads').doc(leadId);
+  const leadRef = getAdminDb().collection('leads').doc(leadId);
   const leadSnap = await leadRef.get();
 
   if (!leadSnap.exists) {
@@ -142,7 +142,7 @@ export async function convertLead(
 
   const cleanSubdomain = subdomain.toLowerCase();
   const tenantId = `tnt_${cleanSubdomain}`;
-  const tenantRef = adminDb.collection('tenants').doc(tenantId);
+  const tenantRef = getAdminDb().collection('tenants').doc(tenantId);
 
   // 1. Uniqueness check for target subdomain
   const existingDoc = await tenantRef.get();
@@ -153,7 +153,7 @@ export async function convertLead(
     };
   }
 
-  const existingQuery = await adminDb
+  const existingQuery = await getAdminDb()
     .collection('tenants')
     .where('subdomain', '==', cleanSubdomain)
     .limit(1)
@@ -168,7 +168,7 @@ export async function convertLead(
 
   try {
     // 2. Atomic WriteBatch: Tenant Creation + Lead Conversion + Audit Log + Stats Hook
-    const batch = adminDb.batch();
+    const batch = getAdminDb().batch();
 
     // Mark Lead converted
     batch.update(leadRef, {
@@ -197,7 +197,7 @@ export async function convertLead(
     });
 
     // Record Audit
-    const auditRef = adminDb.collection('platform_audit_logs').doc();
+    const auditRef = getAdminDb().collection('platform_audit_logs').doc();
     batch.set(auditRef, {
       adminId: admin.uid,
       adminEmail: admin.email,
@@ -215,7 +215,7 @@ export async function convertLead(
     });
 
     const oldLeadStatus = leadData?.status as LeadStatus | undefined;
-    const statsRef = adminDb.collection('stats').doc('platform');
+    const statsRef = getAdminDb().collection('stats').doc('platform');
     const statsUpdate: Record<string, unknown> = {
       tenantsTotal: FieldValue.increment(1),
       tenantsActive: FieldValue.increment(1),

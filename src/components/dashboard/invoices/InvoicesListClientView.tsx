@@ -3,6 +3,7 @@
 import React, { useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { useDashboardHref } from '@/lib/dashboard-links';
 import {
   FileText,
   Plus,
@@ -55,6 +56,7 @@ export function InvoicesListClientView({
   currentQuery = '',
 }: InvoicesListClientViewProps) {
   const router = useRouter();
+  const dHref = useDashboardHref();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -193,7 +195,7 @@ export function InvoicesListClientView({
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            <Link href="/dashboard/invoices/new">
+            <Link href={dHref('/invoices/new')}>
               <Button
                 variant="primary"
                 className="gap-2 bg-[#F0C5AE] hover:bg-[#e4b59c] text-black font-bold shadow-md text-xs sm:text-sm px-5 py-2.5 rounded-xl transition-transform active:scale-95"
@@ -395,7 +397,7 @@ export function InvoicesListClientView({
             <p className="text-xs text-[#5E6665] max-w-sm mx-auto mb-4">
               لم نتمكن من العثور على أي سجلات فوترة بالحالة أو معايير البحث المحددة.
             </p>
-            <Link href="/dashboard/invoices/new">
+            <Link href={dHref('/invoices/new')}>
               <Button variant="primary" className="text-xs gap-1.5 bg-[#29545c]">
                 <Plus className="w-3.5 h-3.5" />
                 <span>إنشاء عقد جديد الآن</span>
@@ -424,7 +426,7 @@ export function InvoicesListClientView({
                   return (
                     <tr
                       key={inv.id}
-                      onClick={() => router.push(`/dashboard/invoices/${inv.id}`)}
+                      onClick={() => router.push(dHref(`/invoices/${inv.id}`))}
                       className="hover:bg-neutral-50/80 transition-colors cursor-pointer group"
                     >
                       {/* Number */}

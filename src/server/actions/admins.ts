@@ -3,7 +3,7 @@
 import { updateTag } from 'next/cache';
 import { FieldValue } from 'firebase-admin/firestore';
 import { z } from 'zod';
-import { adminDb, adminAuth } from '@/server/firebase-admin';
+import { getAdminDb, getAdminAuth } from '@/server/firebase-admin';
 import { requireAdmin } from '@/server/auth/session';
 
 const updateAdminAvatarSchema = z.object({
@@ -42,13 +42,15 @@ export async function updateAdminAvatarAction(
   const avatarUrl = customUrl?.trim() || `/avatars/animoji-${avatarId}.webp`;
 
   try {
+    const db = getAdminDb();
+
     // 1. Locate the admin record in Firestore
-    const adminRef = adminDb.collection('platform_admins').doc(admin.uid);
+    const adminRef = db.collection('platform_admins').doc(admin.uid);
     const docSnap = await adminRef.get();
     let targetRef = adminRef;
 
     if (!docSnap.exists) {
-      const querySnap = await adminDb
+      const querySnap = await db
         .collection('platform_admins')
         .where('email', '==', admin.email)
         .limit(1)
@@ -60,7 +62,7 @@ export async function updateAdminAvatarAction(
     }
 
     // 2. Atomic WriteBatch: Update Admin Record + Audit Log
-    const batch = adminDb.batch();
+    const batch = db.batch();
 
     batch.set(
       targetRef,
@@ -76,7 +78,7 @@ export async function updateAdminAvatarAction(
       { merge: true }
     );
 
-    const auditRef = adminDb.collection('platform_audit_logs').doc();
+    const auditRef = db.collection('platform_audit_logs').doc();
     batch.set(auditRef, {
       adminId: admin.uid,
       adminEmail: admin.email,
@@ -94,8 +96,9 @@ export async function updateAdminAvatarAction(
 
     // 3. Update Firebase Auth Custom Claims for instant token session synchronization
     try {
-      const userRecord = await adminAuth.getUser(admin.uid);
-      await adminAuth.setCustomUserClaims(admin.uid, {
+      const auth = getAdminAuth();
+      const userRecord = await auth.getUser(admin.uid);
+      await auth.setCustomUserClaims(admin.uid, {
         ...(userRecord.customClaims || {}),
         avatarId,
         picture: avatarUrl,
@@ -104,8 +107,9 @@ export async function updateAdminAvatarAction(
       console.warn('[updateAdminAvatarAction] Notice: Custom claims update bypassed:', claimErr);
     }
 
-    // 4. Invalidate server cache tag
+    // 4. Invalidate server cache tags
     updateTag('admins');
+    updateTag(`admin:${admin.uid}`);
 
     return {
       success: true,

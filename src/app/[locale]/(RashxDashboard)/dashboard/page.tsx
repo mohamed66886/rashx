@@ -32,7 +32,6 @@ import {
 } from '@/components/ui';
 import { OverviewRefreshButton } from '@/components/dashboard/overview/OverviewRefreshButton';
 
-export const instant = false;
 
 /**
  * Platform overview — simplified.

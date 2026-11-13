@@ -1,7 +1,7 @@
 import 'server-only';
 
 import { cacheLife, cacheTag } from 'next/cache';
-import { adminDb } from '@/server/firebase-admin';
+import { getAdminDb } from '@/server/firebase-admin';
 import { toIsoString } from '@/server/data/utils';
 import type { ContractClause } from '@/lib/types/billing';
 
@@ -16,7 +16,7 @@ export async function getClauses(includeInactive = false): Promise<ContractClaus
   cacheLife('hours');
   cacheTag('contract-clauses');
 
-  let query: FirebaseFirestore.Query = adminDb.collection('contract_clauses');
+  let query: FirebaseFirestore.Query = getAdminDb().collection('contract_clauses');
 
   if (!includeInactive) {
     query = query.where('active', '==', true);
@@ -51,7 +51,7 @@ export async function getClauseById(id: string): Promise<ContractClause | null> 
   cacheLife('hours');
   cacheTag('contract-clauses');
 
-  const doc = await adminDb.collection('contract_clauses').doc(id).get();
+  const doc = await getAdminDb().collection('contract_clauses').doc(id).get();
   if (!doc.exists) return null;
 
   const data = doc.data()!;

@@ -1,7 +1,7 @@
 import 'server-only';
 
 import { FieldValue } from 'firebase-admin/firestore';
-import { adminDb } from '@/server/firebase-admin';
+import { getAdminDb } from '@/server/firebase-admin';
 
 /**
  * Generates the next sequential invoice or quote number using an atomic Firestore transaction.
@@ -18,9 +18,9 @@ export async function nextInvoiceNumber(
   prefix: string = 'INV',
   year: number = new Date().getFullYear()
 ): Promise<string> {
-  const counterRef = adminDb.collection('counters').doc(`invoices-${year}`);
+  const counterRef = getAdminDb().collection('counters').doc(`invoices-${year}`);
 
-  const nextCount = await adminDb.runTransaction(async (transaction) => {
+  const nextCount = await getAdminDb().runTransaction(async (transaction) => {
     const doc = await transaction.get(counterRef);
     let currentNumber = 0;
 

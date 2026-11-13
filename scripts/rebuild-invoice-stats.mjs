@@ -24,11 +24,19 @@ if (fs.existsSync(envPath) && typeof process.loadEnvFile === 'function') {
 
 const projectId = process.env.FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'aya2-a5057';
 const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-let privateKey = process.env.FIREBASE_PRIVATE_KEY;
-
-if (privateKey && privateKey.includes('\\n')) {
-  privateKey = privateKey.replace(/\\n/g, '\n');
+function formatPrivateKey(key) {
+  if (!key) return undefined;
+  let formatted = key.trim();
+  while (
+    (formatted.startsWith('"') && formatted.endsWith('"')) ||
+    (formatted.startsWith("'") && formatted.endsWith("'"))
+  ) {
+    formatted = formatted.slice(1, -1).trim();
+  }
+  return formatted.replace(/\r/g, '').replace(/\\n/g, '\n');
 }
+
+const privateKey = formatPrivateKey(process.env.FIREBASE_PRIVATE_KEY);
 
 if (!getApps().length) {
   if (clientEmail && privateKey) {

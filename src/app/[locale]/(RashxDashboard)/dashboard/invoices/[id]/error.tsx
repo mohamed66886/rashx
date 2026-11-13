@@ -4,6 +4,7 @@ import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { AlertTriangle, RefreshCw, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { useDashboardHref } from '@/lib/dashboard-links';
 
 export default function InvoiceDetailsError({
   error,
@@ -12,6 +13,7 @@ export default function InvoiceDetailsError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const dHref = useDashboardHref();
   useEffect(() => {
     console.error('[Invoice Details Error]:', error);
   }, [error]);
@@ -36,7 +38,7 @@ export default function InvoiceDetailsError({
           <RefreshCw className="w-3.5 h-3.5" />
           <span>إعادة المحاولة</span>
         </Button>
-        <Link href="/dashboard/invoices">
+        <Link href={dHref('/invoices')}>
           <Button variant="outline" className="text-xs gap-1.5">
             <ArrowRight className="w-3.5 h-3.5" />
             <span>العودة للفواتير</span>

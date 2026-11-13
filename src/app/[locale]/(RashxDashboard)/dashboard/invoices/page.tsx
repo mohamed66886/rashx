@@ -4,7 +4,6 @@ import { getInvoicesPage, getInvoiceStats } from '@/server/data/invoices';
 import { InvoicesListClientView } from '@/components/dashboard/invoices/InvoicesListClientView';
 import type { InvoiceStatus } from '@/lib/types/billing';
 
-export const instant = false;
 
 interface InvoicesPageProps {
   searchParams: Promise<{

@@ -24,7 +24,7 @@ export async function loginAction(
   }
 }
 
-export async function logoutAction(): Promise<{ success: boolean }> {
+export async function logoutAction(locale: string = 'ar'): Promise<{ success: boolean }> {
   await destroySession();
-  redirect('/ar/dashboard/login');
+  redirect(`/${locale}/dashboard/login`);
 }

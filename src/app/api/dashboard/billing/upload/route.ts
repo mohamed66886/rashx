@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import sharp from 'sharp';
 import { FieldValue } from 'firebase-admin/firestore';
 import { updateTag } from 'next/cache';
-import { adminDb, getAdminStorageBucket } from '@/server/firebase-admin';
+import { getAdminDb, getAdminStorageBucket } from '@/server/firebase-admin';
 import { getAdmin } from '@/server/auth/session';
 import { purgeBillingAssetsCache } from '@/server/data/billing-settings';
 
@@ -120,8 +120,9 @@ export async function POST(req: NextRequest) {
     });
 
     // Update Firestore platform_settings/billing doc & write audit log
-    const batch = adminDb.batch();
-    const settingsRef = adminDb.collection('platform_settings').doc('billing');
+    const db = getAdminDb();
+    const batch = db.batch();
+    const settingsRef = db.collection('platform_settings').doc('billing');
     const updateField =
       assetType === 'signature'
         ? { signaturePath: destinationPath }
@@ -138,7 +139,7 @@ export async function POST(req: NextRequest) {
       { merge: true }
     );
 
-    const auditRef = adminDb.collection('platform_audit_logs').doc();
+    const auditRef = db.collection('platform_audit_logs').doc();
     batch.set(auditRef, {
       adminId: admin.uid,
       adminEmail: admin.email,

@@ -79,7 +79,19 @@ if (!projectId || !clientEmail || !rawPrivateKey) {
   process.exit(1);
 }
 
-const privateKey = rawPrivateKey.replace(/\\n/g, '\n');
+function formatPrivateKey(key) {
+  if (!key) return undefined;
+  let formatted = key.trim();
+  while (
+    (formatted.startsWith('"') && formatted.endsWith('"')) ||
+    (formatted.startsWith("'") && formatted.endsWith("'"))
+  ) {
+    formatted = formatted.slice(1, -1).trim();
+  }
+  return formatted.replace(/\r/g, '').replace(/\\n/g, '\n');
+}
+
+const privateKey = formatPrivateKey(rawPrivateKey);
 
 try {
   if (getApps().length === 0) {

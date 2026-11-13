@@ -1,7 +1,7 @@
 import 'server-only';
 
 import { cacheLife, cacheTag } from 'next/cache';
-import { adminDb } from '@/server/firebase-admin';
+import { getAdminDb } from '@/server/firebase-admin';
 import { toIsoString } from '@/server/data/utils';
 import type {
   PlatformInvoice,
@@ -35,7 +35,7 @@ export async function getInvoicesPage({
   cacheLife('minutes');
   cacheTag('invoices');
 
-  let query: FirebaseFirestore.Query = adminDb.collection('platform_invoices');
+  let query: FirebaseFirestore.Query = getAdminDb().collection('platform_invoices');
 
   // Filter by status if requested
   if (status) {
@@ -60,7 +60,7 @@ export async function getInvoicesPage({
   );
 
   if (cursor) {
-    const cursorSnap = await adminDb.collection('platform_invoices').doc(cursor).get();
+    const cursorSnap = await getAdminDb().collection('platform_invoices').doc(cursor).get();
     if (cursorSnap.exists) {
       query = query.startAfter(cursorSnap);
     }
@@ -141,7 +141,7 @@ export async function getInvoice(id: string): Promise<PlatformInvoice | null> {
   cacheLife('hours');
   cacheTag('invoices', `invoice:${id}`);
 
-  const doc = await adminDb.collection('platform_invoices').doc(id).get();
+  const doc = await getAdminDb().collection('platform_invoices').doc(id).get();
   if (!doc.exists) {
     return null;
   }
@@ -255,7 +255,7 @@ export async function getInvoiceStats(): Promise<InvoiceStats> {
   cacheLife('minutes');
   cacheTag('invoices', 'invoice-stats');
 
-  const doc = await adminDb.collection('stats').doc('invoices').get();
+  const doc = await getAdminDb().collection('stats').doc('invoices').get();
   if (!doc.exists) {
     return {
       totalCount: 0,
@@ -337,7 +337,7 @@ export async function getInvoiceEvents(id: string): Promise<InvoiceEvent[]> {
 
   let snapshot: FirebaseFirestore.QuerySnapshot;
   try {
-    snapshot = await adminDb
+    snapshot = await getAdminDb()
       .collection('platform_invoices')
       .doc(id)
       .collection('events')
@@ -345,7 +345,7 @@ export async function getInvoiceEvents(id: string): Promise<InvoiceEvent[]> {
       .get();
   } catch (err) {
     console.warn(`[getInvoiceEvents] orderBy('at', 'asc') failed for invoice ${id}, falling back:`, err);
-    snapshot = await adminDb
+    snapshot = await getAdminDb()
       .collection('platform_invoices')
       .doc(id)
       .collection('events')

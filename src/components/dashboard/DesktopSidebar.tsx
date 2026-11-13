@@ -12,6 +12,7 @@ import { getPlatformNavItems } from './nav-data';
 interface DesktopSidebarProps {
   onLogoutRequest: () => void;
   uploadedInvoicesCount?: number;
+  invoicesBadge?: React.ReactNode;
 }
 
 /**
@@ -20,7 +21,11 @@ interface DesktopSidebarProps {
  * Removed: version tag, database/session box, fake "Live" green badges,
  * staggered entrance animation, red sign-out button.
  */
-export function DesktopSidebar({ onLogoutRequest, uploadedInvoicesCount }: DesktopSidebarProps) {
+export function DesktopSidebar({
+  onLogoutRequest,
+  uploadedInvoicesCount,
+  invoicesBadge,
+}: DesktopSidebarProps) {
   const { admin, openAvatarPicker } = useDashboardAuth();
   const pathname = usePathname();
   const params = useParams();
@@ -74,7 +79,9 @@ export function DesktopSidebar({ onLogoutRequest, uploadedInvoicesCount }: Deskt
                 <span className="truncate">{isAr ? item.title : item.titleEn}</span>
               </span>
 
-              {item.badge && (
+              {item.href.endsWith('/dashboard/invoices') && invoicesBadge !== undefined ? (
+                invoicesBadge
+              ) : item.badge ? (
                 <span
                   className={`shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-bold text-ink ${
                     isActive ? 'bg-base' : 'bg-warm-peach'
@@ -82,7 +89,7 @@ export function DesktopSidebar({ onLogoutRequest, uploadedInvoicesCount }: Deskt
                 >
                   {item.badge}
                 </span>
-              )}
+              ) : null}
             </Link>
           );
         })}

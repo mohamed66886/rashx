@@ -99,7 +99,6 @@ export function PlatformAdminLoginClient({ locale }: PlatformAdminLoginClientPro
 
       // 3. Go to the dashboard
       router.replace(`/${locale}/dashboard`);
-      router.refresh();
     } catch (err: unknown) {
       console.error('[Admin Login Error]:', err);
       let msg = isAr
