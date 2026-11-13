@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import {
   Users,
   ShieldCheck,
@@ -7,9 +7,9 @@ import {
 } from 'lucide-react';
 import { getAdmins } from '@/server/data/admins';
 import { requireAdmin } from '@/server/auth/session';
+import AdminsLoading from './loading';
 
-
-export default async function AdminsManagementPage() {
+async function AdminsContent() {
   await requireAdmin(['super_admin', 'platform_engineer']);
   const admins = await getAdmins();
 
@@ -87,5 +87,13 @@ export default async function AdminsManagementPage() {
         ))}
       </div>
     </div>
+  );
+}
+
+export default function AdminsManagementPage() {
+  return (
+    <Suspense fallback={<AdminsLoading />}>
+      <AdminsContent />
+    </Suspense>
   );
 }

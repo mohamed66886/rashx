@@ -1,13 +1,13 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { requireAdmin } from '@/server/auth/session';
 import { getAdmins } from '@/server/data/admins';
 import { getTenantsPage } from '@/server/data/tenants';
 import { getAuditLogsPage } from '@/server/data/audit';
 import { getAdminSessions } from '@/server/data/sessions';
 import { DatabaseClientView } from '@/components/dashboard/database/DatabaseClientView';
+import DatabaseLoading from './loading';
 
-
-export default async function PlatformDatabaseInspectorPage() {
+async function DatabaseContent() {
   await requireAdmin(['super_admin', 'platform_engineer']);
 
   const [sessions, tenantsData, admins, auditData] = await Promise.all([
@@ -25,5 +25,13 @@ export default async function PlatformDatabaseInspectorPage() {
       initialAuditLogs={auditData.items}
       projectId={process.env.FIREBASE_PROJECT_ID || ''}
     />
+  );
+}
+
+export default function PlatformDatabaseInspectorPage() {
+  return (
+    <Suspense fallback={<DatabaseLoading />}>
+      <DatabaseContent />
+    </Suspense>
   );
 }

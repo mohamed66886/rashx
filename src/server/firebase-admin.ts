@@ -67,6 +67,9 @@ export function getAdminAuth(): Auth {
 export function getAdminDb(): Firestore {
   if (!adminDbInstance) {
     adminDbInstance = getFirestore(getAdminApp());
+    if (process.env.FIRESTORE_PREFER_REST === 'true') {
+      adminDbInstance.settings({ preferRest: true });
+    }
   }
   return adminDbInstance;
 }

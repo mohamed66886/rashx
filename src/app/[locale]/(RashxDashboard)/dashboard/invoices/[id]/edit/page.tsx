@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { notFound, redirect } from 'next/navigation';
 import { requireAdmin } from '@/server/auth/session';
 import { getInvoice } from '@/server/data/invoices';
 import { getBillingSettings, toBillingSettings } from '@/server/data/billing-settings';
 import { getClauses } from '@/server/data/clauses';
 import { InvoiceEditorClientView } from '@/components/dashboard/invoices/InvoiceEditorClientView';
-
+import EditInvoiceLoading from './loading';
 
 interface EditInvoicePageProps {
   params: Promise<{
@@ -14,7 +14,7 @@ interface EditInvoicePageProps {
   }>;
 }
 
-export default async function EditInvoicePage({ params }: EditInvoicePageProps) {
+async function EditInvoiceContent({ params }: EditInvoicePageProps) {
   const { locale, id } = await params;
   await requireAdmin(['super_admin', 'platform_engineer', 'sales_director'], { locale });
 
@@ -46,3 +46,10 @@ export default async function EditInvoicePage({ params }: EditInvoicePageProps) 
   );
 }
 
+export default function EditInvoicePage({ params }: EditInvoicePageProps) {
+  return (
+    <Suspense fallback={<EditInvoiceLoading />}>
+      <EditInvoiceContent params={params} />
+    </Suspense>
+  );
+}

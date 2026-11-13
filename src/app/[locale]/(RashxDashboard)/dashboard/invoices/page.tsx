@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { requireAdmin } from '@/server/auth/session';
 import { getInvoicesPage, getInvoiceStats } from '@/server/data/invoices';
 import { InvoicesListClientView } from '@/components/dashboard/invoices/InvoicesListClientView';
 import type { InvoiceStatus } from '@/lib/types/billing';
-
+import InvoicesLoading from './loading';
 
 interface InvoicesPageProps {
   searchParams: Promise<{
@@ -23,7 +23,7 @@ const VALID_STATUSES = new Set<string>([
   'cancelled',
 ]);
 
-export default async function InvoicesPage({ searchParams }: InvoicesPageProps) {
+async function InvoicesContent({ searchParams }: InvoicesPageProps) {
   await requireAdmin(['super_admin', 'platform_engineer', 'sales_director']);
 
   const resolvedParams = await searchParams;
@@ -52,5 +52,13 @@ export default async function InvoicesPage({ searchParams }: InvoicesPageProps) 
       currentStatus={statusParam || 'all'}
       currentQuery={qParam || ''}
     />
+  );
+}
+
+export default function InvoicesPage({ searchParams }: InvoicesPageProps) {
+  return (
+    <Suspense fallback={<InvoicesLoading />}>
+      <InvoicesContent searchParams={searchParams} />
+    </Suspense>
   );
 }

@@ -1,13 +1,13 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import {
   CreditCard,
   CheckCircle2,
 } from 'lucide-react';
 import { getTenantsPage } from '@/server/data/tenants';
 import { requireAdmin } from '@/server/auth/session';
+import SubscriptionsLoading from './loading';
 
-
-export default async function SubscriptionsPage() {
+async function SubscriptionsContent() {
   await requireAdmin(['super_admin', 'platform_engineer', 'sales_director']);
   const tenantsData = await getTenantsPage({ limit: 100 });
   const tenants = tenantsData.items;
@@ -124,5 +124,13 @@ export default async function SubscriptionsPage() {
         ))}
       </div>
     </div>
+  );
+}
+
+export default function SubscriptionsPage() {
+  return (
+    <Suspense fallback={<SubscriptionsLoading />}>
+      <SubscriptionsContent />
+    </Suspense>
   );
 }

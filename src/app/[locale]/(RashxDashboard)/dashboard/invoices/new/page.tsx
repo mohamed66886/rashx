@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { requireAdmin } from '@/server/auth/session';
 import { getBillingSettings, toBillingSettings } from '@/server/data/billing-settings';
 import { getClauses } from '@/server/data/clauses';
 import { InvoiceEditorClientView } from '@/components/dashboard/invoices/InvoiceEditorClientView';
+import NewInvoiceLoading from './loading';
 
-
-export default async function NewInvoicePage() {
+async function NewInvoiceContent() {
   await requireAdmin(['super_admin', 'platform_engineer', 'sales_director']);
 
   const [rawBilling, clauses] = await Promise.all([
@@ -24,3 +24,10 @@ export default async function NewInvoicePage() {
   );
 }
 
+export default function NewInvoicePage() {
+  return (
+    <Suspense fallback={<NewInvoiceLoading />}>
+      <NewInvoiceContent />
+    </Suspense>
+  );
+}
