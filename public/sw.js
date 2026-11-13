@@ -5,7 +5,7 @@
  * Caches core shell assets, provides offline tolerance, and enables fast launch.
  */
 
-const CACHE_NAME = 'rashx-hq-cache-v1';
+const CACHE_NAME = 'rashx-hq-cache-v2';
 const STATIC_ASSETS = [
   '/manifest.json',
   '/icon-192.png',
@@ -42,13 +42,35 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   const request = event.request;
+  const url = new URL(request.url);
 
-  // Don't intercept API routes or non-GET requests
-  if (request.method !== 'GET' || request.url.includes('/api/')) {
+  // Bypass service worker completely in local development
+  if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
     return;
   }
 
-  // Network-first strategy for navigation requests (HTML pages)
+  // Never intercept non-GET, API routes, internal Next.js HMR, or dashboard routes
+  if (
+    request.method !== 'GET' ||
+    url.pathname.startsWith('/api/') ||
+    url.pathname.includes('/dashboard') ||
+    url.pathname.includes('/_next/webpack') ||
+    url.pathname.includes('_next/hmr')
+  ) {
+    return;
+  }
+
+  // Never intercept React Server Component (RSC) Flight streams
+  if (
+    url.searchParams.has('_rsc') ||
+    request.headers.get('RSC') === '1' ||
+    request.headers.has('Next-Router-State-Tree') ||
+    request.headers.has('Next-Url')
+  ) {
+    return;
+  }
+
+  // Network-first strategy for marketing/public navigation requests
   if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request)
@@ -63,30 +85,35 @@ self.addEventListener('fetch', (event) => {
         })
         .catch(() => {
           return caches.match(request).then((cachedResponse) => {
-            return cachedResponse || caches.match('/ar/dashboard');
+            return cachedResponse || caches.match('/');
           });
         })
     );
     return;
   }
 
-  // Stale-while-revalidate for static assets
-  event.respondWith(
-    caches.match(request).then((cachedResponse) => {
-      const fetchPromise = fetch(request)
-        .then((networkResponse) => {
-          if (networkResponse && networkResponse.status === 200) {
-            const responseClone = networkResponse.clone();
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(request, responseClone);
-            });
-          }
-          return networkResponse;
-        })
-        .catch(() => cachedResponse);
+  // Stale-while-revalidate for static assets only
+  if (
+    url.pathname.startsWith('/_next/static/') ||
+    STATIC_ASSETS.includes(url.pathname)
+  ) {
+    event.respondWith(
+      caches.match(request).then((cachedResponse) => {
+        const fetchPromise = fetch(request)
+          .then((networkResponse) => {
+            if (networkResponse && networkResponse.status === 200) {
+              const responseClone = networkResponse.clone();
+              caches.open(CACHE_NAME).then((cache) => {
+                cache.put(request, responseClone).catch(() => {});
+              });
+            }
+            return networkResponse;
+          })
+          .catch(() => cachedResponse);
 
-      return cachedResponse || fetchPromise;
-    })
-  );
+        return cachedResponse || fetchPromise;
+      })
+    );
+  }
 });
 

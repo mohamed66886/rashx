@@ -7,6 +7,8 @@ export const metadata: Metadata = {
   description: 'بوابة تسجيل دخول مسؤولي ومشرفي منصة راش إكس المركزية السحابية',
 };
 
+export const instant = false;
+
 interface PlatformAdminLoginPageProps {
   params: Promise<{ locale: string }>;
 }
