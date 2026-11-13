@@ -64,11 +64,57 @@ export function getAdminAuth(): Auth {
   return adminAuthInstance;
 }
 
+let code14HintLogged = false;
+
+/**
+ * Development-only helper: when FIRESTORE_PREFER_REST is not set and a read
+ * fails with code 14, logs one console hint:
+ * "Set FIRESTORE_PREFER_REST=true in .env.local and restart the dev server"
+ */
+export function handleFirestoreDevError(err: unknown) {
+  if (process.env.NODE_ENV !== 'production' && !process.env.FIRESTORE_PREFER_REST) {
+    const error = err as { code?: number | string; message?: string };
+    if (
+      (error?.code === 14 || error?.code === '14' || String(error?.message).includes('14 UNAVAILABLE')) &&
+      !code14HintLogged
+    ) {
+      code14HintLogged = true;
+      console.warn('\n[Firestore Hint] Set FIRESTORE_PREFER_REST=true in .env.local and restart the dev server.\n');
+    }
+  }
+}
+
 export function getAdminDb(): Firestore {
   if (!adminDbInstance) {
     adminDbInstance = getFirestore(getAdminApp());
     if (process.env.FIRESTORE_PREFER_REST === 'true') {
       adminDbInstance.settings({ preferRest: true });
+    } else if (process.env.NODE_ENV !== 'production') {
+      const dbAny = adminDbInstance as unknown as {
+        request?: (...args: unknown[]) => Promise<unknown>;
+        requestStream?: (...args: unknown[]) => { on: (event: string, handler: (err: unknown) => void) => void };
+      };
+      if (typeof dbAny.request === 'function') {
+        const origRequest = dbAny.request.bind(adminDbInstance);
+        dbAny.request = function (...args: unknown[]) {
+          return origRequest(...args).catch((err: unknown) => {
+            handleFirestoreDevError(err);
+            throw err;
+          });
+        };
+      }
+      if (typeof dbAny.requestStream === 'function') {
+        const origRequestStream = dbAny.requestStream.bind(adminDbInstance);
+        dbAny.requestStream = function (...args: unknown[]) {
+          const stream = origRequestStream(...args);
+          if (typeof stream?.on === 'function') {
+            stream.on('error', (err: unknown) => {
+              handleFirestoreDevError(err);
+            });
+          }
+          return stream;
+        };
+      }
     }
   }
   return adminDbInstance;

@@ -26,15 +26,6 @@ import type { PlatformInvoiceSummary, InvoiceStats, InvoiceStatus } from '@/lib/
 import { formatHalalasAsSar } from '@/lib/types/billing';
 import { getInvoicesPageAction } from '@/server/actions/invoices';
 
-interface InvoicesListClientViewProps {
-  stats: InvoiceStats;
-  initialInvoices: PlatformInvoiceSummary[];
-  initialNextCursor: string | null;
-  initialHasMore: boolean;
-  currentStatus?: string;
-  currentQuery?: string;
-}
-
 const STATUS_TABS: { label: string; value: string; icon: React.ElementType }[] = [
   { label: 'الكل', value: 'all', icon: FileText },
   { label: 'مسودة', value: 'draft', icon: Clock },
@@ -47,14 +38,192 @@ const STATUS_TABS: { label: string; value: string; icon: React.ElementType }[] =
   { label: 'ملغي', value: 'cancelled', icon: XCircle },
 ];
 
-export function InvoicesListClientView({
+/* ──────────────── Top Hero / Actions ──────────────── */
+export function InvoicesHero() {
+  const dHref = useDashboardHref();
+
+  return (
+    <div className="relative overflow-hidden rounded-3xl bg-linear-to-br from-[#29545c] via-[#1f3f45] to-[#152a2e] text-white p-6 sm:p-8 shadow-sm">
+      <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="space-y-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-xs font-medium backdrop-blur-xs text-[#91B8C0]">
+            <Receipt className="w-3.5 h-3.5" />
+            <span>منظومة العقود والفوترة السحابية التجارية</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
+            الفواتير والعقود
+          </h1>
+          <p className="text-xs sm:text-sm text-neutral-200/80 max-w-xl leading-relaxed">
+            إدارة دورة التعاقد والفوترة التجارية للصالونات المشتركة، إصدار عروض الأسعار،
+            وتتبع حالات التوقيع والسداد.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3">
+          <Link href={dHref('/invoices/new')}>
+            <Button
+              variant="primary"
+              className="gap-2 bg-[#F0C5AE] hover:bg-[#e4b59c] text-black font-bold shadow-md text-xs sm:text-sm px-5 py-2.5 rounded-xl transition-transform active:scale-95"
+            >
+              <Plus className="w-4 h-4" />
+              <span>إنشاء عقد أو فاتورة جديدة</span>
+            </Button>
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ──────────────── KPI Statistics Cards ──────────────── */
+export function InvoicesStatsCards({
   stats,
+  currentStatus = 'all',
+}: {
+  stats: InvoiceStats;
+  currentStatus?: string;
+}) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const handleFilterChange = (status: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (status && status !== 'all') {
+      params.set('status', status);
+    } else {
+      params.delete('status');
+    }
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
+      {/* Total & Outstanding Value */}
+      <div
+        onClick={() => handleFilterChange('all')}
+        className={`bg-white rounded-2xl border p-4 sm:p-5 shadow-2xs hover:border-[#91B8C0] transition-all cursor-pointer ${
+          currentStatus === 'all' ? 'ring-2 ring-[#29545c] border-[#29545c]' : 'border-[#E5E9E8]'
+        }`}
+      >
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-[11px] sm:text-xs font-bold text-[#5E6665]">المستحقات غير المسددة</span>
+          <div className="w-8 h-8 rounded-xl bg-teal-50 text-[#29545c] flex items-center justify-center">
+            <TrendingUp className="w-4 h-4" />
+          </div>
+        </div>
+        <div className="flex items-baseline gap-1">
+          <span className="text-xl sm:text-2xl font-black text-black font-mono">
+            {formatHalalasAsSar(stats.outstandingAmount || stats.totalAmountHalalas)}
+          </span>
+          <SarIcon className="w-3.5 h-3.5 text-neutral-500" />
+        </div>
+        <div className="text-[10px] text-[#5E6665] mt-1 truncate">
+          من إجمالي {formatHalalasAsSar(stats.totalAmountHalalas)} ر.س
+        </div>
+      </div>
+
+      {/* Signed (موقعة) */}
+      <div
+        onClick={() => handleFilterChange('signed')}
+        className={`bg-white rounded-2xl border p-4 sm:p-5 shadow-2xs hover:border-[#91B8C0] transition-all cursor-pointer ${
+          currentStatus === 'signed' ? 'ring-2 ring-[#29545c] border-[#29545c]' : 'border-[#E5E9E8]'
+        }`}
+      >
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-[11px] sm:text-xs font-bold text-[#5E6665]">العقود الموقّعة</span>
+          <div className="w-8 h-8 rounded-xl bg-teal-50 text-[#29545c] flex items-center justify-center">
+            <FileCheck2 className="w-4 h-4" />
+          </div>
+        </div>
+        <div className="text-xl sm:text-2xl font-black text-[#29545c] font-mono">
+          {stats.signedCount ?? stats.counts?.signed ?? 0}
+        </div>
+        <div className="text-[10px] text-[#29545c]/80 mt-1 truncate">
+          معتمدة وبانتظار السداد
+        </div>
+      </div>
+
+      {/* Uploaded (مرفوعة للمراجعة) */}
+      <div
+        onClick={() => handleFilterChange('uploaded')}
+        className={`bg-white rounded-2xl border p-4 sm:p-5 shadow-2xs hover:border-[#91B8C0] transition-all cursor-pointer ${
+          currentStatus === 'uploaded' ? 'ring-2 ring-amber-500 border-amber-500 bg-amber-50/20' : 'border-[#E5E9E8]'
+        }`}
+      >
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-[11px] sm:text-xs font-bold text-amber-900">مرفوعة للمراجعة</span>
+          <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center">
+            <UploadCloud className="w-4 h-4" />
+          </div>
+        </div>
+        <div className="text-xl sm:text-2xl font-black text-amber-700 font-mono">
+          {stats.uploadedCount ?? stats.counts?.uploaded ?? 0}
+        </div>
+        <div className="text-[10px] text-amber-700/80 mt-1 truncate">
+          تتطلب اعتماد الإدارة
+        </div>
+      </div>
+
+      {/* Paid (مدفوعة) */}
+      <div
+        onClick={() => handleFilterChange('paid')}
+        className={`bg-white rounded-2xl border p-4 sm:p-5 shadow-2xs hover:border-[#91B8C0] transition-all cursor-pointer ${
+          currentStatus === 'paid' ? 'ring-2 ring-emerald-600 border-emerald-600' : 'border-[#E5E9E8]'
+        }`}
+      >
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-[11px] sm:text-xs font-bold text-[#5E6665]">المسددة والمدفوعة</span>
+          <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
+            <CheckCircle2 className="w-4 h-4" />
+          </div>
+        </div>
+        <div className="text-xl sm:text-2xl font-black text-emerald-700 font-mono">
+          {stats.paidCount}
+        </div>
+        <div className="text-[10px] text-emerald-700/80 mt-1 truncate">
+          عقود وفواتير تم تسويتها
+        </div>
+      </div>
+
+      {/* Drafts (مسودات) */}
+      <div
+        onClick={() => handleFilterChange('draft')}
+        className={`bg-white rounded-2xl border p-4 sm:p-5 shadow-2xs hover:border-[#91B8C0] transition-all cursor-pointer ${
+          currentStatus === 'draft' ? 'ring-2 ring-neutral-700 border-neutral-700' : 'border-[#E5E9E8]'
+        }`}
+      >
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-[11px] sm:text-xs font-bold text-[#5E6665]">المسودات</span>
+          <div className="w-8 h-8 rounded-xl bg-neutral-100 text-neutral-700 flex items-center justify-center">
+            <Clock className="w-4 h-4" />
+          </div>
+        </div>
+        <div className="text-xl sm:text-2xl font-black text-neutral-900 font-mono">
+          {stats.draftCount}
+        </div>
+        <div className="text-[10px] text-[#5E6665] mt-1 truncate">
+          مسودات جاهزة للإصدار
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ──────────────── Invoices Table & Filter Section ──────────────── */
+export function InvoicesTable({
   initialInvoices,
   initialNextCursor,
   initialHasMore,
   currentStatus = 'all',
   currentQuery = '',
-}: InvoicesListClientViewProps) {
+}: {
+  initialInvoices: PlatformInvoiceSummary[];
+  initialNextCursor: string | null;
+  initialHasMore: boolean;
+  currentStatus?: string;
+  currentQuery?: string;
+}) {
   const router = useRouter();
   const dHref = useDashboardHref();
   const pathname = usePathname();
@@ -67,7 +236,6 @@ export function InvoicesListClientView({
 
   const [isLoadingMore, startLoadingMore] = useTransition();
 
-  // Update URL filter
   const handleFilterChange = (status: string, query?: string) => {
     const params = new URLSearchParams(searchParams.toString());
     if (status && status !== 'all') {
@@ -86,7 +254,6 @@ export function InvoicesListClientView({
     router.push(`${pathname}?${params.toString()}`);
   };
 
-  // Cursor load more
   const handleLoadMore = () => {
     if (!nextCursor || isLoadingMore) return;
 
@@ -98,16 +265,18 @@ export function InvoicesListClientView({
           status: currentStatus !== 'all' ? (currentStatus as InvoiceStatus) : undefined,
           q: currentQuery,
         });
-        setInvoices((prev) => [...prev, ...res.items]);
-        setNextCursor(res.nextCursor);
-        setHasMore(res.hasMore);
+
+        if (res && res.items) {
+          setInvoices((prev) => [...prev, ...res.items]);
+          setNextCursor(res.nextCursor || null);
+          setHasMore(res.hasMore);
+        }
       } catch (err) {
         console.error('Failed to load more invoices:', err);
       }
     });
   };
 
-  // Status badge styling helper
   const renderStatusBadge = (status: InvoiceStatus) => {
     switch (status) {
       case 'draft':
@@ -176,149 +345,7 @@ export function InvoicesListClientView({
   };
 
   return (
-    <div className="space-y-6 pb-12" dir="rtl">
-      {/* ──────────────── Top Hero / Actions ──────────────── */}
-      <div className="relative overflow-hidden rounded-3xl bg-linear-to-br from-[#29545c] via-[#1f3f45] to-[#152a2e] text-white p-6 sm:p-8 shadow-sm">
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-xs font-medium backdrop-blur-xs text-[#91B8C0]">
-              <Receipt className="w-3.5 h-3.5" />
-              <span>منظومة العقود والفوترة السحابية التجارية</span>
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
-              الفواتير والعقود
-            </h1>
-            <p className="text-xs sm:text-sm text-neutral-200/80 max-w-xl leading-relaxed">
-              إدارة دورة التعاقد والفوترة التجارية للصالونات المشتركة، إصدار عروض الأسعار،
-              وتتبع حالات التوقيع والسداد.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-3">
-            <Link href={dHref('/invoices/new')}>
-              <Button
-                variant="primary"
-                className="gap-2 bg-[#F0C5AE] hover:bg-[#e4b59c] text-black font-bold shadow-md text-xs sm:text-sm px-5 py-2.5 rounded-xl transition-transform active:scale-95"
-              >
-                <Plus className="w-4 h-4" />
-                <span>إنشاء عقد أو فاتورة جديدة</span>
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* ──────────────── KPI Statistics Cards ──────────────── */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
-        {/* Total & Outstanding Value */}
-        <div
-          onClick={() => handleFilterChange('all')}
-          className={`bg-white rounded-2xl border p-4 sm:p-5 shadow-2xs hover:border-[#91B8C0] transition-all cursor-pointer ${
-            currentStatus === 'all' ? 'ring-2 ring-[#29545c] border-[#29545c]' : 'border-[#E5E9E8]'
-          }`}
-        >
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[11px] sm:text-xs font-bold text-[#5E6665]">المستحقات غير المسددة</span>
-            <div className="w-8 h-8 rounded-xl bg-teal-50 text-[#29545c] flex items-center justify-center">
-              <TrendingUp className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="flex items-baseline gap-1">
-            <span className="text-xl sm:text-2xl font-black text-black font-mono">
-              {formatHalalasAsSar(stats.outstandingAmount || stats.totalAmountHalalas)}
-            </span>
-            <SarIcon className="w-3.5 h-3.5 text-neutral-500" />
-          </div>
-          <div className="text-[10px] text-[#5E6665] mt-1 truncate">
-            من إجمالي {formatHalalasAsSar(stats.totalAmountHalalas)} ر.س
-          </div>
-        </div>
-
-        {/* Signed (موقعة) */}
-        <div
-          onClick={() => handleFilterChange('signed')}
-          className={`bg-white rounded-2xl border p-4 sm:p-5 shadow-2xs hover:border-[#91B8C0] transition-all cursor-pointer ${
-            currentStatus === 'signed' ? 'ring-2 ring-[#29545c] border-[#29545c]' : 'border-[#E5E9E8]'
-          }`}
-        >
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[11px] sm:text-xs font-bold text-[#5E6665]">العقود الموقّعة</span>
-            <div className="w-8 h-8 rounded-xl bg-teal-50 text-[#29545c] flex items-center justify-center">
-              <FileCheck2 className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="text-xl sm:text-2xl font-black text-[#29545c] font-mono">
-            {stats.signedCount ?? stats.counts?.signed ?? 0}
-          </div>
-          <div className="text-[10px] text-[#29545c]/80 mt-1 truncate">
-            معتمدة وبانتظار السداد
-          </div>
-        </div>
-
-        {/* Uploaded (مرفوعة للمراجعة) */}
-        <div
-          onClick={() => handleFilterChange('uploaded')}
-          className={`bg-white rounded-2xl border p-4 sm:p-5 shadow-2xs hover:border-[#91B8C0] transition-all cursor-pointer ${
-            currentStatus === 'uploaded' ? 'ring-2 ring-amber-500 border-amber-500 bg-amber-50/20' : 'border-[#E5E9E8]'
-          }`}
-        >
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[11px] sm:text-xs font-bold text-amber-900">مرفوعة للمراجعة</span>
-            <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center">
-              <UploadCloud className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="text-xl sm:text-2xl font-black text-amber-700 font-mono">
-            {stats.uploadedCount ?? stats.counts?.uploaded ?? 0}
-          </div>
-          <div className="text-[10px] text-amber-700/80 mt-1 truncate">
-            تتطلب اعتماد الإدارة
-          </div>
-        </div>
-
-        {/* Paid (مدفوعة) */}
-        <div
-          onClick={() => handleFilterChange('paid')}
-          className={`bg-white rounded-2xl border p-4 sm:p-5 shadow-2xs hover:border-[#91B8C0] transition-all cursor-pointer ${
-            currentStatus === 'paid' ? 'ring-2 ring-emerald-600 border-emerald-600' : 'border-[#E5E9E8]'
-          }`}
-        >
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[11px] sm:text-xs font-bold text-[#5E6665]">المسددة والمدفوعة</span>
-            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
-              <CheckCircle2 className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="text-xl sm:text-2xl font-black text-emerald-700 font-mono">
-            {stats.paidCount}
-          </div>
-          <div className="text-[10px] text-emerald-700/80 mt-1 truncate">
-            عقود وفواتير تم تسويتها
-          </div>
-        </div>
-
-        {/* Drafts (مسودات) */}
-        <div
-          onClick={() => handleFilterChange('draft')}
-          className={`bg-white rounded-2xl border p-4 sm:p-5 shadow-2xs hover:border-[#91B8C0] transition-all cursor-pointer ${
-            currentStatus === 'draft' ? 'ring-2 ring-neutral-700 border-neutral-700' : 'border-[#E5E9E8]'
-          }`}
-        >
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[11px] sm:text-xs font-bold text-[#5E6665]">المسودات</span>
-            <div className="w-8 h-8 rounded-xl bg-neutral-100 text-neutral-700 flex items-center justify-center">
-              <Clock className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="text-xl sm:text-2xl font-black text-neutral-900 font-mono">
-            {stats.draftCount}
-          </div>
-          <div className="text-[10px] text-[#5E6665] mt-1 truncate">
-            مسودات جاهزة للإصدار
-          </div>
-        </div>
-      </div>
-
+    <div className="space-y-6">
       {/* ──────────────── Filter Bar & Status Tabs ──────────────── */}
       <div className="bg-white rounded-2xl border border-[#E5E9E8] p-4 shadow-2xs space-y-4">
         {/* Search & Actions */}
@@ -516,3 +543,28 @@ export function InvoicesListClientView({
   );
 }
 
+/* ──────────────── Combined View for backward compatibility ──────────────── */
+export interface InvoicesListClientViewProps {
+  stats: InvoiceStats;
+  initialInvoices: PlatformInvoiceSummary[];
+  initialNextCursor: string | null;
+  initialHasMore: boolean;
+  currentStatus?: string;
+  currentQuery?: string;
+}
+
+export function InvoicesListClientView(props: InvoicesListClientViewProps) {
+  return (
+    <div className="space-y-6 pb-12" dir="rtl">
+      <InvoicesHero />
+      <InvoicesStatsCards stats={props.stats} currentStatus={props.currentStatus} />
+      <InvoicesTable
+        initialInvoices={props.initialInvoices}
+        initialNextCursor={props.initialNextCursor}
+        initialHasMore={props.initialHasMore}
+        currentStatus={props.currentStatus}
+        currentQuery={props.currentQuery}
+      />
+    </div>
+  );
+}

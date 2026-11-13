@@ -4,6 +4,7 @@ import { requireAdmin } from '@/server/auth/session';
 import { getInvoiceStats } from '@/server/data/invoices';
 import { DashboardShell } from '@/components/dashboard/DashboardShell';
 import { DashboardAuthProvider } from '@/context/DashboardAuthContext';
+import { SilentErrorBoundary } from '@/components/dashboard/SilentErrorBoundary';
 
 interface PlatformAdminLayoutProps {
   children: React.ReactNode;
@@ -42,9 +43,11 @@ export default async function PlatformAdminLayout({
         admin={admin}
         locale={locale || 'ar'}
         invoicesBadge={
-          <Suspense fallback={null}>
-            <InvoicesBadge />
-          </Suspense>
+          <SilentErrorBoundary>
+            <Suspense fallback={null}>
+              <InvoicesBadge />
+            </Suspense>
+          </SilentErrorBoundary>
         }
       >
         <DashboardAuthProvider initialAdmin={admin}>
