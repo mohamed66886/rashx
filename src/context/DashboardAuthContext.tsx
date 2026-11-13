@@ -86,15 +86,13 @@ export const DashboardAuthProvider: React.FC<DashboardAuthProviderProps> = ({
         // 2. Synchronize client-side state
         setAdmin((prev) => (prev ? { ...prev, avatarId: finalAvatarId, avatar: finalAvatar } : null));
 
-        // 3. Trigger server components revalidation
-        router.refresh();
         return { success: true };
       } catch (err: unknown) {
         const error = err instanceof Error ? err.message : 'فشل الاتصال بالخادم';
         return { success: false, error };
       }
     },
-    [admin, router]
+    [admin]
   );
 
   const handleLogout = useCallback(async () => {

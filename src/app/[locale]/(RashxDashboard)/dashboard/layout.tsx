@@ -6,6 +6,9 @@ import { DashboardShell } from '@/components/dashboard/DashboardShell';
 import { DashboardAuthProvider } from '@/context/DashboardAuthContext';
 import { SilentErrorBoundary } from '@/components/dashboard/SilentErrorBoundary';
 
+// Never prerender: this layout reads cookies (session) and dynamic headers.
+export const instant = false;
+
 interface PlatformAdminLayoutProps {
   children: React.ReactNode;
   params: Promise<{ locale: string }>;
@@ -50,9 +53,7 @@ export default async function PlatformAdminLayout({
           </SilentErrorBoundary>
         }
       >
-        <DashboardAuthProvider initialAdmin={admin}>
-          {children}
-        </DashboardAuthProvider>
+        {children}
       </DashboardShell>
     </DashboardAuthProvider>
   );

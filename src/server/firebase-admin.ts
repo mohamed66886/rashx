@@ -72,7 +72,7 @@ let code14HintLogged = false;
  * "Set FIRESTORE_PREFER_REST=true in .env.local and restart the dev server"
  */
 export function handleFirestoreDevError(err: unknown) {
-  if (process.env.NODE_ENV !== 'production' && !process.env.FIRESTORE_PREFER_REST) {
+  if (process.env.NODE_ENV !== 'production' && process.env.FIRESTORE_PREFER_REST?.trim() !== 'true') {
     const error = err as { code?: number | string; message?: string };
     if (
       (error?.code === 14 || error?.code === '14' || String(error?.message).includes('14 UNAVAILABLE')) &&
@@ -87,7 +87,7 @@ export function handleFirestoreDevError(err: unknown) {
 export function getAdminDb(): Firestore {
   if (!adminDbInstance) {
     adminDbInstance = getFirestore(getAdminApp());
-    if (process.env.FIRESTORE_PREFER_REST === 'true') {
+    if (process.env.FIRESTORE_PREFER_REST?.trim() === 'true') {
       adminDbInstance.settings({ preferRest: true });
     } else if (process.env.NODE_ENV !== 'production') {
       const dbAny = adminDbInstance as unknown as {
